@@ -3,12 +3,6 @@ export interface GwfVisShapeData {
   data: any;
 }
 
-export interface ObtainDataDelegateDict {
-  obtainShape: (dataset: string) => GwfVisShapeData;
-  obtainValue: (dataset: string, locationId: string, variable: string, dimensionDict: { [dimension: string]: number }) => number;
-  obtainMetadata: (_dataset: string, _locationId: string) => any;
-}
-
 export interface GloablInfoDict {
   dimensionDict: { [dimension: string]: number };
   userSelectionDict: { dataset: string; location: string; variable: string };
@@ -16,7 +10,7 @@ export interface GloablInfoDict {
 
 export interface GwfVisPlugin {
   leaflet: typeof globalThis.L;
-  obtainDataDelegateDict: ObtainDataDelegateDict;
+  fetchingDataDelegate: (query: any) => any;
   globalInfoDict: GloablInfoDict;
   updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
 }

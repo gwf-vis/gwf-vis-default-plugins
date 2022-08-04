@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginLayer, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-tile-layer',
@@ -15,7 +15,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLa
   @Prop() leaflet: typeof globalThis.L;
   @Prop() addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
   @Prop() removeFromMapDelegate: (layer: L.Layer) => void;
-  @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
+  @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() name: string;

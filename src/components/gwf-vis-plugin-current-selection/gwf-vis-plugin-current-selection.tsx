@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginSidebar, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPluginSidebar } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-current-selection',
@@ -11,7 +11,7 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
   static readonly __PLUGIN_FOR__ = 'sidebar';
 
   @Prop() leaflet: typeof globalThis.L;
-  @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
+  @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() injectedCss: string;

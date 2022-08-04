@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginSidebar, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPluginSidebar } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-metadata',
@@ -11,7 +11,7 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
   static readonly __PLUGIN_FOR__ = 'sidebar';
 
   @Prop() leaflet: typeof globalThis.L;
-  @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
+  @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() injectedCss: string;
@@ -24,7 +24,13 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
         <div part="header">Metadata</div>
         <div part="content">
           {Object.entries(
-            this.obtainDataDelegateDict?.obtainMetadata(this.globalInfoDict?.userSelectionDict?.dataset, this.globalInfoDict?.userSelectionDict?.location) || {},
+            this.fetchingDataDelegate?.({
+              type: 'metadata',
+              for: {
+                dataset: this.globalInfoDict?.userSelectionDict?.dataset,
+                location: this.globalInfoDict?.userSelectionDict?.location,
+              },
+            }) || {},
           )?.map(([key, value]) => (
             <div>
               <span>

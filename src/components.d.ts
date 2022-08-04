@@ -5,13 +5,13 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { GloablInfoDict, ObtainDataDelegateDict } from "./utils/gwf-vis-plugin";
+import { GloablInfoDict } from "./utils/gwf-vis-plugin";
 export namespace Components {
     interface GwfVisPluginCurrentSelection {
+        "fetchingDataHandler": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "injectedCss": string;
         "leaflet": typeof globalThis.L;
-        "obtainDataDelegateDict": ObtainDataDelegateDict;
         "pluginSlot": '' | 'top';
         "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
@@ -19,10 +19,10 @@ export namespace Components {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetName": string;
+        "fetchingDataHandler": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
-        "obtainDataDelegateDict": ObtainDataDelegateDict;
         "options"?: L.GeoJSONOptions;
         "removeFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
@@ -30,20 +30,20 @@ export namespace Components {
         "variableName": string;
     }
     interface GwfVisPluginMetadata {
+        "fetchingDataHandler": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "injectedCss": string;
         "leaflet": typeof globalThis.L;
-        "obtainDataDelegateDict": ObtainDataDelegateDict;
         "pluginSlot": '' | 'top';
         "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "fetchingDataHandler": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
-        "obtainDataDelegateDict": ObtainDataDelegateDict;
         "options"?: L.TileLayerOptions;
         "removeFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
@@ -85,10 +85,10 @@ declare global {
 }
 declare namespace LocalJSX {
     interface GwfVisPluginCurrentSelection {
+        "fetchingDataHandler"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "injectedCss"?: string;
         "leaflet"?: typeof globalThis.L;
-        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "pluginSlot"?: '' | 'top';
         "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
@@ -96,10 +96,10 @@ declare namespace LocalJSX {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetName"?: string;
+        "fetchingDataHandler"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
-        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "options"?: L.GeoJSONOptions;
         "removeFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
@@ -107,20 +107,20 @@ declare namespace LocalJSX {
         "variableName"?: string;
     }
     interface GwfVisPluginMetadata {
+        "fetchingDataHandler"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "injectedCss"?: string;
         "leaflet"?: typeof globalThis.L;
-        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "pluginSlot"?: '' | 'top';
         "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "fetchingDataHandler"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
-        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "options"?: L.TileLayerOptions;
         "removeFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';

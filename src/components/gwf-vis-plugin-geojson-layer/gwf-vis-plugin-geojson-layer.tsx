@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginLayer, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-geojson-layer',
@@ -15,7 +15,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() leaflet: typeof globalThis.L;
   @Prop() addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
   @Prop() removeFromMapDelegate: (layer: L.Layer) => void;
-  @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
+  @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() name: string;
@@ -27,11 +27,18 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
 
   async componentWillRender() {
     this.removeFromMapDelegate(this.geojsonLayerInstance);
-    const shape = this.obtainDataDelegateDict?.obtainShape(this.datasetName);
+    const shape = this.fetchingDataDelegate?.({
+      type: 'shape',
+      for: {
+        dataset: this.datasetName,
+      },
+    });
     if (shape?.type === 'geojson') {
+      const locationIds: string[] = [];
       this.geojsonLayerInstance = this.leaflet.geoJSON(shape.data, {
         ...this.options,
         onEachFeature: ({ properties }, layer) => {
+          locationIds.push(properties.id.toString());
           layer.on('click', () =>
             this.updateGlobalInfoDelegate?.({
               ...this.globalInfoDict,
@@ -41,8 +48,17 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         },
       });
       this.addToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
+      const values: { location: string; value: number }[] = this.fetchingDataDelegate?.({
+        type: 'values',
+        for: {
+          dataset: this.datasetName,
+          location: locationIds,
+          variable: this.variableName,
+          dimensions: this.globalInfoDict?.dimensionDict,
+        },
+      });
       this.geojsonLayerInstance.setStyle(({ properties }) => {
-        const fillColor = `hsl(${this.obtainDataDelegateDict?.obtainValue(this.datasetName, properties.id, this.variableName, this.globalInfoDict?.dimensionDict)}, 100%, 50%)`;
+        const fillColor = `hsl(${values.find(({ location }) => location === properties.id.toString())?.value}, 100%, 50%)`;
         const style = {
           fillColor,
         };
