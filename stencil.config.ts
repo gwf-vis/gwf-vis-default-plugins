@@ -4,14 +4,10 @@ export const config: Config = {
   namespace: 'gwf-vis-plugins',
   outputTargets: [
     {
-      type: 'dist',
-      esmLoaderPath: '../loader',
-    },
-    {
       type: 'dist-custom-elements',
-    },
-    {
-      type: 'docs-readme',
+      externalRuntime: false,
+      autoDefineCustomElements: false,
+      includeGlobalScripts: true,
     },
     {
       type: 'www',

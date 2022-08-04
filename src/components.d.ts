@@ -6,56 +6,46 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first": string;
-        /**
-          * The last name
-         */
-        "last": string;
-        /**
-          * The middle name
-         */
-        "middle": string;
+    interface GwfVisTileLayer {
+        "active": boolean;
+        "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "leaflet": typeof globalThis.L;
+        "name": string;
+        "options"?: L.TileLayerOptions;
+        "type": 'base-layer' | 'overlay';
+        "urlTemplate": string;
     }
 }
 declare global {
-    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
+    interface HTMLGwfVisTileLayerElement extends Components.GwfVisTileLayer, HTMLStencilElement {
     }
-    var HTMLMyComponentElement: {
-        prototype: HTMLMyComponentElement;
-        new (): HTMLMyComponentElement;
+    var HTMLGwfVisTileLayerElement: {
+        prototype: HTMLGwfVisTileLayerElement;
+        new (): HTMLGwfVisTileLayerElement;
     };
     interface HTMLElementTagNameMap {
-        "my-component": HTMLMyComponentElement;
+        "gwf-vis-tile-layer": HTMLGwfVisTileLayerElement;
     }
 }
 declare namespace LocalJSX {
-    interface MyComponent {
-        /**
-          * The first name
-         */
-        "first"?: string;
-        /**
-          * The last name
-         */
-        "last"?: string;
-        /**
-          * The middle name
-         */
-        "middle"?: string;
+    interface GwfVisTileLayer {
+        "active"?: boolean;
+        "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "leaflet"?: typeof globalThis.L;
+        "name"?: string;
+        "options"?: L.TileLayerOptions;
+        "type"?: 'base-layer' | 'overlay';
+        "urlTemplate"?: string;
     }
     interface IntrinsicElements {
-        "my-component": MyComponent;
+        "gwf-vis-tile-layer": GwfVisTileLayer;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "gwf-vis-tile-layer": LocalJSX.GwfVisTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisTileLayerElement>;
         }
     }
 }
