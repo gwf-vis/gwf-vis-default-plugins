@@ -43,10 +43,17 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       });
       this.addToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
       this.geojsonLayerInstance.setStyle(({ properties }) => {
-        const color = `hsl(${this.obtainDataDelegateDict?.obtainValue(this.datasetName, properties.id, this.variableName, this.globalInfoDict?.dimensionDict)}, 100%, 50%)`;
+        const fillColor = `hsl(${this.obtainDataDelegateDict?.obtainValue(this.datasetName, properties.id, this.variableName, this.globalInfoDict?.dimensionDict)}, 100%, 50%)`;
         const style = {
-          fillColor: color,
+          fillColor,
         };
+        if (
+          this.globalInfoDict?.locationSelection?.datasetName === this.datasetName &&
+          this.globalInfoDict?.locationSelection?.locationId === properties?.id &&
+          this.globalInfoDict?.variableSelection === this.variableName
+        ) {
+          style['dashArray'] = '5,10';
+        }
         return style;
       });
     }
