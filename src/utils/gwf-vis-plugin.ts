@@ -24,6 +24,7 @@ export interface GwfVisPlugin {
 
 export interface GwfVisPluginLayer extends GwfVisPlugin {
   addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  removeFromMapDelegate: (layer: L.Layer) => void;
   name: string;
   type: 'base-layer' | 'overlay';
   active: boolean;

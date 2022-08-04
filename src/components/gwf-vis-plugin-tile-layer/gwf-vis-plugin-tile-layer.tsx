@@ -14,6 +14,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLa
 
   @Prop() leaflet: typeof globalThis.L;
   @Prop() addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  @Prop() removeFromMapDelegate: (layer: L.Layer) => void;
   @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
@@ -24,7 +25,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLa
   @Prop() options?: L.TileLayerOptions;
 
   async componentWillRender() {
-    this.tileLayerInstance?.remove();
+    this.removeFromMapDelegate(this.tileLayerInstance);
     if (this.urlTemplate) {
       this.tileLayerInstance = this.leaflet.tileLayer(this.urlTemplate, this.options);
       this.addToMapDelegate(this.tileLayerInstance, this.name, this.type, this.active);

@@ -14,6 +14,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
 
   @Prop() leaflet: typeof globalThis.L;
   @Prop() addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  @Prop() removeFromMapDelegate: (layer: L.Layer) => void;
   @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
@@ -25,7 +26,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() variableName: string;
 
   async componentWillRender() {
-    this.geojsonLayerInstance?.remove();
+    this.removeFromMapDelegate(this.geojsonLayerInstance);
     const shape = this.obtainDataDelegateDict?.obtainShape(this.datasetName);
     if (shape?.type === 'geojson') {
       this.geojsonLayerInstance = this.leaflet.geoJSON(shape.data, {

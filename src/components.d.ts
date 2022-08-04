@@ -24,6 +24,7 @@ export namespace Components {
         "name": string;
         "obtainDataDelegateDict": ObtainDataDelegateDict;
         "options"?: L.GeoJSONOptions;
+        "removeFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
         "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableName": string;
@@ -44,6 +45,7 @@ export namespace Components {
         "name": string;
         "obtainDataDelegateDict": ObtainDataDelegateDict;
         "options"?: L.TileLayerOptions;
+        "removeFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
         "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate": string;
@@ -99,6 +101,7 @@ declare namespace LocalJSX {
         "name"?: string;
         "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "options"?: L.GeoJSONOptions;
+        "removeFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
         "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
@@ -119,6 +122,7 @@ declare namespace LocalJSX {
         "name"?: string;
         "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "options"?: L.TileLayerOptions;
+        "removeFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
         "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate"?: string;
