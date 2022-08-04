@@ -1,11 +1,12 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
+import { GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-tile-layer',
   styleUrl: 'gwf-vis-tile-layer.css',
   shadow: true,
 })
-export class GwfVisTileLayer implements ComponentInterface {
+export class GwfVisTileLayer implements ComponentInterface, GwfVisPluginLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-tile-layer';
   static readonly __PLUGIN_FOR__ = 'layer';
 
