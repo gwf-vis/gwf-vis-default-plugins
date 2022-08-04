@@ -15,6 +15,9 @@ export namespace Components {
         "options"?: L.GeoJSONOptions;
         "type": 'base-layer' | 'overlay';
     }
+    interface GwfVisMetadata {
+        "leaflet": typeof globalThis.L;
+    }
     interface GwfVisTileLayer {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -32,6 +35,12 @@ declare global {
         prototype: HTMLGwfVisGeojsonLayerElement;
         new (): HTMLGwfVisGeojsonLayerElement;
     };
+    interface HTMLGwfVisMetadataElement extends Components.GwfVisMetadata, HTMLStencilElement {
+    }
+    var HTMLGwfVisMetadataElement: {
+        prototype: HTMLGwfVisMetadataElement;
+        new (): HTMLGwfVisMetadataElement;
+    };
     interface HTMLGwfVisTileLayerElement extends Components.GwfVisTileLayer, HTMLStencilElement {
     }
     var HTMLGwfVisTileLayerElement: {
@@ -40,6 +49,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "gwf-vis-geojson-layer": HTMLGwfVisGeojsonLayerElement;
+        "gwf-vis-metadata": HTMLGwfVisMetadataElement;
         "gwf-vis-tile-layer": HTMLGwfVisTileLayerElement;
     }
 }
@@ -53,6 +63,9 @@ declare namespace LocalJSX {
         "options"?: L.GeoJSONOptions;
         "type"?: 'base-layer' | 'overlay';
     }
+    interface GwfVisMetadata {
+        "leaflet"?: typeof globalThis.L;
+    }
     interface GwfVisTileLayer {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -64,6 +77,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "gwf-vis-geojson-layer": GwfVisGeojsonLayer;
+        "gwf-vis-metadata": GwfVisMetadata;
         "gwf-vis-tile-layer": GwfVisTileLayer;
     }
 }
@@ -72,6 +86,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "gwf-vis-geojson-layer": LocalJSX.GwfVisGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisGeojsonLayerElement>;
+            "gwf-vis-metadata": LocalJSX.GwfVisMetadata & JSXBase.HTMLAttributes<HTMLGwfVisMetadataElement>;
             "gwf-vis-tile-layer": LocalJSX.GwfVisTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisTileLayerElement>;
         }
     }
