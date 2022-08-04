@@ -2,12 +2,12 @@ import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPlugin, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
-  tag: 'gwf-vis-metadata',
-  styleUrl: 'gwf-vis-metadata.css',
+  tag: 'gwf-vis-plugin-metadata',
+  styleUrl: 'gwf-vis-plugin-metadata.css',
   shadow: true,
 })
-export class GwfVisMetadata implements ComponentInterface, GwfVisPlugin {
-  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-metadata';
+export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPlugin {
+  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-metadata';
   static readonly __PLUGIN_FOR__ = 'sidebar';
 
   @Prop() leaflet: typeof globalThis.L;

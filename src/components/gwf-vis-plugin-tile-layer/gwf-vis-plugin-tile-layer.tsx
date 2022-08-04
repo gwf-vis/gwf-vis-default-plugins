@@ -2,12 +2,12 @@ import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginLayer, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
-  tag: 'gwf-vis-tile-layer',
-  styleUrl: 'gwf-vis-tile-layer.css',
+  tag: 'gwf-vis-plugin-tile-layer',
+  styleUrl: 'gwf-vis-plugin-tile-layer.css',
   shadow: true,
 })
-export class GwfVisTileLayer implements ComponentInterface, GwfVisPluginLayer {
-  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-tile-layer';
+export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLayer {
+  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-tile-layer';
   static readonly __PLUGIN_FOR__ = 'layer';
 
   private tileLayerInstance: L.TileLayer;

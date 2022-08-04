@@ -2,12 +2,12 @@ import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginLayer, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
-  tag: 'gwf-vis-geojson-layer',
-  styleUrl: 'gwf-vis-geojson-layer.css',
+  tag: 'gwf-vis-plugin-geojson-layer',
+  styleUrl: 'gwf-vis-plugin-geojson-layer.css',
   shadow: true,
 })
-export class GwfVisGeojsonLayer implements ComponentInterface, GwfVisPluginLayer {
-  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-geojson-layer';
+export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPluginLayer {
+  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-geojson-layer';
   static readonly __PLUGIN_FOR__ = 'layer';
 
   private geojsonLayerInstance: L.GeoJSON;

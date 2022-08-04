@@ -7,7 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfoDict, ObtainDataDelegateDict } from "./utils/gwf-vis-plugin";
 export namespace Components {
-    interface GwfVisGeojsonLayer {
+    interface GwfVisPluginGeojsonLayer {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetName": string;
@@ -20,14 +20,14 @@ export namespace Components {
         "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableName": string;
     }
-    interface GwfVisMetadata {
+    interface GwfVisPluginMetadata {
         "datasetName": string;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "obtainDataDelegateDict": ObtainDataDelegateDict;
         "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
-    interface GwfVisTileLayer {
+    interface GwfVisPluginTileLayer {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "globalInfoDict": GloablInfoDict;
@@ -41,32 +41,32 @@ export namespace Components {
     }
 }
 declare global {
-    interface HTMLGwfVisGeojsonLayerElement extends Components.GwfVisGeojsonLayer, HTMLStencilElement {
+    interface HTMLGwfVisPluginGeojsonLayerElement extends Components.GwfVisPluginGeojsonLayer, HTMLStencilElement {
     }
-    var HTMLGwfVisGeojsonLayerElement: {
-        prototype: HTMLGwfVisGeojsonLayerElement;
-        new (): HTMLGwfVisGeojsonLayerElement;
+    var HTMLGwfVisPluginGeojsonLayerElement: {
+        prototype: HTMLGwfVisPluginGeojsonLayerElement;
+        new (): HTMLGwfVisPluginGeojsonLayerElement;
     };
-    interface HTMLGwfVisMetadataElement extends Components.GwfVisMetadata, HTMLStencilElement {
+    interface HTMLGwfVisPluginMetadataElement extends Components.GwfVisPluginMetadata, HTMLStencilElement {
     }
-    var HTMLGwfVisMetadataElement: {
-        prototype: HTMLGwfVisMetadataElement;
-        new (): HTMLGwfVisMetadataElement;
+    var HTMLGwfVisPluginMetadataElement: {
+        prototype: HTMLGwfVisPluginMetadataElement;
+        new (): HTMLGwfVisPluginMetadataElement;
     };
-    interface HTMLGwfVisTileLayerElement extends Components.GwfVisTileLayer, HTMLStencilElement {
+    interface HTMLGwfVisPluginTileLayerElement extends Components.GwfVisPluginTileLayer, HTMLStencilElement {
     }
-    var HTMLGwfVisTileLayerElement: {
-        prototype: HTMLGwfVisTileLayerElement;
-        new (): HTMLGwfVisTileLayerElement;
+    var HTMLGwfVisPluginTileLayerElement: {
+        prototype: HTMLGwfVisPluginTileLayerElement;
+        new (): HTMLGwfVisPluginTileLayerElement;
     };
     interface HTMLElementTagNameMap {
-        "gwf-vis-geojson-layer": HTMLGwfVisGeojsonLayerElement;
-        "gwf-vis-metadata": HTMLGwfVisMetadataElement;
-        "gwf-vis-tile-layer": HTMLGwfVisTileLayerElement;
+        "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
+        "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
+        "gwf-vis-plugin-tile-layer": HTMLGwfVisPluginTileLayerElement;
     }
 }
 declare namespace LocalJSX {
-    interface GwfVisGeojsonLayer {
+    interface GwfVisPluginGeojsonLayer {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetName"?: string;
@@ -79,14 +79,14 @@ declare namespace LocalJSX {
         "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
-    interface GwfVisMetadata {
+    interface GwfVisPluginMetadata {
         "datasetName"?: string;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
-    interface GwfVisTileLayer {
+    interface GwfVisPluginTileLayer {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "globalInfoDict"?: GloablInfoDict;
@@ -99,18 +99,18 @@ declare namespace LocalJSX {
         "urlTemplate"?: string;
     }
     interface IntrinsicElements {
-        "gwf-vis-geojson-layer": GwfVisGeojsonLayer;
-        "gwf-vis-metadata": GwfVisMetadata;
-        "gwf-vis-tile-layer": GwfVisTileLayer;
+        "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
+        "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
+        "gwf-vis-plugin-tile-layer": GwfVisPluginTileLayer;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "gwf-vis-geojson-layer": LocalJSX.GwfVisGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisGeojsonLayerElement>;
-            "gwf-vis-metadata": LocalJSX.GwfVisMetadata & JSXBase.HTMLAttributes<HTMLGwfVisMetadataElement>;
-            "gwf-vis-tile-layer": LocalJSX.GwfVisTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisTileLayerElement>;
+            "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
+            "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
+            "gwf-vis-plugin-tile-layer": LocalJSX.GwfVisPluginTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginTileLayerElement>;
         }
     }
 }
