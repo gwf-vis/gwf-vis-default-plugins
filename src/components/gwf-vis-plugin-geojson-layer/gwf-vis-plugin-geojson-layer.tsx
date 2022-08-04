@@ -13,11 +13,11 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   private geojsonLayerInstance: L.GeoJSON;
 
   @Prop() leaflet: typeof globalThis.L;
-  @Prop() addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-  @Prop() removeFromMapDelegate: (layer: L.Layer) => void;
+  @Prop() addingToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  @Prop() removingFromMapDelegate: (layer: L.Layer) => void;
   @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() name: string;
   @Prop() type: 'base-layer' | 'overlay' = 'overlay';
   @Prop() active: boolean = true;
@@ -26,7 +26,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() variableName: string;
 
   async componentWillRender() {
-    this.removeFromMapDelegate(this.geojsonLayerInstance);
+    this.removingFromMapDelegate(this.geojsonLayerInstance);
     const shape = this.fetchingDataDelegate?.({
       type: 'shape',
       for: {
@@ -40,14 +40,14 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         onEachFeature: ({ properties }, layer) => {
           locationIds.push(properties.id.toString());
           layer.on('click', () =>
-            this.updateGlobalInfoDelegate?.({
+            this.updatingGlobalInfoDelegate?.({
               ...this.globalInfoDict,
               userSelectionDict: { dataset: this.datasetName, location: properties.id, variable: this.variableName },
             }),
           );
         },
       });
-      this.addToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
+      this.addingToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
       const values: { location: string; value: number }[] = this.fetchingDataDelegate?.({
         type: 'values',
         for: {

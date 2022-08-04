@@ -8,46 +8,46 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfoDict } from "./utils/gwf-vis-plugin";
 export namespace Components {
     interface GwfVisPluginCurrentSelection {
-        "fetchingDataHandler": (query: any) => any;
+        "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "injectedCss": string;
         "leaflet": typeof globalThis.L;
         "pluginSlot": '' | 'top';
-        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
         "active": boolean;
-        "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetName": string;
-        "fetchingDataHandler": (query: any) => any;
+        "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
         "options"?: L.GeoJSONOptions;
-        "removeFromMapDelegate": (layer: L.Layer) => void;
+        "removingFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
-        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableName": string;
     }
     interface GwfVisPluginMetadata {
-        "fetchingDataHandler": (query: any) => any;
+        "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "injectedCss": string;
         "leaflet": typeof globalThis.L;
         "pluginSlot": '' | 'top';
-        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
         "active": boolean;
-        "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "fetchingDataHandler": (query: any) => any;
+        "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
         "options"?: L.TileLayerOptions;
-        "removeFromMapDelegate": (layer: L.Layer) => void;
+        "removingFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
-        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate": string;
     }
 }
@@ -85,46 +85,46 @@ declare global {
 }
 declare namespace LocalJSX {
     interface GwfVisPluginCurrentSelection {
-        "fetchingDataHandler"?: (query: any) => any;
+        "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "injectedCss"?: string;
         "leaflet"?: typeof globalThis.L;
         "pluginSlot"?: '' | 'top';
-        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
         "active"?: boolean;
-        "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetName"?: string;
-        "fetchingDataHandler"?: (query: any) => any;
+        "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
         "options"?: L.GeoJSONOptions;
-        "removeFromMapDelegate"?: (layer: L.Layer) => void;
+        "removingFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
-        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
     interface GwfVisPluginMetadata {
-        "fetchingDataHandler"?: (query: any) => any;
+        "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "injectedCss"?: string;
         "leaflet"?: typeof globalThis.L;
         "pluginSlot"?: '' | 'top';
-        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
         "active"?: boolean;
-        "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "fetchingDataHandler"?: (query: any) => any;
+        "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
         "options"?: L.TileLayerOptions;
-        "removeFromMapDelegate"?: (layer: L.Layer) => void;
+        "removingFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
-        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate"?: string;
     }
     interface IntrinsicElements {

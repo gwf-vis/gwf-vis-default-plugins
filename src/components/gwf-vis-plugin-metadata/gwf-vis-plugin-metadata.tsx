@@ -13,7 +13,7 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
   @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() injectedCss: string;
   @Prop() pluginSlot: '' | 'top';
 
