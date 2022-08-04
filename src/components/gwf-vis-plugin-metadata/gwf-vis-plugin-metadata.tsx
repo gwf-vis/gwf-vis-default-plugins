@@ -36,7 +36,8 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
               <span>
                 <b>{key.toString()}</b>
               </span>
-              <div innerHTML={value.toString()} style={{ display: 'inline-block' }}></div>
+              <div innerHTML={value.toString()}></div>
+              <hr />
             </div>
           ))}
         </div>
