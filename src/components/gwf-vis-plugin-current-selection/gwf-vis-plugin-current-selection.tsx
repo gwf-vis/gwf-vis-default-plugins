@@ -2,12 +2,12 @@ import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginSidebar, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
-  tag: 'gwf-vis-plugin-metadata',
-  styleUrl: 'gwf-vis-plugin-metadata.css',
+  tag: 'gwf-vis-plugin-current-selection',
+  styleUrl: 'gwf-vis-plugin-current-selection.css',
   shadow: true,
 })
-export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSidebar {
-  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-metadata';
+export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisPluginSidebar {
+  static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-current-selection';
   static readonly __PLUGIN_FOR__ = 'sidebar';
 
   @Prop() leaflet: typeof globalThis.L;
@@ -21,18 +21,17 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
     return (
       <Host slot={this.pluginSlot}>
         <style innerHTML={this.injectedCss}></style>
-        <div part="header">Metadata</div>
+        <div part="header">Current Selection</div>
         <div part="content">
-          {Object.entries(
-            this.obtainDataDelegateDict?.obtainMetadata(this.globalInfoDict?.locationSelection?.datasetName, this.globalInfoDict?.locationSelection?.locationId) || {},
-          )?.map(([key, value]) => (
-            <div>
-              <span>
-                <b>{key.toString()}</b>
-              </span>
-              <div innerHTML={value.toString()} style={{ display: 'inline-block' }}></div>
-            </div>
-          ))}
+          <div>
+            <b>Dataset</b>: {this.globalInfoDict?.locationSelection?.datasetName || 'No selection'}
+          </div>
+          <div>
+            <b>Location ID</b>: {this.globalInfoDict?.locationSelection?.locationId || 'No selection'}
+          </div>
+          <div>
+            <b>Variable</b>: {this.globalInfoDict?.variableSelection || 'No selection'}
+          </div>
         </div>
       </Host>
     );

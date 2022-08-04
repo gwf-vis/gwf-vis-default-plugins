@@ -28,3 +28,8 @@ export interface GwfVisPluginLayer extends GwfVisPlugin {
   type: 'base-layer' | 'overlay';
   active: boolean;
 }
+
+export interface GwfVisPluginSidebar extends GwfVisPlugin {
+  injectedCss: string;
+  pluginSlot: 'top' | '';
+}
