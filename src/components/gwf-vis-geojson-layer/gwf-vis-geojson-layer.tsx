@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
-import { GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPluginLayer, ObtainDataDelegateDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-geojson-layer',
@@ -14,17 +14,40 @@ export class GwfVisGeojsonLayer implements ComponentInterface, GwfVisPluginLayer
 
   @Prop() leaflet: typeof globalThis.L;
   @Prop() addToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  @Prop() obtainDataDelegateDict: ObtainDataDelegateDict;
+  @Prop() globalInfoDict: GloablInfoDict;
+  @Prop() updateGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() name: string;
   @Prop() type: 'base-layer' | 'overlay' = 'overlay';
   @Prop() active: boolean = true;
-  @Prop() geojson: GeoJSON.GeoJsonObject;
   @Prop() options?: L.GeoJSONOptions;
+  @Prop() datasetName: string;
+  @Prop() variableName: string;
 
   async componentWillRender() {
     this.geojsonLayerInstance?.remove();
-    if (this.geojson) {
-      this.geojsonLayerInstance = this.leaflet.geoJSON(this.geojson, this.options);
+    const shape = this.obtainDataDelegateDict?.obtainShape(this.datasetName);
+    if (shape?.type === 'geojson') {
+      this.geojsonLayerInstance = this.leaflet.geoJSON(shape.data, {
+        ...this.options,
+        onEachFeature: ({ properties }, layer) => {
+          layer.on('click', () =>
+            this.updateGlobalInfoDelegate?.({
+              ...this.globalInfoDict,
+              locationSelection: { datasetName: this.datasetName, locationId: properties.id },
+              variableSelection: this.variableName,
+            }),
+          );
+        },
+      });
       this.addToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
+      this.geojsonLayerInstance.setStyle(({ properties }) => {
+        const color = `hsl(${this.obtainDataDelegateDict?.obtainValue(this.datasetName, properties.id, this.variableName, this.globalInfoDict?.dimensionDict)}, 100%, 50%)`;
+        const style = {
+          fillColor: color,
+        };
+        return style;
+      });
     }
   }
 

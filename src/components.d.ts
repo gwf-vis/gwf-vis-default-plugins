@@ -5,26 +5,38 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { GloablInfoDict, ObtainDataDelegateDict } from "./utils/gwf-vis-plugin";
 export namespace Components {
     interface GwfVisGeojsonLayer {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "geojson": GeoJSON.GeoJsonObject;
+        "datasetName": string;
+        "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
+        "obtainDataDelegateDict": ObtainDataDelegateDict;
         "options"?: L.GeoJSONOptions;
         "type": 'base-layer' | 'overlay';
+        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "variableName": string;
     }
     interface GwfVisMetadata {
+        "datasetName": string;
+        "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
+        "obtainDataDelegateDict": ObtainDataDelegateDict;
+        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisTileLayer {
         "active": boolean;
         "addToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
+        "obtainDataDelegateDict": ObtainDataDelegateDict;
         "options"?: L.TileLayerOptions;
         "type": 'base-layer' | 'overlay';
+        "updateGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate": string;
     }
 }
@@ -57,22 +69,33 @@ declare namespace LocalJSX {
     interface GwfVisGeojsonLayer {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "geojson"?: GeoJSON.GeoJsonObject;
+        "datasetName"?: string;
+        "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
+        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "options"?: L.GeoJSONOptions;
         "type"?: 'base-layer' | 'overlay';
+        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "variableName"?: string;
     }
     interface GwfVisMetadata {
+        "datasetName"?: string;
+        "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
+        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
+        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisTileLayer {
         "active"?: boolean;
         "addToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
+        "obtainDataDelegateDict"?: ObtainDataDelegateDict;
         "options"?: L.TileLayerOptions;
         "type"?: 'base-layer' | 'overlay';
+        "updateGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate"?: string;
     }
     interface IntrinsicElements {
