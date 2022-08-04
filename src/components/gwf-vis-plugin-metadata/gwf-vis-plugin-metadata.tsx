@@ -24,7 +24,7 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
         <div part="header">Metadata</div>
         <div part="content">
           {Object.entries(
-            this.obtainDataDelegateDict?.obtainMetadata(this.globalInfoDict?.locationSelection?.datasetName, this.globalInfoDict?.locationSelection?.locationId) || {},
+            this.obtainDataDelegateDict?.obtainMetadata(this.globalInfoDict?.userSelectionDict?.dataset, this.globalInfoDict?.userSelectionDict?.location) || {},
           )?.map(([key, value]) => (
             <div>
               <span>

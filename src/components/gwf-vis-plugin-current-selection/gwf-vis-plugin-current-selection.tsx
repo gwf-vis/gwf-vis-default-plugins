@@ -24,13 +24,13 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
         <div part="header">Current Selection</div>
         <div part="content">
           <div>
-            <b>Dataset</b>: {this.globalInfoDict?.locationSelection?.datasetName || 'No selection'}
+            <b>Dataset</b>: {this.globalInfoDict?.userSelectionDict?.dataset || 'No selection'}
           </div>
           <div>
-            <b>Location ID</b>: {this.globalInfoDict?.locationSelection?.locationId || 'No selection'}
+            <b>Location ID</b>: {this.globalInfoDict?.userSelectionDict?.location || 'No selection'}
           </div>
           <div>
-            <b>Variable</b>: {this.globalInfoDict?.variableSelection || 'No selection'}
+            <b>Variable</b>: {this.globalInfoDict?.userSelectionDict?.variable || 'No selection'}
           </div>
         </div>
       </Host>

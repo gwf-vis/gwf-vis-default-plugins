@@ -11,8 +11,7 @@ export interface ObtainDataDelegateDict {
 
 export interface GloablInfoDict {
   dimensionDict: { [dimension: string]: number };
-  locationSelection: { datasetName: string; locationId: string };
-  variableSelection: string;
+  userSelectionDict: { dataset: string; location: string; variable: string };
 }
 
 export interface GwfVisPlugin {

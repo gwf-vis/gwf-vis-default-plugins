@@ -35,8 +35,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
           layer.on('click', () =>
             this.updateGlobalInfoDelegate?.({
               ...this.globalInfoDict,
-              locationSelection: { datasetName: this.datasetName, locationId: properties.id },
-              variableSelection: this.variableName,
+              userSelectionDict: { dataset: this.datasetName, location: properties.id, variable: this.variableName },
             }),
           );
         },
@@ -48,9 +47,9 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
           fillColor,
         };
         if (
-          this.globalInfoDict?.locationSelection?.datasetName === this.datasetName &&
-          this.globalInfoDict?.locationSelection?.locationId === properties?.id &&
-          this.globalInfoDict?.variableSelection === this.variableName
+          this.globalInfoDict?.userSelectionDict?.dataset === this.datasetName &&
+          this.globalInfoDict?.userSelectionDict?.location === properties?.id &&
+          this.globalInfoDict?.userSelectionDict?.variable === this.variableName
         ) {
           style['dashArray'] = '5,10';
         }
