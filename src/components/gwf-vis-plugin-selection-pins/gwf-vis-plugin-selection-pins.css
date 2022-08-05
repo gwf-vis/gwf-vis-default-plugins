@@ -4,6 +4,10 @@
   display: block;
 }
 
+[part='container'] {
+  padding: 0.5rem;
+}
+
 [part='pin-container'] {
   max-width: 100%;
   overflow-x: auto;
@@ -12,12 +16,12 @@
 }
 
 [part='button-container'] {
-  padding: 0.25rem;
+  display: flex;
+  gap: 0.25rem;
 }
 
 [part='button-container'] > button {
-  display: block;
-  margin: 0.25rem;
+  flex: 1;
 }
 
 .pin {

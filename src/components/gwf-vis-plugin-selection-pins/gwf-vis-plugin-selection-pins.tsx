@@ -79,7 +79,7 @@ export class GwfVisPluginSelectionPins implements ComponentInterface, GwfVisPlug
                   this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, userSelectionDict });
                 }}
               ></button>
-            ))}
+            )) || 'No pinned selection yet'}
           </div>
         </div>
       </Host>
