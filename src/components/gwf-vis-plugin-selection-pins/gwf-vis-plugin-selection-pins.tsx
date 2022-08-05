@@ -69,17 +69,19 @@ export class GwfVisPluginSelectionPins implements ComponentInterface, GwfVisPlug
             </button>
           </div>
           <div part="pin-container">
-            {this.globalInfoDict?.pinnedSelections?.map(selection => (
-              <button
-                class="pin"
-                style={{ background: selection.color }}
-                title={`Dataset: ${selection.dataset}\nLocation: ${selection.location}\nVariable: ${selection.variable}`}
-                onClick={() => {
-                  const userSelectionDict = { dataset: selection.dataset, location: selection.location, variable: selection.variable };
-                  this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, userSelectionDict });
-                }}
-              ></button>
-            )) || 'No pinned selection yet'}
+            {this.globalInfoDict?.pinnedSelections?.length > 0
+              ? this.globalInfoDict.pinnedSelections.map(selection => (
+                  <button
+                    class="pin"
+                    style={{ background: selection.color }}
+                    title={`Dataset: ${selection.dataset}\nLocation: ${selection.location}\nVariable: ${selection.variable}`}
+                    onClick={() => {
+                      const userSelectionDict = { dataset: selection.dataset, location: selection.location, variable: selection.variable };
+                      this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, userSelectionDict });
+                    }}
+                  ></button>
+                ))
+              : 'No pinned selection yet'}
           </div>
         </div>
       </Host>
