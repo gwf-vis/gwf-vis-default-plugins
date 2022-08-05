@@ -8,7 +8,7 @@ import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
 })
 export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-tile-layer';
-  static readonly __PLUGIN_FOR__ = 'layer';
+  static readonly __PLUGIN_TYPE__ = 'layer';
 
   private tileLayerInstance: L.TileLayer;
 

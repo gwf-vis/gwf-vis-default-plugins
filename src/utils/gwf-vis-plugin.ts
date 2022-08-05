@@ -23,6 +23,6 @@ export interface GwfVisPluginLayer extends GwfVisPlugin {
   active: boolean;
 }
 
-export interface GwfVisPluginSidebar extends GwfVisPlugin {
+export interface GwfVisPluginControl extends GwfVisPlugin {
   obtainHeader: () => Promise<string>;
 }
