@@ -42,6 +42,13 @@ export namespace Components {
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
+    interface GwfVisPluginSelectionPins {
+        "fetchingDataDelegate": (query: any) => any;
+        "globalInfoDict": GloablInfoDict;
+        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+    }
     interface GwfVisPluginTileLayer {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -81,6 +88,12 @@ declare global {
         prototype: HTMLGwfVisPluginMetadataElement;
         new (): HTMLGwfVisPluginMetadataElement;
     };
+    interface HTMLGwfVisPluginSelectionPinsElement extends Components.GwfVisPluginSelectionPins, HTMLStencilElement {
+    }
+    var HTMLGwfVisPluginSelectionPinsElement: {
+        prototype: HTMLGwfVisPluginSelectionPinsElement;
+        new (): HTMLGwfVisPluginSelectionPinsElement;
+    };
     interface HTMLGwfVisPluginTileLayerElement extends Components.GwfVisPluginTileLayer, HTMLStencilElement {
     }
     var HTMLGwfVisPluginTileLayerElement: {
@@ -92,6 +105,7 @@ declare global {
         "gwf-vis-plugin-data-fetcher": HTMLGwfVisPluginDataFetcherElement;
         "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
         "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
+        "gwf-vis-plugin-selection-pins": HTMLGwfVisPluginSelectionPinsElement;
         "gwf-vis-plugin-tile-layer": HTMLGwfVisPluginTileLayerElement;
     }
 }
@@ -128,6 +142,12 @@ declare namespace LocalJSX {
         "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
+    interface GwfVisPluginSelectionPins {
+        "fetchingDataDelegate"?: (query: any) => any;
+        "globalInfoDict"?: GloablInfoDict;
+        "leaflet"?: typeof globalThis.L;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+    }
     interface GwfVisPluginTileLayer {
         "active"?: boolean;
         "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -146,6 +166,7 @@ declare namespace LocalJSX {
         "gwf-vis-plugin-data-fetcher": GwfVisPluginDataFetcher;
         "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
         "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
+        "gwf-vis-plugin-selection-pins": GwfVisPluginSelectionPins;
         "gwf-vis-plugin-tile-layer": GwfVisPluginTileLayer;
     }
 }
@@ -157,6 +178,7 @@ declare module "@stencil/core" {
             "gwf-vis-plugin-data-fetcher": LocalJSX.GwfVisPluginDataFetcher & JSXBase.HTMLAttributes<HTMLGwfVisPluginDataFetcherElement>;
             "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
             "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
+            "gwf-vis-plugin-selection-pins": LocalJSX.GwfVisPluginSelectionPins & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionPinsElement>;
             "gwf-vis-plugin-tile-layer": LocalJSX.GwfVisPluginTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginTileLayerElement>;
         }
     }

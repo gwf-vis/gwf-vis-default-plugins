@@ -61,6 +61,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         const fillColor = `hsl(${values.find(({ location }) => location === properties.id.toString())?.value}, 100%, 50%)`;
         const style = {
           fillColor,
+          color: 'hsl(0, 0%, 50%)',
         };
         if (
           this.globalInfoDict?.userSelectionDict?.dataset === this.datasetName &&
@@ -68,6 +69,12 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
           this.globalInfoDict?.userSelectionDict?.variable === this.variableName
         ) {
           style['dashArray'] = '5,10';
+        }
+        const matchedPin = this.globalInfoDict?.pinnedSelections?.find(
+          pin => pin.dataset === this.datasetName && pin.location === properties.id && pin.variable === this.variableName,
+        );
+        if (matchedPin) {
+          style['color'] = matchedPin.color;
         }
         return style;
       });
