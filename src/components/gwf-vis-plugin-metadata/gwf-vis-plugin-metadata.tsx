@@ -1,4 +1,4 @@
-import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
+import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginSidebar } from '../../utils/gwf-vis-plugin';
 
 @Component({
@@ -14,14 +14,15 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginSid
   @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
-  @Prop() injectedCss: string;
-  @Prop() pluginSlot: '' | 'top';
+
+  @Method()
+  async obtainHeader() {
+    return 'Metadata';
+  }
 
   render() {
     return (
-      <Host slot={this.pluginSlot}>
-        <style innerHTML={this.injectedCss}></style>
-        <div part="header">Metadata</div>
+      <Host>
         <div part="content">
           {Object.entries(
             this.fetchingDataDelegate?.({

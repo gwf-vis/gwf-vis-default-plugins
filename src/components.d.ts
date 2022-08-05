@@ -10,9 +10,8 @@ export namespace Components {
     interface GwfVisPluginCurrentSelection {
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
-        "injectedCss": string;
         "leaflet": typeof globalThis.L;
-        "pluginSlot": '' | 'top';
+        "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
@@ -32,9 +31,8 @@ export namespace Components {
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
-        "injectedCss": string;
         "leaflet": typeof globalThis.L;
-        "pluginSlot": '' | 'top';
+        "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
@@ -87,9 +85,7 @@ declare namespace LocalJSX {
     interface GwfVisPluginCurrentSelection {
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
-        "injectedCss"?: string;
         "leaflet"?: typeof globalThis.L;
-        "pluginSlot"?: '' | 'top';
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
@@ -109,9 +105,7 @@ declare namespace LocalJSX {
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
-        "injectedCss"?: string;
         "leaflet"?: typeof globalThis.L;
-        "pluginSlot"?: '' | 'top';
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {

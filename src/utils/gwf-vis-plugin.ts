@@ -24,6 +24,5 @@ export interface GwfVisPluginLayer extends GwfVisPlugin {
 }
 
 export interface GwfVisPluginSidebar extends GwfVisPlugin {
-  injectedCss: string;
-  pluginSlot: 'top' | '';
+  obtainHeader: () => Promise<string>;
 }
