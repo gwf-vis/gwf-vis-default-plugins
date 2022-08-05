@@ -26,7 +26,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() variableName: string;
 
   async componentWillRender() {
-    this.removingFromMapDelegate(this.geojsonLayerInstance);
+    this.removingFromMapDelegate?.(this.geojsonLayerInstance);
     const shape = await this.fetchingDataDelegate?.({
       type: 'shape',
       for: {
@@ -82,7 +82,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   }
 
   async disconnectedCallback() {
-    this.geojsonLayerInstance?.remove();
+    this.removingFromMapDelegate?.(this.geojsonLayerInstance);
   }
 
   render() {

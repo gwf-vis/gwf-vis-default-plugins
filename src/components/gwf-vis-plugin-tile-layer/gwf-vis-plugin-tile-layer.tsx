@@ -25,7 +25,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLa
   @Prop() options?: L.TileLayerOptions;
 
   async componentWillRender() {
-    this.removingFromMapDelegate(this.tileLayerInstance);
+    this.removingFromMapDelegate?.(this.tileLayerInstance);
     if (this.urlTemplate) {
       this.tileLayerInstance = this.leaflet.tileLayer(this.urlTemplate, this.options);
       this.addingToMapDelegate(this.tileLayerInstance, this.name, this.type, this.active);
@@ -33,7 +33,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginLa
   }
 
   async disconnectedCallback() {
-    this.tileLayerInstance?.remove();
+    this.removingFromMapDelegate?.(this.tileLayerInstance);
   }
 
   render() {
