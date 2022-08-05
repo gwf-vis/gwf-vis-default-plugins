@@ -10,7 +10,7 @@ export interface GloablInfoDict {
 
 export interface GwfVisPlugin {
   leaflet: typeof globalThis.L;
-  fetchingDataDelegate: (query: any) => any;
+  fetchingDataDelegate: (query: any) => Promise<any>;
   globalInfoDict: GloablInfoDict;
   updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
 }
@@ -25,4 +25,8 @@ export interface GwfVisPluginLayer extends GwfVisPlugin {
 
 export interface GwfVisPluginControl extends GwfVisPlugin {
   obtainHeader: () => Promise<string>;
+}
+
+export interface GwfVisPluginData extends GwfVisPlugin {
+  fetchData: (query: any) => Promise<any>;
 }

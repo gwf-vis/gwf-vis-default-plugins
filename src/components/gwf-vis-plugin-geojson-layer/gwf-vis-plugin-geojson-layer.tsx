@@ -27,7 +27,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
 
   async componentWillRender() {
     this.removingFromMapDelegate(this.geojsonLayerInstance);
-    const shape = this.fetchingDataDelegate?.({
+    const shape = await this.fetchingDataDelegate?.({
       type: 'shape',
       for: {
         dataset: this.datasetName,
@@ -48,7 +48,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         },
       });
       this.addingToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
-      const values: { location: string; value: number }[] = this.fetchingDataDelegate?.({
+      const values: { location: string; value: number }[] = await this.fetchingDataDelegate?.({
         type: 'values',
         for: {
           dataset: this.datasetName,
