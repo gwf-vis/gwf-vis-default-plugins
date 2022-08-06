@@ -30,7 +30,7 @@ export class GwfVisPluginSelectionPins implements ComponentInterface, GwfVisPlug
             <button
               class="solid"
               onClick={() => {
-                if (this.globalInfoDict?.userSelectionDict?.dataset && this.globalInfoDict?.userSelectionDict?.location && this.globalInfoDict?.userSelectionDict?.variable) {
+                if (this.globalInfoDict?.userSelectionDict?.dataset && this.globalInfoDict?.userSelectionDict?.location) {
                   if (!this.globalInfoDict.pinnedSelections) {
                     this.globalInfoDict.pinnedSelections = [];
                   }
@@ -41,8 +41,7 @@ export class GwfVisPluginSelectionPins implements ComponentInterface, GwfVisPlug
                       {
                         dataset: this.globalInfoDict.userSelectionDict.dataset,
                         location: this.globalInfoDict.userSelectionDict.location,
-                        variable: this.globalInfoDict.userSelectionDict.variable,
-                        color: this.defaultColors.find(color => !this.globalInfoDict.pinnedSelections.map(pin => pin.color).includes(color)) || 'hsl(0, 0%, 0%)',
+                        color: this.defaultColors.find(color => !this.globalInfoDict.pinnedSelections.map(pin => pin.color).includes(color)) || 'hsl(0, 0%, 30%)',
                       },
                     ],
                   });
@@ -54,12 +53,9 @@ export class GwfVisPluginSelectionPins implements ComponentInterface, GwfVisPlug
             <button
               class="hollow"
               onClick={() => {
-                if (this.globalInfoDict?.userSelectionDict?.dataset && this.globalInfoDict?.userSelectionDict?.location && this.globalInfoDict?.userSelectionDict?.variable) {
+                if (this.globalInfoDict?.userSelectionDict?.dataset && this.globalInfoDict?.userSelectionDict?.location) {
                   const pinnedSelections = this.globalInfoDict.pinnedSelections.filter(
-                    pin =>
-                      pin.dataset !== this.globalInfoDict?.userSelectionDict?.dataset ||
-                      pin.location !== this.globalInfoDict?.userSelectionDict?.location ||
-                      pin.variable !== this.globalInfoDict?.userSelectionDict?.variable,
+                    pin => pin.dataset !== this.globalInfoDict?.userSelectionDict?.dataset || pin.location !== this.globalInfoDict?.userSelectionDict?.location,
                   );
                   this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, pinnedSelections });
                 }
@@ -74,9 +70,9 @@ export class GwfVisPluginSelectionPins implements ComponentInterface, GwfVisPlug
                   <button
                     class="pin"
                     style={{ background: selection.color }}
-                    title={`Dataset: ${selection.dataset}\nLocation: ${selection.location}\nVariable: ${selection.variable}`}
+                    title={`Dataset: ${selection.dataset}\nLocation: ${selection.location}`}
                     onClick={() => {
-                      const userSelectionDict = { dataset: selection.dataset, location: selection.location, variable: selection.variable };
+                      const userSelectionDict = { dataset: selection.dataset, location: selection.location };
                       this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, userSelectionDict });
                     }}
                   ></button>

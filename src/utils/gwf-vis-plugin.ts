@@ -4,9 +4,10 @@ export interface GwfVisShapeData {
 }
 
 export interface GloablInfoDict {
-  dimensionDict: { [dimension: string]: number };
-  userSelectionDict: { dataset: string; location: string; variable: string };
-  pinnedSelections: { dataset: string; location: string; variable: string; color: string }[];
+  dimensionDict?: { [dimension: string]: number };
+  variableName?: string;
+  userSelectionDict?: { dataset: string; location: string };
+  pinnedSelections?: { dataset: string; location: string; color: string }[];
 }
 
 export interface GwfVisPlugin {

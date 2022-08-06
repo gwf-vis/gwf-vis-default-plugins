@@ -22,63 +22,90 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() type: 'base-layer' | 'overlay' = 'overlay';
   @Prop() active: boolean = true;
   @Prop() options?: L.GeoJSONOptions;
-  @Prop() datasetName: string;
-  @Prop() variableName: string;
+  @Prop() datasetId: string;
+  @Prop() variableName?: string;
+  @Prop() dimensions?: string;
 
   async componentWillRender() {
     this.removingFromMapDelegate?.(this.geojsonLayerInstance);
-    const shape = await this.fetchingDataDelegate?.({
-      type: 'shape',
-      for: {
-        dataset: this.datasetName,
+    const locations = await this.fetchingDataDelegate?.({
+      type: 'locations',
+      from: this.datasetId,
+      for: ['id', 'geometry'],
+    });
+    const geojson = {
+      type: 'FeatureCollection',
+      features:
+        locations?.map((location: any) => ({
+          type: 'Feature',
+          properties: {
+            id: location.id,
+          },
+          geometry: location.geometry,
+        })) || [],
+    } as any;
+    const locationIds: string[] = [];
+    this.geojsonLayerInstance = this.leaflet.geoJSON(geojson, {
+      ...this.options,
+      onEachFeature: ({ properties }, layer) => {
+        locationIds.push(properties.id.toString());
+        layer.on('click', () =>
+          this.updatingGlobalInfoDelegate?.({
+            ...this.globalInfoDict,
+            userSelectionDict: { dataset: this.datasetId, location: properties.id },
+          }),
+        );
       },
     });
-    if (shape?.type === 'geojson') {
-      const locationIds: string[] = [];
-      this.geojsonLayerInstance = this.leaflet.geoJSON(shape.data, {
-        ...this.options,
-        onEachFeature: ({ properties }, layer) => {
-          locationIds.push(properties.id.toString());
-          layer.on('click', () =>
-            this.updatingGlobalInfoDelegate?.({
-              ...this.globalInfoDict,
-              userSelectionDict: { dataset: this.datasetName, location: properties.id, variable: this.variableName },
-            }),
-          );
-        },
-      });
-      this.addingToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
-      const values: { location: string; value: number }[] = await this.fetchingDataDelegate?.({
+    this.addingToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
+    const variableName = this.variableName || this.globalInfoDict?.variableName;
+    const dimensions = this.dimensions || this.globalInfoDict?.dimensionDict;
+    let values, maxValue, minValue;
+    if (variableName && dimensions) {
+      values = await this.fetchingDataDelegate?.({
         type: 'values',
-        for: {
-          dataset: this.datasetName,
-          location: locationIds,
-          variable: this.variableName,
-          dimensions: this.globalInfoDict?.dimensionDict,
+        from: this.datasetId,
+        with: {
+          variableName,
+          dimensions,
         },
+        for: ['location', 'value'],
       });
-      this.geojsonLayerInstance.setStyle(({ properties }) => {
-        const fillColor = `hsl(${values.find(({ location }) => location === properties.id.toString())?.value}, 100%, 50%)`;
-        const style = {
-          fillColor,
-          color: 'hsl(0, 0%, 50%)',
-        };
-        if (
-          this.globalInfoDict?.userSelectionDict?.dataset === this.datasetName &&
-          this.globalInfoDict?.userSelectionDict?.location === properties?.id &&
-          this.globalInfoDict?.userSelectionDict?.variable === this.variableName
-        ) {
-          style['dashArray'] = '5,10';
-        }
-        const matchedPin = this.globalInfoDict?.pinnedSelections?.find(
-          pin => pin.dataset === this.datasetName && pin.location === properties.id && pin.variable === this.variableName,
-        );
-        if (matchedPin) {
-          style['color'] = matchedPin.color;
-        }
-        return style;
-      });
+      [{ 'max(value)': maxValue }] = (await this.fetchingDataDelegate?.({
+        type: 'values',
+        from: this.datasetId,
+        with: {
+          variableName,
+        },
+        for: ['max(value)'],
+      })) || [{ 'max(value)': undefined }];
+      [{ 'min(value)': minValue }] = (await this.fetchingDataDelegate?.({
+        type: 'values',
+        from: this.datasetId,
+        with: {
+          variableName,
+        },
+        for: ['min(value)'],
+      })) || [{ 'min(value)': undefined }];
     }
+
+    this.geojsonLayerInstance.setStyle(({ properties }) => {
+      const valueScale = value => ((value - minValue) / (maxValue - minValue)) * (1 - 0);
+      const value = values?.find(({ location }) => location === properties.id)?.value;
+      const fillColor = `hsl(${valueScale(value) + 240}, 100%, 50%)`;
+      const style = {
+        fillColor,
+        color: 'hsl(0, 0%, 70%)',
+      };
+      if (this.globalInfoDict?.userSelectionDict?.dataset === this.datasetId && this.globalInfoDict?.userSelectionDict?.location === properties?.id) {
+        style['dashArray'] = '5,10';
+      }
+      const matchedPin = this.globalInfoDict?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties.id);
+      if (matchedPin) {
+        style['color'] = matchedPin.color;
+      }
+      return style;
+    });
   }
 
   async disconnectedCallback() {

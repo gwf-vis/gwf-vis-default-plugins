@@ -30,9 +30,6 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
           <div>
             <b>Location ID</b>: {this.globalInfoDict?.userSelectionDict?.location || 'No selection'}
           </div>
-          <div>
-            <b>Variable</b>: {this.globalInfoDict?.userSelectionDict?.variable || 'No selection'}
-          </div>
         </div>
       </Host>
     );

@@ -23,13 +23,18 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginCon
   }
 
   async componentWillRender() {
-    this.metadata = await this.fetchingDataDelegate?.({
-      type: 'metadata',
-      for: {
-        dataset: this.globalInfoDict?.userSelectionDict?.dataset,
-        location: this.globalInfoDict?.userSelectionDict?.location,
-      },
-    });
+    const [metadataWithWrapper] =
+      (await this.fetchingDataDelegate?.({
+        type: 'locations',
+        from: this.globalInfoDict?.userSelectionDict?.dataset,
+        for: ['metadata'],
+        with: {
+          id: this.globalInfoDict?.userSelectionDict?.location,
+        },
+      })) || [];
+    if (metadataWithWrapper) {
+      this.metadata = metadataWithWrapper.metadata;
+    }
   }
 
   render() {

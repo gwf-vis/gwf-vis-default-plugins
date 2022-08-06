@@ -15,16 +15,18 @@ export namespace Components {
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginDataFetcher {
-        "fetchData": (query: any) => Promise<any>;
+        "fetchData": (query: any) => Promise<{ [k: string]: any; }[]>;
         "fetchingDataDelegate": (query: any) => Promise<any>;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
+        "sqliteWorkerUrl": string;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "datasetName": string;
+        "datasetId": string;
+        "dimensions"?: string;
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
@@ -33,7 +35,7 @@ export namespace Components {
         "removingFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
-        "variableName": string;
+        "variableName"?: string;
     }
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate": (query: any) => any;
@@ -120,12 +122,14 @@ declare namespace LocalJSX {
         "fetchingDataDelegate"?: (query: any) => Promise<any>;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
+        "sqliteWorkerUrl"?: string;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
         "active"?: boolean;
         "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "datasetName"?: string;
+        "datasetId"?: string;
+        "dimensions"?: string;
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;

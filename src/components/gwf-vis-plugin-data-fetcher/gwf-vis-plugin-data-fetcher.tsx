@@ -1,6 +1,6 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginData } from '../../utils/gwf-vis-plugin';
-import { seededRandom } from './seededRandom';
+import type { QueryExecResult } from 'sql.js';
 
 @Component({
   tag: 'gwf-vis-plugin-data-fetcher',
@@ -11,79 +11,68 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-data-fetcher';
   static readonly __PLUGIN_TYPE__ = 'data';
 
+  private sqliteActionIdAndResolveMap = new Map<string, (value: any) => void>();
+  private dbAndSqliteWorkerMap = new Map<string, Worker>();
+
   @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() sqliteWorkerUrl: string;
+
+  async componentDidLoad() {}
 
   @Method()
   async fetchData(query: any) {
+    const dbUrl = query?.from;
+    if (!dbUrl) {
+      return undefined;
+    }
     switch (query?.type) {
-      case 'shape':
-        return {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                properties: {
-                  id: '1',
-                },
-                geometry: {
-                  type: 'Polygon',
-                  coordinates: [
-                    [
-                      [-121.28906250000001, 53.12040528310657],
-                      [-113.5546875, 53.12040528310657],
-                      [-113.5546875, 57.89149735271034],
-                      [-121.28906250000001, 57.89149735271034],
-                      [-121.28906250000001, 53.12040528310657],
-                    ],
-                  ],
-                },
-              },
-              {
-                type: 'Feature',
-                properties: {
-                  id: '2',
-                },
-                geometry: {
-                  type: 'Polygon',
-                  coordinates: [
-                    [
-                      [-110.390625, 57.136239319177434],
-                      [-117.42187500000001, 54.36775852406841],
-                      [-113.203125, 51.39920565355378],
-                      [-108.6328125, 53.12040528310657],
-                      [-105.1171875, 56.17002298293205],
-                      [-110.390625, 57.136239319177434],
-                    ],
-                  ],
-                },
-              },
-            ],
-          },
-        };
-      case 'metadata':
-        return {
-          'Text': 'Something',
-          'HTML Rich': '<img width="100%" src="https://gwf.usask.ca/images/logos/GWF_Globe.png"/>This is an icon.',
-        };
-      case 'values':
-        let valid = false;
-        for (const [key, value] of Object.entries(query?.for || {})) {
-          if (Array.isArray(value) && key !== 'location') {
-            return {};
-          }
-          if (Array.isArray(value) && key === 'location') {
-            valid = true;
-          }
+      case 'locations': {
+        const [queryResult] =
+          (await this.execSql(
+            dbUrl,
+            `
+            select ${query?.for?.map(d => d).join(', ')}
+            from location
+            ${query?.with ? `where ${Object.entries(query?.with || {}).map(([key, value]) => `${key} = ${value}`)}` : ''}
+            `,
+          )) || [];
+        const propertiesToParseJSON = ['geometry', 'metadata'];
+        const result = queryResult?.values?.map(rowValues =>
+          Object.fromEntries(
+            rowValues.map((value, i) => [queryResult.columns?.[i], propertiesToParseJSON.includes(queryResult.columns[i]) ? JSON.parse(value.toString()) : value]),
+          ),
+        );
+        return result;
+      }
+      case 'values': {
+        let [queryResult] = (await this.execSql(dbUrl, `select id, name from variable where name = '${query?.with?.variableName}'`)) || [];
+        const variableId = queryResult.values?.[0]?.[0];
+        let dimensionIdAndValuePairs;
+        if (query?.with?.dimensions) {
+          const dimensionsEntries = Object.entries(query.with.dimensions);
+          const dimensionNamesConnectedWithComma = dimensionsEntries.map(([dimensionName]) => `'${dimensionName}'`).join(', ');
+          [queryResult] = await this.execSql(dbUrl, `select id, name from dimension where name in (${dimensionNamesConnectedWithComma})`);
+          dimensionIdAndValuePairs = dimensionsEntries.map(([dimensionName, value]) => [queryResult.values.find(d => d[1] === dimensionName)?.[0], value]);
         }
-        if (valid) {
-          return query.for.location.map(location => ({ location, value: seededRandom(location.toString()) * 360 }));
-        }
-        return {};
+        [queryResult] =
+          (await this.execSql(
+            dbUrl,
+            `
+            select ${query?.for?.map(d => d).join(', ')} 
+            from value
+            ${
+              query?.with
+                ? `where variable = ${variableId}${dimensionIdAndValuePairs ? ` and ${dimensionIdAndValuePairs.map(([key, value]) => `dimension_${key} = ${value}`)}` : ''}`
+                : ''
+            }
+            `,
+          )) || [];
+        const result = queryResult?.values?.map(rowValues => Object.fromEntries(rowValues.map((value, i) => [queryResult.columns?.[i], value])));
+        return result;
+      }
       default:
         return undefined;
     }
@@ -91,5 +80,60 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
 
   render() {
     return <Host></Host>;
+  }
+
+  private async execSql(dbUrl: string, sql: string, params?: any) {
+    return (
+      await this.runSqlAction(await this.obtainSqliteWorker(dbUrl), {
+        action: 'exec',
+        sql,
+        params,
+      })
+    ).results as QueryExecResult[];
+  }
+
+  private async obtainSqliteWorker(dbUrl: string) {
+    const worker = this.dbAndSqliteWorkerMap.get(dbUrl);
+    if (worker) {
+      return worker;
+    }
+    const sqliteWorker = new Worker(this.sqliteWorkerUrl);
+    sqliteWorker.addEventListener('message', ({ data }) => {
+      const resolve = this.sqliteActionIdAndResolveMap.get(data.id.identifier);
+      resolve?.(data);
+      this.sqliteActionIdAndResolveMap?.delete(data.id.identifier);
+    });
+    this.dbAndSqliteWorkerMap.set(dbUrl, sqliteWorker);
+    const response = await fetch(dbUrl);
+    const dbBuffer = await response.arrayBuffer();
+    return (
+      (
+        await this.runSqlAction(sqliteWorker, {
+          action: 'open',
+          buffer: dbBuffer,
+        })
+      )?.ready && sqliteWorker
+    );
+  }
+
+  private runSqlAction(sqliteWorker: Worker, command: any) {
+    const timeout = 20000;
+    return new Promise<any>((resolve, reject) => {
+      let id: string;
+      do {
+        id = Math.random().toString();
+      } while (this.sqliteActionIdAndResolveMap.has(id));
+      this.sqliteActionIdAndResolveMap.set(id, resolve);
+      sqliteWorker?.postMessage({
+        ...command,
+        id: {
+          identifier: id,
+          action: command.action,
+        },
+      });
+      setTimeout(() => {
+        reject('action timeout');
+      }, timeout);
+    });
   }
 }
