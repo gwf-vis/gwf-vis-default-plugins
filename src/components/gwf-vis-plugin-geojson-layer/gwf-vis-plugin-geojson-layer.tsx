@@ -24,40 +24,40 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() options?: L.GeoJSONOptions;
   @Prop() datasetId: string;
   @Prop() variableName?: string;
-  @Prop() dimensions?: string;
+  @Prop({ mutable: true }) dimensions?: { [dimension: string]: number };
 
-  async componentWillRender() {
+  async connectedCallback() {
     this.removingFromMapDelegate?.(this.geojsonLayerInstance);
-    const locations = await this.fetchingDataDelegate?.({
-      type: 'locations',
-      from: this.datasetId,
-      for: ['id', 'geometry'],
-    });
-    const geojson = {
-      type: 'FeatureCollection',
-      features:
-        locations?.map((location: any) => ({
-          type: 'Feature',
-          properties: {
-            id: location.id,
-          },
-          geometry: location.geometry,
-        })) || [],
-    } as any;
-    const locationIds: string[] = [];
-    this.geojsonLayerInstance = this.leaflet.geoJSON(geojson, {
-      ...this.options,
-      onEachFeature: ({ properties }, layer) => {
-        locationIds.push(properties.id.toString());
-        layer.on('click', () =>
-          this.updatingGlobalInfoDelegate?.({
-            ...this.globalInfoDict,
-            userSelectionDict: { dataset: this.datasetId, location: properties.id },
-          }),
-        );
-      },
-    });
+    await this.drawShape();
+    await this.applyData();
+    await this.applyHighlighs();
     this.addingToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
+  }
+
+  async disconnectedCallback() {
+    this.removingFromMapDelegate?.(this.geojsonLayerInstance);
+  }
+
+  componentShouldUpdate(_newValue: any, _oldValue: any, propName: string) {
+    if (propName === 'datasetId') {
+      this.drawShape().then(() => this.applyData().then(() => this.applyHighlighs()));
+    } else if (propName === 'globalInfoDict') {
+      if (_newValue?.variableName !== _oldValue?.variableName || _newValue?.dimensionDict !== _oldValue?.dimensionDict) {
+        this.applyData();
+      }
+      if (_newValue?.userSelectionDict !== _oldValue?.userSelectionDict || _newValue?.pinnedSelections !== _oldValue?.pinnedSelections) {
+        this.applyHighlighs();
+      }
+    } else {
+      this.applyData();
+    }
+  }
+
+  render() {
+    return <Host></Host>;
+  }
+
+  private async applyData() {
     const variableName = this.variableName || this.globalInfoDict?.variableName;
     const dimensions = this.dimensions || this.globalInfoDict?.dimensionDict;
     let values, maxValue, minValue;
@@ -89,16 +89,31 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       })) || [{ 'min(value)': undefined }];
     }
 
-    this.geojsonLayerInstance.setStyle(({ properties }) => {
+    this.geojsonLayerInstance.setStyle(feature => {
+      const { properties } = feature;
       const valueScale = value => ((value - minValue) / (maxValue - minValue)) * (1 - 0);
       const value = values?.find(({ location }) => location === properties.id)?.value;
       const fillColor = `hsl(${valueScale(value) + 240}, 100%, 50%)`;
       const style = {
         fillColor,
+      };
+      return style;
+    });
+  }
+
+  private async applyHighlighs() {
+    this.geojsonLayerInstance.setStyle(feature => {
+      const { properties } = feature;
+      const style = {
         color: 'hsl(0, 0%, 70%)',
+        weight: 3,
       };
       if (this.globalInfoDict?.userSelectionDict?.dataset === this.datasetId && this.globalInfoDict?.userSelectionDict?.location === properties?.id) {
-        style['dashArray'] = '5,10';
+        style['weight'] = 6;
+        this.geojsonLayerInstance
+          .getLayers()
+          ?.find(layer => layer['feature'] === feature)
+          ?.['bringToFront']();
       }
       const matchedPin = this.globalInfoDict?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties.id);
       if (matchedPin) {
@@ -108,11 +123,35 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     });
   }
 
-  async disconnectedCallback() {
-    this.removingFromMapDelegate?.(this.geojsonLayerInstance);
-  }
-
-  render() {
-    return <Host></Host>;
+  private async drawShape() {
+    const locations = await this.fetchingDataDelegate?.({
+      type: 'locations',
+      from: this.datasetId,
+      for: ['id', 'geometry'],
+    });
+    const geojson = {
+      type: 'FeatureCollection',
+      features:
+        locations?.map((location: any) => ({
+          type: 'Feature',
+          properties: {
+            id: location.id,
+          },
+          geometry: location.geometry,
+        })) || [],
+    } as any;
+    const locationIds: string[] = [];
+    this.geojsonLayerInstance = this.leaflet.geoJSON(geojson, {
+      ...this.options,
+      onEachFeature: ({ properties }, layer) => {
+        locationIds.push(properties.id.toString());
+        layer.on('click', () =>
+          this.updatingGlobalInfoDelegate?.({
+            ...this.globalInfoDict,
+            userSelectionDict: { dataset: this.datasetId, location: properties.id },
+          }),
+        );
+      },
+    });
   }
 }

@@ -26,7 +26,7 @@ export namespace Components {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetId": string;
-        "dimensions"?: string;
+        "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
@@ -129,7 +129,7 @@ declare namespace LocalJSX {
         "active"?: boolean;
         "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "datasetId"?: string;
-        "dimensions"?: string;
+        "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
