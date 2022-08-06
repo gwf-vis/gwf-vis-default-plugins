@@ -1,5 +1,6 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
+import { scaleLinear } from 'd3';
 
 @Component({
   tag: 'gwf-vis-plugin-geojson-layer',
@@ -88,12 +89,11 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         for: ['min(value)'],
       })) || [{ 'min(value)': undefined }];
     }
-
+    const scaleValue = scaleLinear().domain([minValue, maxValue]).range([0, 360]);
     this.geojsonLayerInstance.setStyle(feature => {
       const { properties } = feature;
-      const valueScale = value => ((value - minValue) / (maxValue - minValue)) * (1 - 0);
       const value = values?.find(({ location }) => location === properties.id)?.value;
-      const fillColor = `hsl(${valueScale(value) + 240}, 100%, 50%)`;
+      const fillColor = `hsl(${scaleValue(value) + 240}, 100%, 50%)`;
       const style = {
         fillColor,
       };
