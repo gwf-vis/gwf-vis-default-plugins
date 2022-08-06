@@ -72,22 +72,14 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         },
         for: ['location', 'value'],
       });
-      [{ 'max(value)': maxValue }] = (await this.fetchingDataDelegate?.({
+      [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.fetchingDataDelegate?.({
         type: 'values',
         from: this.datasetId,
         with: {
           variableName,
         },
-        for: ['max(value)'],
-      })) || [{ 'max(value)': undefined }];
-      [{ 'min(value)': minValue }] = (await this.fetchingDataDelegate?.({
-        type: 'values',
-        from: this.datasetId,
-        with: {
-          variableName,
-        },
-        for: ['min(value)'],
-      })) || [{ 'min(value)': undefined }];
+        for: ['min(value)', 'max(value)'],
+      })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
     const scaleValue = scaleLinear().domain([minValue, maxValue]).range([0, 360]);
     this.geojsonLayerInstance.setStyle(feature => {
