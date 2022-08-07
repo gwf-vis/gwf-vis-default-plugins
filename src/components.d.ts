@@ -33,6 +33,7 @@ export namespace Components {
     interface GwfVisPluginGeojsonLayer {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "colorScheme"?: string;
         "datasetId": string;
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate": (query: any) => any;
@@ -182,6 +183,7 @@ declare namespace LocalJSX {
     interface GwfVisPluginGeojsonLayer {
         "active"?: boolean;
         "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "colorScheme"?: string;
         "datasetId"?: string;
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate"?: (query: any) => any;

@@ -1,6 +1,6 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
-import { scaleLinear } from 'd3';
+import * as d3 from 'd3';
 
 @Component({
   tag: 'gwf-vis-plugin-geojson-layer',
@@ -25,7 +25,8 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() options?: L.GeoJSONOptions;
   @Prop() datasetId: string;
   @Prop() variableName?: string;
-  @Prop({ mutable: true }) dimensions?: { [dimension: string]: number };
+  @Prop() dimensions?: { [dimension: string]: number };
+  @Prop() colorScheme?: string = 'Rainbow';
 
   async connectedCallback() {
     this.removingFromMapDelegate?.(this.geojsonLayerInstance);
@@ -85,11 +86,12 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         for: ['min(value)', 'max(value)'],
       })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
-    const scaleValue = scaleLinear().domain([minValue, maxValue]).range([0, 360]);
+    const interpolateFunction = d3[`interpolate${this.colorScheme}`];
+    const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
     this.geojsonLayerInstance.setStyle(feature => {
       const { properties } = feature;
       const value = values?.find(({ location }) => location === properties.id)?.value;
-      const fillColor = `hsl(${scaleValue(value) + 240}, 100%, 50%)`;
+      const fillColor = scaleColor(value) as any; 
       const style = {
         fillColor,
       };
