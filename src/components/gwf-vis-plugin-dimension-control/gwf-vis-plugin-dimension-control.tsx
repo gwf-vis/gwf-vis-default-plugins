@@ -43,6 +43,7 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
       from: this.datasetId,
     });
     this.dimension = this.dimensions?.[0];
+    this.handleValueChange(this.value);
   }
 
   @Method()
