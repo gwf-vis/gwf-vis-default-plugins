@@ -60,6 +60,11 @@ export class GwfVisPluginVariableControl implements ComponentInterface, GwfVisPl
               );
             })}
           </select>
+          <div>
+            <b>Unit: </b>
+            {this.variable?.unit}
+          </div>
+          <div>{this.variable?.description}</div>
         </div>
       </Host>
     );
