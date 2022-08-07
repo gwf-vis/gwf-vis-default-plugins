@@ -63,17 +63,21 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
               );
             })}
           </select>
-          <br />
-          <input
-            type="range"
-            min={0}
-            max={this.dimension?.size - 1}
-            value={this.value}
-            style={{ width: '100%' }}
-            onChange={({ currentTarget }) => {
-              this.value = +(currentTarget as HTMLInputElement).value;
-            }}
-          />
+          <div>{this.dimension?.description}</div>
+          <div id="range-container">
+            <span>0</span>
+            <input
+              type="range"
+              min={0}
+              max={this.dimension?.size - 1}
+              value={this.value}
+              style={{ width: '100%' }}
+              onChange={({ currentTarget }) => {
+                this.value = +(currentTarget as HTMLInputElement).value;
+              }}
+            />
+            <span>{this.dimension?.size ?? 'N/A'}</span>
+          </div>
         </div>
       </Host>
     );

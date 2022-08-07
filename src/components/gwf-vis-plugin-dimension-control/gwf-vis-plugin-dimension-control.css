@@ -5,3 +5,15 @@
 [part='content'] {
   padding: 0.5rem;
 }
+
+#range-container {
+  display: flex;
+}
+
+#range-container:nth-child(1), #range-container:nth-child(3) {
+  flex: auto;
+}
+
+#range-container:nth-child(2) {
+  flex: 1;
+}
