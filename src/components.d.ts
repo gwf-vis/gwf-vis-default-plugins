@@ -53,7 +53,7 @@ export namespace Components {
         "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
-        "variableNames": string[];
+        "variableNames"?: string[];
     }
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate": (query: any) => any;
