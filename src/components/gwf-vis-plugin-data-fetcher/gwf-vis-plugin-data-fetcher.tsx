@@ -4,8 +4,8 @@ import type { QueryExecResult } from 'sql.js';
 
 export type DbHelper = {
   worker?: Worker;
-  variableNameAndIdDict?: { [name: string]: string };
-  dimensionNameAndIdDict?: { [name: string]: string };
+  variableNameAndIdDict?: { [name: string]: number };
+  dimensionNameAndIdDict?: { [name: string]: number };
 };
 
 @Component({
@@ -54,26 +54,74 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
       }
       case 'values': {
         const { variableNameAndIdDict, dimensionNameAndIdDict } = this.dbIdAndHelperMap.get(dbUrl) || {};
-        const variableId = variableNameAndIdDict?.[query?.with?.variableName];
-        let dimensionIdAndValuePairs;
+        const locationIds = [];
+        const locationIdOrIds = query?.with?.location;
+        if (Array.isArray(locationIdOrIds)) {
+          locationIdOrIds.forEach(locationId => locationIds.push(locationId));
+        } else if (locationIdOrIds) {
+          locationIds.push(locationIdOrIds);
+        }
+        const variableIds = [];
+        const variableNameOrNames = query?.with?.variable;
+        if (Array.isArray(variableNameOrNames)) {
+          variableNameOrNames.forEach(variableName => variableIds.push(variableNameAndIdDict?.[variableName]));
+        } else {
+          const variableId = variableNameAndIdDict?.[variableNameOrNames];
+          if (variableId) {
+            variableIds.push(variableId);
+          }
+        }
+        let dimensionIdAndValuePairs = [];
         if (query?.with?.dimensions) {
           const dimensionsEntries = Object.entries(query.with.dimensions);
           dimensionIdAndValuePairs = dimensionsEntries.map(([dimensionName, value]) => [dimensionNameAndIdDict?.[dimensionName], value]);
         }
+
+        const selectClause = query?.for
+          ?.map((columnName: string) => {
+            if (columnName.startsWith('dimension_')) {
+              const dimensionName = columnName.substring('dimension_'.length);
+              const dimensionId = dimensionNameAndIdDict?.[dimensionName];
+              columnName = `dimension_${dimensionId}`;
+            }
+            return columnName;
+          })
+          .join(', ');
+
+        const whereClauses = [];
+        if (locationIds.length > 0) {
+          whereClauses.push(`location in (${locationIds.join(', ')})`);
+        }
+        if (variableIds.length > 0) {
+          whereClauses.push(`variable in (${variableIds.join(', ')})`);
+        }
+        if (dimensionIdAndValuePairs.length > 0) {
+          whereClauses.push(dimensionIdAndValuePairs.map(([key, value]) => `dimension_${key} = ${value}`).join(' and '));
+        }
+
         let [queryResult] =
           (await this.execSql(
             dbWorker,
             `
-            select ${query?.for?.map(d => d).join(', ')} 
+            select ${selectClause} 
             from value
-            ${
-              query?.with
-                ? `where variable = ${variableId}${dimensionIdAndValuePairs ? ` and ${dimensionIdAndValuePairs.map(([key, value]) => `dimension_${key} = ${value}`)}` : ''}`
-                : ''
-            }
+            where ${whereClauses.join(' and ')}
             `,
           )) || [];
-        const result = queryResult?.values?.map(rowValues => Object.fromEntries(rowValues.map((value, i) => [queryResult.columns?.[i], value])));
+        const result = queryResult?.values?.map(rowValues =>
+          Object.fromEntries(
+            rowValues.map((value, i) => {
+              let columnName = queryResult.columns?.[i];
+              if (columnName === 'variable') {
+                value = Object.entries(variableNameAndIdDict || {}).find(([_, id]) => value === id)?.[0];
+              } else if (columnName.startsWith('dimension_')) {
+                const dimensionId = +columnName.substring('dimension_'.length);
+                columnName = Object.entries(dimensionNameAndIdDict || {}).find(([_, id]) => dimensionId === id)?.[0];
+              }
+              return [columnName, value];
+            }),
+          ),
+        );
         return result;
       }
       case 'variables': {

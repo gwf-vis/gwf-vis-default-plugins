@@ -45,6 +45,16 @@ export namespace Components {
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
+    interface GwfVisPluginLineChart {
+        "datasetId": string;
+        "dimension": string;
+        "fetchingDataDelegate": (query: any) => Promise<any>;
+        "globalInfoDict": GloablInfoDict;
+        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "variableNames": string[];
+    }
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
@@ -106,6 +116,12 @@ declare global {
         prototype: HTMLGwfVisPluginGeojsonLayerElement;
         new (): HTMLGwfVisPluginGeojsonLayerElement;
     };
+    interface HTMLGwfVisPluginLineChartElement extends Components.GwfVisPluginLineChart, HTMLStencilElement {
+    }
+    var HTMLGwfVisPluginLineChartElement: {
+        prototype: HTMLGwfVisPluginLineChartElement;
+        new (): HTMLGwfVisPluginLineChartElement;
+    };
     interface HTMLGwfVisPluginMetadataElement extends Components.GwfVisPluginMetadata, HTMLStencilElement {
     }
     var HTMLGwfVisPluginMetadataElement: {
@@ -135,6 +151,7 @@ declare global {
         "gwf-vis-plugin-data-fetcher": HTMLGwfVisPluginDataFetcherElement;
         "gwf-vis-plugin-dimension-control": HTMLGwfVisPluginDimensionControlElement;
         "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
+        "gwf-vis-plugin-line-chart": HTMLGwfVisPluginLineChartElement;
         "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
         "gwf-vis-plugin-selection-pins": HTMLGwfVisPluginSelectionPinsElement;
         "gwf-vis-plugin-tile-layer": HTMLGwfVisPluginTileLayerElement;
@@ -177,6 +194,15 @@ declare namespace LocalJSX {
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
+    interface GwfVisPluginLineChart {
+        "datasetId"?: string;
+        "dimension"?: string;
+        "fetchingDataDelegate"?: (query: any) => Promise<any>;
+        "globalInfoDict"?: GloablInfoDict;
+        "leaflet"?: typeof globalThis.L;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "variableNames"?: string[];
+    }
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
@@ -214,6 +240,7 @@ declare namespace LocalJSX {
         "gwf-vis-plugin-data-fetcher": GwfVisPluginDataFetcher;
         "gwf-vis-plugin-dimension-control": GwfVisPluginDimensionControl;
         "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
+        "gwf-vis-plugin-line-chart": GwfVisPluginLineChart;
         "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
         "gwf-vis-plugin-selection-pins": GwfVisPluginSelectionPins;
         "gwf-vis-plugin-tile-layer": GwfVisPluginTileLayer;
@@ -228,6 +255,7 @@ declare module "@stencil/core" {
             "gwf-vis-plugin-data-fetcher": LocalJSX.GwfVisPluginDataFetcher & JSXBase.HTMLAttributes<HTMLGwfVisPluginDataFetcherElement>;
             "gwf-vis-plugin-dimension-control": LocalJSX.GwfVisPluginDimensionControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginDimensionControlElement>;
             "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
+            "gwf-vis-plugin-line-chart": LocalJSX.GwfVisPluginLineChart & JSXBase.HTMLAttributes<HTMLGwfVisPluginLineChartElement>;
             "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
             "gwf-vis-plugin-selection-pins": LocalJSX.GwfVisPluginSelectionPins & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionPinsElement>;
             "gwf-vis-plugin-tile-layer": LocalJSX.GwfVisPluginTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginTileLayerElement>;

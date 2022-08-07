@@ -63,15 +63,15 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   }
 
   private async applyData() {
-    const variableName = this.variableName || this.globalInfoDict?.variableName;
+    const variable = this.variableName || this.globalInfoDict?.variableName;
     const dimensions = this.dimensions || this.globalInfoDict?.dimensionDict;
     let values, maxValue, minValue;
-    if (variableName && dimensions) {
+    if (variable && dimensions) {
       values = await this.fetchingDataDelegate?.({
         type: 'values',
         from: this.datasetId,
         with: {
-          variableName,
+          variable,
           dimensions,
         },
         for: ['location', 'value'],
@@ -80,7 +80,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         type: 'values',
         from: this.datasetId,
         with: {
-          variableName,
+          variable,
         },
         for: ['min(value)', 'max(value)'],
       })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
