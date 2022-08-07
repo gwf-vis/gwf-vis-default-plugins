@@ -40,6 +40,10 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   }
 
   componentShouldUpdate(_newValue: any, _oldValue: any, propName: string) {
+    if (!this.geojsonLayerInstance) {
+      this.connectedCallback();
+      return;
+    }
     if (propName === 'datasetId') {
       this.drawShape().then(() => this.applyData().then(() => this.applyHighlighs()));
     } else if (propName === 'globalInfoDict') {

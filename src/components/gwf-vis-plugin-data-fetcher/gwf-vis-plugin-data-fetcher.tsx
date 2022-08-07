@@ -76,6 +76,16 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         const result = queryResult?.values?.map(rowValues => Object.fromEntries(rowValues.map((value, i) => [queryResult.columns?.[i], value])));
         return result;
       }
+      case 'variables': {
+        const [queryResult] = (await this.execSql(dbWorker, 'select * from variable')) || [];
+        const propertiesToParseJSON = [];
+        const result = queryResult?.values?.map(rowValues =>
+          Object.fromEntries(
+            rowValues.map((value, i) => [queryResult.columns?.[i], propertiesToParseJSON.includes(queryResult.columns[i]) ? value && JSON.parse(value.toString()) : value]),
+          ),
+        );
+        return result;
+      }
       case 'dimensions': {
         const [queryResult] = (await this.execSql(dbWorker, 'select * from dimension')) || [];
         const propertiesToParseJSON = ['value_labels'];
