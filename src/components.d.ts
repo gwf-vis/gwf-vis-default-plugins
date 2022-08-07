@@ -22,6 +22,14 @@ export namespace Components {
         "sqliteWorkerUrl": string;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
+    interface GwfVisPluginDimensionControl {
+        "datasetId": string;
+        "fetchingDataDelegate": (query: any) => Promise<any>;
+        "globalInfoDict": GloablInfoDict;
+        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+    }
     interface GwfVisPluginGeojsonLayer {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -78,6 +86,12 @@ declare global {
         prototype: HTMLGwfVisPluginDataFetcherElement;
         new (): HTMLGwfVisPluginDataFetcherElement;
     };
+    interface HTMLGwfVisPluginDimensionControlElement extends Components.GwfVisPluginDimensionControl, HTMLStencilElement {
+    }
+    var HTMLGwfVisPluginDimensionControlElement: {
+        prototype: HTMLGwfVisPluginDimensionControlElement;
+        new (): HTMLGwfVisPluginDimensionControlElement;
+    };
     interface HTMLGwfVisPluginGeojsonLayerElement extends Components.GwfVisPluginGeojsonLayer, HTMLStencilElement {
     }
     var HTMLGwfVisPluginGeojsonLayerElement: {
@@ -105,6 +119,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "gwf-vis-plugin-current-selection": HTMLGwfVisPluginCurrentSelectionElement;
         "gwf-vis-plugin-data-fetcher": HTMLGwfVisPluginDataFetcherElement;
+        "gwf-vis-plugin-dimension-control": HTMLGwfVisPluginDimensionControlElement;
         "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
         "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
         "gwf-vis-plugin-selection-pins": HTMLGwfVisPluginSelectionPinsElement;
@@ -123,6 +138,13 @@ declare namespace LocalJSX {
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "sqliteWorkerUrl"?: string;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+    }
+    interface GwfVisPluginDimensionControl {
+        "datasetId"?: string;
+        "fetchingDataDelegate"?: (query: any) => Promise<any>;
+        "globalInfoDict"?: GloablInfoDict;
+        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
@@ -168,6 +190,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "gwf-vis-plugin-current-selection": GwfVisPluginCurrentSelection;
         "gwf-vis-plugin-data-fetcher": GwfVisPluginDataFetcher;
+        "gwf-vis-plugin-dimension-control": GwfVisPluginDimensionControl;
         "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
         "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
         "gwf-vis-plugin-selection-pins": GwfVisPluginSelectionPins;
@@ -180,6 +203,7 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "gwf-vis-plugin-current-selection": LocalJSX.GwfVisPluginCurrentSelection & JSXBase.HTMLAttributes<HTMLGwfVisPluginCurrentSelectionElement>;
             "gwf-vis-plugin-data-fetcher": LocalJSX.GwfVisPluginDataFetcher & JSXBase.HTMLAttributes<HTMLGwfVisPluginDataFetcherElement>;
+            "gwf-vis-plugin-dimension-control": LocalJSX.GwfVisPluginDimensionControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginDimensionControlElement>;
             "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
             "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
             "gwf-vis-plugin-selection-pins": LocalJSX.GwfVisPluginSelectionPins & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionPinsElement>;

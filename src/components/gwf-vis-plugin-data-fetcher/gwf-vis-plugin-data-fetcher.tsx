@@ -2,6 +2,12 @@ import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/c
 import { GloablInfoDict, GwfVisPluginData } from '../../utils/gwf-vis-plugin';
 import type { QueryExecResult } from 'sql.js';
 
+export type DbHelper = {
+  worker?: Worker;
+  variableNameAndIdDict?: { [name: string]: string };
+  dimensionNameAndIdDict?: { [name: string]: string };
+};
+
 @Component({
   tag: 'gwf-vis-plugin-data-fetcher',
   styleUrl: 'gwf-vis-plugin-data-fetcher.css',
@@ -12,7 +18,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
   static readonly __PLUGIN_TYPE__ = 'data';
 
   private sqliteActionIdAndResolveMap = new Map<string, (value: any) => void>();
-  private dbAndSqliteWorkerMap = new Map<string, Worker>();
+  private dbIdAndHelperMap = new Map<string, DbHelper>();
 
   @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
@@ -20,19 +26,18 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() sqliteWorkerUrl: string;
 
-  async componentDidLoad() {}
-
   @Method()
   async fetchData(query: any) {
     const dbUrl = query?.from;
     if (!dbUrl) {
       return undefined;
     }
+    const dbWorker = await this.obtainDbWorker(dbUrl);
     switch (query?.type) {
       case 'locations': {
         const [queryResult] =
           (await this.execSql(
-            dbUrl,
+            dbWorker,
             `
             select ${query?.for?.map(d => d).join(', ')}
             from location
@@ -42,24 +47,22 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         const propertiesToParseJSON = ['geometry', 'metadata'];
         const result = queryResult?.values?.map(rowValues =>
           Object.fromEntries(
-            rowValues.map((value, i) => [queryResult.columns?.[i], propertiesToParseJSON.includes(queryResult.columns[i]) ? JSON.parse(value.toString()) : value]),
+            rowValues.map((value, i) => [queryResult.columns?.[i], propertiesToParseJSON.includes(queryResult.columns[i]) ? value && JSON.parse(value.toString()) : value]),
           ),
         );
         return result;
       }
       case 'values': {
-        let [queryResult] = (await this.execSql(dbUrl, `select id, name from variable where name = '${query?.with?.variableName}'`)) || [];
-        const variableId = queryResult.values?.[0]?.[0];
+        const { variableNameAndIdDict, dimensionNameAndIdDict } = this.dbIdAndHelperMap.get(dbUrl) || {};
+        const variableId = variableNameAndIdDict?.[query?.with?.variableName];
         let dimensionIdAndValuePairs;
         if (query?.with?.dimensions) {
           const dimensionsEntries = Object.entries(query.with.dimensions);
-          const dimensionNamesConnectedWithComma = dimensionsEntries.map(([dimensionName]) => `'${dimensionName}'`).join(', ');
-          [queryResult] = await this.execSql(dbUrl, `select id, name from dimension where name in (${dimensionNamesConnectedWithComma})`);
-          dimensionIdAndValuePairs = dimensionsEntries.map(([dimensionName, value]) => [queryResult.values.find(d => d[1] === dimensionName)?.[0], value]);
+          dimensionIdAndValuePairs = dimensionsEntries.map(([dimensionName, value]) => [dimensionNameAndIdDict?.[dimensionName], value]);
         }
-        [queryResult] =
+        let [queryResult] =
           (await this.execSql(
-            dbUrl,
+            dbWorker,
             `
             select ${query?.for?.map(d => d).join(', ')} 
             from value
@@ -73,6 +76,16 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         const result = queryResult?.values?.map(rowValues => Object.fromEntries(rowValues.map((value, i) => [queryResult.columns?.[i], value])));
         return result;
       }
+      case 'dimensions': {
+        const [queryResult] = (await this.execSql(dbWorker, 'select * from dimension')) || [];
+        const propertiesToParseJSON = ['value_labels'];
+        const result = queryResult?.values?.map(rowValues =>
+          Object.fromEntries(
+            rowValues.map((value, i) => [queryResult.columns?.[i], propertiesToParseJSON.includes(queryResult.columns[i]) ? value && JSON.parse(value.toString()) : value]),
+          ),
+        );
+        return result;
+      }
       default:
         return undefined;
     }
@@ -82,9 +95,9 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
     return <Host></Host>;
   }
 
-  private async execSql(dbUrl: string, sql: string, params?: any) {
+  private async execSql(dbWorker: Worker, sql: string, params?: any) {
     return (
-      await this.runSqlAction(await this.obtainSqliteWorker(dbUrl), {
+      await this.runSqlAction(dbWorker, {
         action: 'exec',
         sql,
         params,
@@ -92,31 +105,38 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
     ).results as QueryExecResult[];
   }
 
-  private async obtainSqliteWorker(dbUrl: string) {
-    const worker = this.dbAndSqliteWorkerMap.get(dbUrl);
+  private async obtainDbWorker(dbUrl: string) {
+    const worker = this.dbIdAndHelperMap.get(dbUrl)?.worker;
     if (worker) {
       return worker;
     }
-    const sqliteWorker = new Worker(this.sqliteWorkerUrl);
-    sqliteWorker.addEventListener('message', ({ data }) => {
+    const dbWorker = new Worker(this.sqliteWorkerUrl);
+    dbWorker.addEventListener('message', ({ data }) => {
       const resolve = this.sqliteActionIdAndResolveMap.get(data.id.identifier);
       resolve?.(data);
       this.sqliteActionIdAndResolveMap?.delete(data.id.identifier);
     });
-    this.dbAndSqliteWorkerMap.set(dbUrl, sqliteWorker);
     const response = await fetch(dbUrl);
     const dbBuffer = await response.arrayBuffer();
-    return (
-      (
-        await this.runSqlAction(sqliteWorker, {
-          action: 'open',
-          buffer: dbBuffer,
-        })
-      )?.ready && sqliteWorker
-    );
+    const dbReady = (
+      await this.runSqlAction(dbWorker, {
+        action: 'open',
+        buffer: dbBuffer,
+      })
+    )?.ready;
+    let [queryResult] = (await this.execSql(dbWorker, 'select name, id from variable')) || [];
+    const variableNameAndIdDict = Object.fromEntries(queryResult?.values || []);
+    [queryResult] = (await this.execSql(dbWorker, 'select name, id from dimension')) || [];
+    const dimensionNameAndIdDict = Object.fromEntries(queryResult?.values || []);
+    this.dbIdAndHelperMap.set(dbUrl, {
+      worker: dbWorker,
+      variableNameAndIdDict,
+      dimensionNameAndIdDict,
+    });
+    return dbReady ? dbWorker : undefined;
   }
 
-  private runSqlAction(sqliteWorker: Worker, command: any) {
+  private runSqlAction(dbWorker: Worker, command: any) {
     const timeout = 20000;
     return new Promise<any>((resolve, reject) => {
       let id: string;
@@ -124,7 +144,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         id = Math.random().toString();
       } while (this.sqliteActionIdAndResolveMap.has(id));
       this.sqliteActionIdAndResolveMap.set(id, resolve);
-      sqliteWorker?.postMessage({
+      dbWorker?.postMessage({
         ...command,
         id: {
           identifier: id,
