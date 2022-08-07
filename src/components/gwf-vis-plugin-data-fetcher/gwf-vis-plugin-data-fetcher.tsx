@@ -116,11 +116,27 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
   }
 
   private async obtainDbWorker(dbUrl: string) {
-    const worker = this.dbIdAndHelperMap.get(dbUrl)?.worker;
-    if (worker) {
-      return worker;
+    const helper = this.dbIdAndHelperMap.get(dbUrl);
+    if (helper) {
+      const obtainDbWorkerWhenReady = () => {
+        const timeout = 100;
+        return new Promise(resolve => {
+          const helper = this.dbIdAndHelperMap.get(dbUrl);
+          if (helper.variableNameAndIdDict && helper.dimensionNameAndIdDict) {
+            resolve(helper.worker);
+          } else {
+            setTimeout(async () => {
+              resolve(await obtainDbWorkerWhenReady());
+            }, timeout);
+          }
+        });
+      };
+      return (await obtainDbWorkerWhenReady()) as Worker;
     }
     const dbWorker = new Worker(this.sqliteWorkerUrl);
+    this.dbIdAndHelperMap.set(dbUrl, {
+      worker: dbWorker,
+    });
     dbWorker.addEventListener('message', ({ data }) => {
       const resolve = this.sqliteActionIdAndResolveMap.get(data.id.identifier);
       resolve?.(data);
@@ -144,6 +160,20 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
       dimensionNameAndIdDict,
     });
     return dbReady ? dbWorker : undefined;
+  }
+
+  private obtainDbWorkerWhenReady(dbUrl: string) {
+    return new Promise(resolve => {
+      const helper = this.dbIdAndHelperMap.get(dbUrl);
+      if (helper.variableNameAndIdDict && helper.dimensionNameAndIdDict) {
+        resolve(helper.worker);
+      } else {
+        const timeout = 100;
+        setTimeout(async () => {
+          resolve(await this.obtainDbWorkerWhenReady(dbUrl));
+        }, timeout);
+      }
+    });
   }
 
   private runSqlAction(dbWorker: Worker, command: any) {
