@@ -67,7 +67,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
           variableNameOrNames.forEach(variableName => variableIds.push(variableNameAndIdDict?.[variableName]));
         } else {
           const variableId = variableNameAndIdDict?.[variableNameOrNames];
-          if (variableId) {
+          if (typeof variableId === 'number') {
             variableIds.push(variableId);
           }
         }
