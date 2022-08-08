@@ -47,7 +47,14 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginCon
                 <b>{key.toString()}</b>
               </span>
               <div innerHTML={value?.toString()}></div>
-              <hr />
+              <hr
+                style={{
+                  height: '2px',
+                  border: 'none',
+                  outline: 'none',
+                  background: 'hsl(0, 0%, 70%)',
+                }}
+              />
             </div>
           ))}
         </div>
