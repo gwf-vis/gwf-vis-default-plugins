@@ -7,13 +7,6 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfoDict } from "./utils/gwf-vis-plugin";
 export namespace Components {
-    interface GwfVisPluginCurrentSelection {
-        "fetchingDataDelegate": (query: any) => any;
-        "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
-        "obtainHeader": () => Promise<string>;
-        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
-    }
     interface GwfVisPluginDataFetcher {
         "fetchData": (query: any) => Promise<{ [k: string]: any; }[]>;
         "fetchingDataDelegate": (query: any) => Promise<any>;
@@ -63,7 +56,7 @@ export namespace Components {
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
-    interface GwfVisPluginSelectionPins {
+    interface GwfVisPluginSelection {
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
@@ -93,12 +86,6 @@ export namespace Components {
     }
 }
 declare global {
-    interface HTMLGwfVisPluginCurrentSelectionElement extends Components.GwfVisPluginCurrentSelection, HTMLStencilElement {
-    }
-    var HTMLGwfVisPluginCurrentSelectionElement: {
-        prototype: HTMLGwfVisPluginCurrentSelectionElement;
-        new (): HTMLGwfVisPluginCurrentSelectionElement;
-    };
     interface HTMLGwfVisPluginDataFetcherElement extends Components.GwfVisPluginDataFetcher, HTMLStencilElement {
     }
     var HTMLGwfVisPluginDataFetcherElement: {
@@ -129,11 +116,11 @@ declare global {
         prototype: HTMLGwfVisPluginMetadataElement;
         new (): HTMLGwfVisPluginMetadataElement;
     };
-    interface HTMLGwfVisPluginSelectionPinsElement extends Components.GwfVisPluginSelectionPins, HTMLStencilElement {
+    interface HTMLGwfVisPluginSelectionElement extends Components.GwfVisPluginSelection, HTMLStencilElement {
     }
-    var HTMLGwfVisPluginSelectionPinsElement: {
-        prototype: HTMLGwfVisPluginSelectionPinsElement;
-        new (): HTMLGwfVisPluginSelectionPinsElement;
+    var HTMLGwfVisPluginSelectionElement: {
+        prototype: HTMLGwfVisPluginSelectionElement;
+        new (): HTMLGwfVisPluginSelectionElement;
     };
     interface HTMLGwfVisPluginTileLayerElement extends Components.GwfVisPluginTileLayer, HTMLStencilElement {
     }
@@ -148,24 +135,17 @@ declare global {
         new (): HTMLGwfVisPluginVariableControlElement;
     };
     interface HTMLElementTagNameMap {
-        "gwf-vis-plugin-current-selection": HTMLGwfVisPluginCurrentSelectionElement;
         "gwf-vis-plugin-data-fetcher": HTMLGwfVisPluginDataFetcherElement;
         "gwf-vis-plugin-dimension-control": HTMLGwfVisPluginDimensionControlElement;
         "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
         "gwf-vis-plugin-line-chart": HTMLGwfVisPluginLineChartElement;
         "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
-        "gwf-vis-plugin-selection-pins": HTMLGwfVisPluginSelectionPinsElement;
+        "gwf-vis-plugin-selection": HTMLGwfVisPluginSelectionElement;
         "gwf-vis-plugin-tile-layer": HTMLGwfVisPluginTileLayerElement;
         "gwf-vis-plugin-variable-control": HTMLGwfVisPluginVariableControlElement;
     }
 }
 declare namespace LocalJSX {
-    interface GwfVisPluginCurrentSelection {
-        "fetchingDataDelegate"?: (query: any) => any;
-        "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
-        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
-    }
     interface GwfVisPluginDataFetcher {
         "fetchingDataDelegate"?: (query: any) => Promise<any>;
         "globalInfoDict"?: GloablInfoDict;
@@ -211,7 +191,7 @@ declare namespace LocalJSX {
         "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
-    interface GwfVisPluginSelectionPins {
+    interface GwfVisPluginSelection {
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
@@ -238,13 +218,12 @@ declare namespace LocalJSX {
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface IntrinsicElements {
-        "gwf-vis-plugin-current-selection": GwfVisPluginCurrentSelection;
         "gwf-vis-plugin-data-fetcher": GwfVisPluginDataFetcher;
         "gwf-vis-plugin-dimension-control": GwfVisPluginDimensionControl;
         "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
         "gwf-vis-plugin-line-chart": GwfVisPluginLineChart;
         "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
-        "gwf-vis-plugin-selection-pins": GwfVisPluginSelectionPins;
+        "gwf-vis-plugin-selection": GwfVisPluginSelection;
         "gwf-vis-plugin-tile-layer": GwfVisPluginTileLayer;
         "gwf-vis-plugin-variable-control": GwfVisPluginVariableControl;
     }
@@ -253,13 +232,12 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "gwf-vis-plugin-current-selection": LocalJSX.GwfVisPluginCurrentSelection & JSXBase.HTMLAttributes<HTMLGwfVisPluginCurrentSelectionElement>;
             "gwf-vis-plugin-data-fetcher": LocalJSX.GwfVisPluginDataFetcher & JSXBase.HTMLAttributes<HTMLGwfVisPluginDataFetcherElement>;
             "gwf-vis-plugin-dimension-control": LocalJSX.GwfVisPluginDimensionControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginDimensionControlElement>;
             "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
             "gwf-vis-plugin-line-chart": LocalJSX.GwfVisPluginLineChart & JSXBase.HTMLAttributes<HTMLGwfVisPluginLineChartElement>;
             "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
-            "gwf-vis-plugin-selection-pins": LocalJSX.GwfVisPluginSelectionPins & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionPinsElement>;
+            "gwf-vis-plugin-selection": LocalJSX.GwfVisPluginSelection & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionElement>;
             "gwf-vis-plugin-tile-layer": LocalJSX.GwfVisPluginTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginTileLayerElement>;
             "gwf-vis-plugin-variable-control": LocalJSX.GwfVisPluginVariableControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginVariableControlElement>;
         }

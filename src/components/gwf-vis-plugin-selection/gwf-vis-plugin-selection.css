@@ -4,23 +4,27 @@
   display: block;
 }
 
-[part='container'] {
+[part='content'] {
   padding: 0.5rem;
 }
 
-[part='pin-container'] {
+[part='pin-section'] {
+  margin-top: 0.5rem;
+}
+
+[part='pin-section'] > [part='pin-container'] {
   max-width: 100%;
   overflow-x: auto;
   height: 3rem;
   white-space: nowrap;
 }
 
-[part='button-container'] {
+[part='pin-section'] > [part='button-container'] {
   display: flex;
   gap: 0.25rem;
 }
 
-[part='button-container'] > button {
+[part='pin-section'] > [part='button-container'] > button {
   flex: 1;
 }
 
