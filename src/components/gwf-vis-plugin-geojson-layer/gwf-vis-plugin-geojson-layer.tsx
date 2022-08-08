@@ -2,6 +2,11 @@ import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
 import * as d3 from 'd3';
 
+export type ColorSchemeDefinition = {
+  type: 'predefined' | 'custom';
+  scheme: string | string[];
+};
+
 @Component({
   tag: 'gwf-vis-plugin-geojson-layer',
   styleUrl: 'gwf-vis-plugin-geojson-layer.css',
@@ -10,6 +15,11 @@ import * as d3 from 'd3';
 export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPluginLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-geojson-layer';
   static readonly __PLUGIN_TYPE__ = 'layer';
+
+  private readonly predefinedColorSchemeDict: { [name: string]: string[] } = {
+    'blue-red': ['blue', 'red'],
+  };
+  private readonly fallbackColorScheme = this.predefinedColorSchemeDict['blue-red'];
 
   private geojsonLayerInstance: L.GeoJSON;
 
@@ -26,7 +36,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() datasetId: string;
   @Prop() variableName?: string;
   @Prop() dimensions?: { [dimension: string]: number };
-  @Prop() colorScheme?: string = 'Rainbow';
+  @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
 
   async connectedCallback() {
     this.removingFromMapDelegate?.(this.geojsonLayerInstance);
@@ -64,15 +74,15 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   }
 
   private async applyData() {
-    const variable = this.variableName || this.globalInfoDict?.variableName;
+    const variableName = this.variableName || this.globalInfoDict?.variableName;
     const dimensions = this.dimensions || this.globalInfoDict?.dimensionDict;
     let values, maxValue, minValue;
-    if (variable && dimensions) {
+    if (variableName && dimensions) {
       values = await this.fetchingDataDelegate?.({
         type: 'values',
         from: this.datasetId,
         with: {
-          variable,
+          variable: variableName,
           dimensions,
         },
         for: ['location', 'value'],
@@ -81,12 +91,13 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         type: 'values',
         from: this.datasetId,
         with: {
-          variable,
+          variable: variableName,
         },
         for: ['min(value)', 'max(value)'],
       })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
-    const interpolateFunction = d3[`interpolate${this.colorScheme}`];
+    const colorScheme = this.obtainColorScheme(variableName);
+    const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
     const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
     this.geojsonLayerInstance.setStyle(feature => {
       const { properties } = feature;
@@ -153,5 +164,17 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       },
       pointToLayer: (_feature, latlng) => new globalThis.L.CircleMarker(latlng, { radius: 10 }),
     });
+  }
+
+  private obtainColorScheme(variableName: string) {
+    const colorSchemeDefinition = this.colorScheme?.[variableName] || this.colorScheme?.[''];
+    switch (colorSchemeDefinition?.type) {
+      case 'predefined':
+        return this.predefinedColorSchemeDict[colorSchemeDefinition?.scheme as string];
+      case 'custom':
+        return colorSchemeDefinition?.scheme as string[];
+      default:
+        return this.fallbackColorScheme;
+    }
   }
 }

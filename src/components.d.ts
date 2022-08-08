@@ -6,6 +6,7 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfoDict } from "./utils/gwf-vis-plugin";
+import { ColorSchemeDefinition } from "./components/gwf-vis-plugin-geojson-layer/gwf-vis-plugin-geojson-layer";
 export namespace Components {
     interface GwfVisPluginDataFetcher {
         "fetchData": (query: any) => Promise<{ [k: string]: any; }[]>;
@@ -26,7 +27,7 @@ export namespace Components {
     interface GwfVisPluginGeojsonLayer {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "colorScheme"?: string;
+        "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
         "datasetId": string;
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate": (query: any) => any;
@@ -163,7 +164,7 @@ declare namespace LocalJSX {
     interface GwfVisPluginGeojsonLayer {
         "active"?: boolean;
         "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "colorScheme"?: string;
+        "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
         "datasetId"?: string;
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate"?: (query: any) => any;
