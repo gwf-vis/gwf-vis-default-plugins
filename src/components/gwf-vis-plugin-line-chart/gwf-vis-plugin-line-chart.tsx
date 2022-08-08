@@ -12,6 +12,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
   static readonly __PLUGIN_TYPE__ = 'control';
 
   private readonly defaultColors = ['#8CC63E', '#2989E3', '#724498', '#F02C89', '#FB943B', '#F4CD26'];
+  private readonly fallbackValue = Number.NaN;
 
   private chart: Chart;
 
@@ -67,10 +68,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
         label: variableName,
         backgroundColor: this.defaultColors?.[i] || 'hsl(0, 0%, 0%)',
         borderColor: this.defaultColors?.[i] || 'hsl(0, 0%, 0%)',
-        data: values
-          ?.filter(d => d.variable === variableName)
-          .sort((a, b) => a[`dimension_${this.dimension}`] - b[`dimension_${this.dimension}`])
-          .map(d => d.value),
+        data: this.obtainChartData(values, variableName, dimensionSize),
       })),
     };
 
@@ -85,5 +83,17 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
       this.chart.destroy();
     }
     this.chart = new Chart(canvasElement, config as any);
+  }
+
+  private obtainChartData(values: any[], variableName: string, dimensionSize: number) {
+    const valuesForTheVariable = values?.filter(d => d.variable === variableName);
+    for (let i = 0; i < dimensionSize; i++) {
+      if (!valuesForTheVariable?.find(d => d[this.dimension] === i)) {
+        const itemToBeInserted = { value: this.fallbackValue };
+        itemToBeInserted[this.dimension] = i;
+        valuesForTheVariable?.splice(i, 0, itemToBeInserted);
+      }
+    }
+    return valuesForTheVariable?.sort((a, b) => a[`dimension_${this.dimension}`] - b[`dimension_${this.dimension}`]).map(d => d.value);
   }
 }
