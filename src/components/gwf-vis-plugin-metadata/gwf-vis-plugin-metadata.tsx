@@ -46,7 +46,7 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginCon
               <span>
                 <b>{key.toString()}</b>
               </span>
-              <div innerHTML={value.toString()}></div>
+              <div innerHTML={value?.toString()}></div>
               <hr />
             </div>
           ))}
