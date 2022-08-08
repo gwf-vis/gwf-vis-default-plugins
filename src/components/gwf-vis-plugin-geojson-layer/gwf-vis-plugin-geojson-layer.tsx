@@ -118,16 +118,17 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         color: 'hsl(0, 0%, 70%)',
         weight: 1,
       };
+      const matchedPin = this.globalInfoDict?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties?.id);
+      if (matchedPin) {
+        style['color'] = matchedPin.color;
+        style['weight'] = 3;
+      }
       if (this.globalInfoDict?.userSelectionDict?.dataset === this.datasetId && this.globalInfoDict?.userSelectionDict?.location === properties?.id) {
         style['weight'] = 5;
         this.geojsonLayerInstance
           .getLayers()
           ?.find(layer => layer['feature'] === feature)
           ?.['bringToFront']();
-      }
-      const matchedPin = this.globalInfoDict?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties.id);
-      if (matchedPin) {
-        style['color'] = matchedPin.color;
       }
       return style;
     });
