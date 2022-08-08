@@ -91,9 +91,10 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     this.geojsonLayerInstance.setStyle(feature => {
       const { properties } = feature;
       const value = values?.find(({ location }) => location === properties.id)?.value;
-      const fillColor = scaleColor(value) as any; 
+      const fillColor = (scaleColor(value) as any) || 'transparent';
       const style = {
         fillColor,
+        fillOpacity: 0.5,
       };
       return style;
     });
@@ -104,10 +105,10 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       const { properties } = feature;
       const style = {
         color: 'hsl(0, 0%, 70%)',
-        weight: 3,
+        weight: 1,
       };
       if (this.globalInfoDict?.userSelectionDict?.dataset === this.datasetId && this.globalInfoDict?.userSelectionDict?.location === properties?.id) {
-        style['weight'] = 6;
+        style['weight'] = 5;
         this.geojsonLayerInstance
           .getLayers()
           ?.find(layer => layer['feature'] === feature)
@@ -150,6 +151,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
           }),
         );
       },
+      pointToLayer: (_feature, latlng) => new globalThis.L.CircleMarker(latlng, { radius: 10 }),
     });
   }
 }
