@@ -97,9 +97,11 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
       plugins: [VERTICLE_LINE_CHART_PLUGIN],
     };
     if (this.chart) {
-      this.chart.destroy();
+      this.chart.data = data;
+      this.chart.update();
+    } else {
+      this.chart = new Chart(canvasElement, config as any);
     }
-    this.chart = new Chart(canvasElement, config as any);
   }
 
   private obtainChartData(values: any[], variableName: string, dimensionSize: number) {
