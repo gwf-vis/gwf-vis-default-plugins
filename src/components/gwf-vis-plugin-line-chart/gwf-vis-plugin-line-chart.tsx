@@ -1,5 +1,6 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
-import { Chart, PointElement, registerables } from 'chart.js';
+import Chart from 'chart.js/auto';
+import { PointElement } from 'chart.js';
 import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 import { VERTICLE_LINE_CHART_PLUGIN } from './varticle-line-chart-plugin';
 
@@ -24,10 +25,6 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
   @Prop() datasetId: string;
   @Prop() variableNames?: string[];
   @Prop() dimension: string;
-
-  constructor() {
-    Chart.register(...registerables);
-  }
 
   @Method()
   async obtainHeader() {
