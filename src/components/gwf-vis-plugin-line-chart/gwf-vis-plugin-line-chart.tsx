@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
-import { Chart, registerables } from 'chart.js';
+import { Chart, PointElement, registerables } from 'chart.js';
 import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
@@ -77,6 +77,19 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
       data: data,
       options: {
         pointRadius: 0,
+        onClick: (_event, items) => {
+          items.forEach(item => {
+            if (item.element instanceof PointElement) {
+              const index = item.index;
+              if (confirm(`Do you want to set dimension "${this.dimension}" to value "${index}"?`)) {
+                const updatedGlobalInfo = { ...this.globalInfoDict };
+                updatedGlobalInfo.dimensionDict = { ...updatedGlobalInfo.dimensionDict };
+                updatedGlobalInfo.dimensionDict[this.dimension] = index;
+                this.updatingGlobalInfoDelegate(updatedGlobalInfo);
+              }
+            }
+          });
+        },
       },
     };
     if (this.chart) {

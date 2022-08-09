@@ -46,6 +46,16 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
     this.handleValueChange(this.value);
   }
 
+  componentShouldUpdate(newValue: any, _oldValue: any, propName: string) {
+    if (propName === 'globalInfoDict') {
+      const newDimensionValue = newValue?.dimensionDict?.[this.dimension?.name];
+      if (typeof newDimensionValue === 'number' && this.value !== newValue?.dimensionDict?.[this.dimension?.name]) {
+        this.value = newDimensionValue;
+      }
+      return false;
+    }
+  }
+
   @Method()
   async obtainHeader() {
     return 'Dimension Control';
