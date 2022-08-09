@@ -56,8 +56,9 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPluginContr
             {this.currentVaribaleName ?? 'N/A'}
           </div>
           <div style={{ height: '1rem', background: `linear-gradient(to right, ${this.currentColorScheme?.map(color => color).join(', ')})` }}></div>
-          <div style={{ display: 'flex', gap: '0 1rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
             <div style={{ flex: '1', whiteSpace: 'nowrap' }}>{this.currentMinValue ?? 'N/A'}</div>
+            <div style={{ flex: 'auto', width: '1rem' }}></div>
             <div style={{ flex: '1', whiteSpace: 'nowrap' }}>{this.currentMaxValue ?? 'N/A'}</div>
           </div>
         </div>
