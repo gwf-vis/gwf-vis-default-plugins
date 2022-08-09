@@ -68,6 +68,16 @@ export namespace Components {
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
+    interface GwfVisPluginRadarChart {
+        "datasetId": string;
+        "dimensions"?: { [dimension: string]: number };
+        "fetchingDataDelegate": (query: any) => Promise<any>;
+        "globalInfoDict": GloablInfoDict;
+        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "variableNames"?: string[];
+    }
     interface GwfVisPluginSelection {
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
@@ -134,6 +144,12 @@ declare global {
         prototype: HTMLGwfVisPluginMetadataElement;
         new (): HTMLGwfVisPluginMetadataElement;
     };
+    interface HTMLGwfVisPluginRadarChartElement extends Components.GwfVisPluginRadarChart, HTMLStencilElement {
+    }
+    var HTMLGwfVisPluginRadarChartElement: {
+        prototype: HTMLGwfVisPluginRadarChartElement;
+        new (): HTMLGwfVisPluginRadarChartElement;
+    };
     interface HTMLGwfVisPluginSelectionElement extends Components.GwfVisPluginSelection, HTMLStencilElement {
     }
     var HTMLGwfVisPluginSelectionElement: {
@@ -159,6 +175,7 @@ declare global {
         "gwf-vis-plugin-legend": HTMLGwfVisPluginLegendElement;
         "gwf-vis-plugin-line-chart": HTMLGwfVisPluginLineChartElement;
         "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
+        "gwf-vis-plugin-radar-chart": HTMLGwfVisPluginRadarChartElement;
         "gwf-vis-plugin-selection": HTMLGwfVisPluginSelectionElement;
         "gwf-vis-plugin-tile-layer": HTMLGwfVisPluginTileLayerElement;
         "gwf-vis-plugin-variable-control": HTMLGwfVisPluginVariableControlElement;
@@ -220,6 +237,15 @@ declare namespace LocalJSX {
         "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
+    interface GwfVisPluginRadarChart {
+        "datasetId"?: string;
+        "dimensions"?: { [dimension: string]: number };
+        "fetchingDataDelegate"?: (query: any) => Promise<any>;
+        "globalInfoDict"?: GloablInfoDict;
+        "leaflet"?: typeof globalThis.L;
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "variableNames"?: string[];
+    }
     interface GwfVisPluginSelection {
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
@@ -253,6 +279,7 @@ declare namespace LocalJSX {
         "gwf-vis-plugin-legend": GwfVisPluginLegend;
         "gwf-vis-plugin-line-chart": GwfVisPluginLineChart;
         "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
+        "gwf-vis-plugin-radar-chart": GwfVisPluginRadarChart;
         "gwf-vis-plugin-selection": GwfVisPluginSelection;
         "gwf-vis-plugin-tile-layer": GwfVisPluginTileLayer;
         "gwf-vis-plugin-variable-control": GwfVisPluginVariableControl;
@@ -268,6 +295,7 @@ declare module "@stencil/core" {
             "gwf-vis-plugin-legend": LocalJSX.GwfVisPluginLegend & JSXBase.HTMLAttributes<HTMLGwfVisPluginLegendElement>;
             "gwf-vis-plugin-line-chart": LocalJSX.GwfVisPluginLineChart & JSXBase.HTMLAttributes<HTMLGwfVisPluginLineChartElement>;
             "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
+            "gwf-vis-plugin-radar-chart": LocalJSX.GwfVisPluginRadarChart & JSXBase.HTMLAttributes<HTMLGwfVisPluginRadarChartElement>;
             "gwf-vis-plugin-selection": LocalJSX.GwfVisPluginSelection & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionElement>;
             "gwf-vis-plugin-tile-layer": LocalJSX.GwfVisPluginTileLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginTileLayerElement>;
             "gwf-vis-plugin-variable-control": LocalJSX.GwfVisPluginVariableControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginVariableControlElement>;
