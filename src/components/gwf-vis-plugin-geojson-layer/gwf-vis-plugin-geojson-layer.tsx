@@ -1,11 +1,7 @@
 import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
 import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
 import * as d3 from 'd3';
-
-export type ColorSchemeDefinition = {
-  type: 'predefined' | 'custom';
-  scheme: string | string[];
-};
+import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
 
 @Component({
   tag: 'gwf-vis-plugin-geojson-layer',
@@ -15,11 +11,6 @@ export type ColorSchemeDefinition = {
 export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPluginLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-geojson-layer';
   static readonly __PLUGIN_TYPE__ = 'layer';
-
-  private readonly predefinedColorSchemeDict: { [name: string]: string[] } = {
-    'blue-red': ['blue', 'red'],
-  };
-  private readonly fallbackColorScheme = this.predefinedColorSchemeDict['blue-red'];
 
   private geojsonLayerInstance: L.GeoJSON;
 
@@ -96,7 +87,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         for: ['min(value)', 'max(value)'],
       })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
-    const colorScheme = this.obtainColorScheme(variableName);
+    const colorScheme = obtainVariableColorScheme(this.colorScheme, variableName);
     const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
     const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
     this.geojsonLayerInstance.setStyle(feature => {
@@ -165,17 +156,5 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       },
       pointToLayer: (_feature, latlng) => new globalThis.L.CircleMarker(latlng, { radius: 10 }),
     });
-  }
-
-  private obtainColorScheme(variableName: string) {
-    const colorSchemeDefinition = this.colorScheme?.[variableName] || this.colorScheme?.[''];
-    switch (colorSchemeDefinition?.type) {
-      case 'predefined':
-        return this.predefinedColorSchemeDict[colorSchemeDefinition?.scheme as string];
-      case 'custom':
-        return colorSchemeDefinition?.scheme as string[];
-      default:
-        return this.fallbackColorScheme;
-    }
   }
 }

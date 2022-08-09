@@ -6,7 +6,7 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfoDict } from "./utils/gwf-vis-plugin";
-import { ColorSchemeDefinition } from "./components/gwf-vis-plugin-geojson-layer/gwf-vis-plugin-geojson-layer";
+import { ColorSchemeDefinition } from "./utils/variable-color-scheme";
 export namespace Components {
     interface GwfVisPluginDataFetcher {
         "fetchData": (query: any) => Promise<{ [k: string]: any; }[]>;
@@ -37,6 +37,17 @@ export namespace Components {
         "options"?: L.GeoJSONOptions;
         "removingFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
+        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
+        "variableName"?: string;
+    }
+    interface GwfVisPluginLegend {
+        "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
+        "datasetId": string;
+        "dimensions"?: { [dimension: string]: number };
+        "fetchingDataDelegate": (query: any) => any;
+        "globalInfoDict": GloablInfoDict;
+        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
@@ -105,6 +116,12 @@ declare global {
         prototype: HTMLGwfVisPluginGeojsonLayerElement;
         new (): HTMLGwfVisPluginGeojsonLayerElement;
     };
+    interface HTMLGwfVisPluginLegendElement extends Components.GwfVisPluginLegend, HTMLStencilElement {
+    }
+    var HTMLGwfVisPluginLegendElement: {
+        prototype: HTMLGwfVisPluginLegendElement;
+        new (): HTMLGwfVisPluginLegendElement;
+    };
     interface HTMLGwfVisPluginLineChartElement extends Components.GwfVisPluginLineChart, HTMLStencilElement {
     }
     var HTMLGwfVisPluginLineChartElement: {
@@ -139,6 +156,7 @@ declare global {
         "gwf-vis-plugin-data-fetcher": HTMLGwfVisPluginDataFetcherElement;
         "gwf-vis-plugin-dimension-control": HTMLGwfVisPluginDimensionControlElement;
         "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
+        "gwf-vis-plugin-legend": HTMLGwfVisPluginLegendElement;
         "gwf-vis-plugin-line-chart": HTMLGwfVisPluginLineChartElement;
         "gwf-vis-plugin-metadata": HTMLGwfVisPluginMetadataElement;
         "gwf-vis-plugin-selection": HTMLGwfVisPluginSelectionElement;
@@ -174,6 +192,16 @@ declare namespace LocalJSX {
         "options"?: L.GeoJSONOptions;
         "removingFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
+        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
+        "variableName"?: string;
+    }
+    interface GwfVisPluginLegend {
+        "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
+        "datasetId"?: string;
+        "dimensions"?: { [dimension: string]: number };
+        "fetchingDataDelegate"?: (query: any) => any;
+        "globalInfoDict"?: GloablInfoDict;
+        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
@@ -222,6 +250,7 @@ declare namespace LocalJSX {
         "gwf-vis-plugin-data-fetcher": GwfVisPluginDataFetcher;
         "gwf-vis-plugin-dimension-control": GwfVisPluginDimensionControl;
         "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
+        "gwf-vis-plugin-legend": GwfVisPluginLegend;
         "gwf-vis-plugin-line-chart": GwfVisPluginLineChart;
         "gwf-vis-plugin-metadata": GwfVisPluginMetadata;
         "gwf-vis-plugin-selection": GwfVisPluginSelection;
@@ -236,6 +265,7 @@ declare module "@stencil/core" {
             "gwf-vis-plugin-data-fetcher": LocalJSX.GwfVisPluginDataFetcher & JSXBase.HTMLAttributes<HTMLGwfVisPluginDataFetcherElement>;
             "gwf-vis-plugin-dimension-control": LocalJSX.GwfVisPluginDimensionControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginDimensionControlElement>;
             "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
+            "gwf-vis-plugin-legend": LocalJSX.GwfVisPluginLegend & JSXBase.HTMLAttributes<HTMLGwfVisPluginLegendElement>;
             "gwf-vis-plugin-line-chart": LocalJSX.GwfVisPluginLineChart & JSXBase.HTMLAttributes<HTMLGwfVisPluginLineChartElement>;
             "gwf-vis-plugin-metadata": LocalJSX.GwfVisPluginMetadata & JSXBase.HTMLAttributes<HTMLGwfVisPluginMetadataElement>;
             "gwf-vis-plugin-selection": LocalJSX.GwfVisPluginSelection & JSXBase.HTMLAttributes<HTMLGwfVisPluginSelectionElement>;
