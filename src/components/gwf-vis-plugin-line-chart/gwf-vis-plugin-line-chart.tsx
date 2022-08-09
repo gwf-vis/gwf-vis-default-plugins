@@ -43,7 +43,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginCo
     const dimensionQeury = { ...this.globalInfoDict?.dimensionDict };
     delete dimensionQeury[this.dimension];
     const variableNames = this.variableNames || [this.globalInfoDict?.variableName];
-    const datasetId = this.globalInfoDict?.userSelectionDict?.dataset;
+    const datasetId = this.datasetId || this.globalInfoDict?.userSelectionDict?.dataset;
     const values = await this.fetchingDataDelegate({
       type: 'values',
       from: datasetId,
