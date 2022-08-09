@@ -1,5 +1,6 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
 import Chart from 'chart.js/auto';
+import * as d3 from 'd3';
 import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
@@ -35,7 +36,14 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPluginC
   }
 
   async drawChart(canvasElement: HTMLCanvasElement) {
-    const datasetId = this.globalInfoDict?.userSelectionDict?.dataset || this.datasetId;
+    const datasetId = this.datasetId || this.globalInfoDict?.userSelectionDict?.dataset;
+    const locations = (this.globalInfoDict?.pinnedSelections || []).filter(location => location.dataset === datasetId);
+    if (
+      this.globalInfoDict?.userSelectionDict &&
+      !locations.find(location => location.dataset === this.globalInfoDict.userSelectionDict.dataset && location.location === this.globalInfoDict.userSelectionDict.location)
+    ) {
+      locations.push({ ...this.globalInfoDict.userSelectionDict, color: 'hsl(0, 0%, 70%)' });
+    }
     const variableNames =
       this.variableNames ||
       (
@@ -45,26 +53,32 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPluginC
         })
       )?.map(variable => variable.name);
     const dimensionDict = this.dimensions || this.globalInfoDict?.dimensionDict;
-    const locationId = this.globalInfoDict?.userSelectionDict?.location;
+    const locationIds = locations.map(d => d.location);
     const values = await this.fetchingDataDelegate({
       type: 'values',
       from: datasetId,
       with: {
-        location: locationId,
+        location: locationIds,
         variable: variableNames,
         dimensions: dimensionDict,
       },
-      for: ['variable', 'value'],
+      for: ['location', 'variable', 'value'],
     });
 
     const data = {
       labels: variableNames,
-      datasets: [
-        {
-          label: `Location ${locationId ?? 'N/A'}`,
-          data: variableNames?.map(variableName => values?.find(d => d.variable === variableName)?.value),
-        },
-      ],
+      datasets: locations.map(location => {
+        const color = location.color || 'hsl(0, 0%, 0%)';
+        const colorRgb = d3.rgb(color);
+        colorRgb.opacity *= 0.5;
+        const colorWithHalfOpacity = colorRgb.toString();
+        return {
+          label: `Location ${location.location ?? 'N/A'}`,
+          data: variableNames?.map(variableName => values?.find(d => d.variable === variableName && d.location === location.location)?.value),
+          backgroundColor: colorWithHalfOpacity,
+          borderColor: color,
+        };
+      }),
     };
     const config = {
       type: 'radar',
