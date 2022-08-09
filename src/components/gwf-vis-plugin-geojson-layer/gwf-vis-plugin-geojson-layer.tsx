@@ -90,9 +90,14 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     const colorScheme = obtainVariableColorScheme(this.colorScheme, variableName);
     const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
     const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
-    this.geojsonLayerInstance.setStyle(feature => {
+    this.geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
+      const locationId = feature?.properties?.id;
+      const value = values?.find(({ location }) => location === locationId)?.value;
+      return `Location ID: ${locationId}<br/>Value: ${value ?? 'N/A'}`;
+    });
+    this.geojsonLayerInstance?.setStyle(feature => {
       const { properties } = feature;
-      const value = values?.find(({ location }) => location === properties.id)?.value;
+      const value = values?.find(({ location }) => location === properties?.id)?.value;
       const fillColor = (scaleColor(value) as any) || 'transparent';
       const style = {
         fillColor,
