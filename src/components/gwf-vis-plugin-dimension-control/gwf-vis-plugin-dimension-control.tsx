@@ -89,6 +89,10 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
             />
             <span>{this.dimension?.size ?? 'N/A'}</span>
           </div>
+          <div>
+            <b>Current Value: </b>
+            {this.value ?? 'N/A'}
+          </div>
         </div>
       </Host>
     );
