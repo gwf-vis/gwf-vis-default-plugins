@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method, State, Watch } from '@stencil/core';
-import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 
 export type Variable = {
   id: number;
@@ -13,9 +13,8 @@ export type Variable = {
   styleUrl: 'gwf-vis-plugin-variable-control.css',
   shadow: true,
 })
-export class GwfVisPluginVariableControl implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginVariableControl implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-variable-control';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   @State() variables: Variable[];
 
@@ -28,7 +27,6 @@ export class GwfVisPluginVariableControl implements ComponentInterface, GwfVisPl
     this.updatingGlobalInfoDelegate(updatedGlobalInfo);
   }
 
-  @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;

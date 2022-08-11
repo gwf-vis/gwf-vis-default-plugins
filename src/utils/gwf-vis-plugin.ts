@@ -11,22 +11,22 @@ export interface GloablInfoDict {
 }
 
 export interface GwfVisPlugin {
-  leaflet: typeof globalThis.L;
-  fetchingDataDelegate: (query: any) => Promise<any>;
-  globalInfoDict: GloablInfoDict;
-  updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  fetchingDataDelegate?: (query: any) => Promise<any>;
+  globalInfoDict?: GloablInfoDict;
+  updatingGlobalInfoDelegate?: (gloablInfoDict: GloablInfoDict) => void;
+  obtainHeader: () => Promise<string>;
 }
 
-export interface GwfVisPluginLayer extends GwfVisPlugin {
-  addingToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+export interface GwfVisPluginMap extends GwfVisPlugin {
+  leaflet: typeof globalThis.L;
   removingFromMapDelegate: (layer: L.Layer) => void;
+  addingToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+}
+
+export interface GwfVisPluginMapLayer extends GwfVisPluginMap {
   name: string;
   type: 'base-layer' | 'overlay';
   active: boolean;
-}
-
-export interface GwfVisPluginControl extends GwfVisPlugin {
-  obtainHeader: () => Promise<string>;
 }
 
 export interface GwfVisPluginData extends GwfVisPlugin {

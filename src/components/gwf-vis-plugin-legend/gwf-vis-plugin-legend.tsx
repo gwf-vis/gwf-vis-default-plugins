@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Method, Prop, State } from '@stencil/core';
-import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
 
 @Component({
@@ -7,9 +7,8 @@ import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/va
   styleUrl: 'gwf-vis-plugin-legend.css',
   shadow: true,
 })
-export class GwfVisPluginLegend implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-legend';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   @State() currentVaribaleName: string;
   @State() currentMinValue: number;
@@ -17,7 +16,6 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPluginContr
   @State() currentColorScheme: string[];
   @State() currentDimensions: { [dimension: string]: number };
 
-  @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;

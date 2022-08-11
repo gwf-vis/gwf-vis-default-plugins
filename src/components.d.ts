@@ -10,17 +10,13 @@ import { ColorSchemeDefinition } from "./utils/variable-color-scheme";
 export namespace Components {
     interface GwfVisPluginDataFetcher {
         "fetchData": (query: any) => Promise<{ [k: string]: any; }[]>;
-        "fetchingDataDelegate": (query: any) => Promise<any>;
-        "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
         "sqliteWorkerUrl": string;
-        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginDimensionControl {
         "datasetId": string;
         "fetchingDataDelegate": (query: any) => Promise<any>;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
@@ -34,6 +30,7 @@ export namespace Components {
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
+        "obtainHeader": () => Promise<string>;
         "options"?: L.GeoJSONOptions;
         "removingFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
@@ -46,7 +43,6 @@ export namespace Components {
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
@@ -56,7 +52,6 @@ export namespace Components {
         "dimension": string;
         "fetchingDataDelegate": (query: any) => Promise<any>;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableNames"?: string[];
@@ -64,7 +59,6 @@ export namespace Components {
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
@@ -73,36 +67,31 @@ export namespace Components {
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate": (query: any) => Promise<any>;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "variableNames"?: string[];
     }
     interface GwfVisPluginSelection {
-        "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
         "active": boolean;
         "addingToMapDelegate": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "fetchingDataDelegate": (query: any) => any;
         "globalInfoDict": GloablInfoDict;
         "leaflet": typeof globalThis.L;
         "name": string;
+        "obtainHeader": () => Promise<string>;
         "options"?: L.TileLayerOptions;
         "removingFromMapDelegate": (layer: L.Layer) => void;
         "type": 'base-layer' | 'overlay';
-        "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate": string;
     }
     interface GwfVisPluginVariableControl {
         "datasetId": string;
         "fetchingDataDelegate": (query: any) => Promise<any>;
         "globalInfoDict": GloablInfoDict;
-        "leaflet": typeof globalThis.L;
         "obtainHeader": () => Promise<string>;
         "updatingGlobalInfoDelegate": (gloablInfoDict: GloablInfoDict) => void;
     }
@@ -183,17 +172,12 @@ declare global {
 }
 declare namespace LocalJSX {
     interface GwfVisPluginDataFetcher {
-        "fetchingDataDelegate"?: (query: any) => Promise<any>;
-        "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "sqliteWorkerUrl"?: string;
-        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginDimensionControl {
         "datasetId"?: string;
         "fetchingDataDelegate"?: (query: any) => Promise<any>;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginGeojsonLayer {
@@ -218,7 +202,6 @@ declare namespace LocalJSX {
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableName"?: string;
     }
@@ -227,14 +210,12 @@ declare namespace LocalJSX {
         "dimension"?: string;
         "fetchingDataDelegate"?: (query: any) => Promise<any>;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableNames"?: string[];
     }
     interface GwfVisPluginMetadata {
         "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginRadarChart {
@@ -242,34 +223,28 @@ declare namespace LocalJSX {
         "dimensions"?: { [dimension: string]: number };
         "fetchingDataDelegate"?: (query: any) => Promise<any>;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "variableNames"?: string[];
     }
     interface GwfVisPluginSelection {
-        "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface GwfVisPluginTileLayer {
         "active"?: boolean;
         "addingToMapDelegate"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-        "fetchingDataDelegate"?: (query: any) => any;
         "globalInfoDict"?: GloablInfoDict;
         "leaflet"?: typeof globalThis.L;
         "name"?: string;
         "options"?: L.TileLayerOptions;
         "removingFromMapDelegate"?: (layer: L.Layer) => void;
         "type"?: 'base-layer' | 'overlay';
-        "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
         "urlTemplate"?: string;
     }
     interface GwfVisPluginVariableControl {
         "datasetId"?: string;
         "fetchingDataDelegate"?: (query: any) => Promise<any>;
         "globalInfoDict"?: GloablInfoDict;
-        "leaflet"?: typeof globalThis.L;
         "updatingGlobalInfoDelegate"?: (gloablInfoDict: GloablInfoDict) => void;
     }
     interface IntrinsicElements {

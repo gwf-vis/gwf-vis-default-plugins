@@ -1,7 +1,7 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
 import Chart from 'chart.js/auto';
 import { PointElement } from 'chart.js';
-import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 import { VERTICLE_LINE_CHART_PLUGIN } from './varticle-line-chart-plugin';
 
 @Component({
@@ -9,16 +9,14 @@ import { VERTICLE_LINE_CHART_PLUGIN } from './varticle-line-chart-plugin';
   styleUrl: 'gwf-vis-plugin-line-chart.css',
   shadow: true,
 })
-export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-line-chart';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   private readonly DEFAULT_COLORS = ['#8CC63E', '#2989E3', '#724498', '#F02C89', '#FB943B', '#F4CD26'];
   private readonly FALLBACK_VALUE = Number.NaN;
 
   private chart: Chart;
 
-  @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;

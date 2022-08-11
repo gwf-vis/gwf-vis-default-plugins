@@ -15,16 +15,16 @@ export type DbHelper = {
 })
 export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPluginData {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-data-fetcher';
-  static readonly __PLUGIN_TYPE__ = 'data';
 
   private sqliteActionIdAndResolveMap = new Map<string, (value: any) => void>();
   private dbIdAndHelperMap = new Map<string, DbHelper>();
 
-  @Prop() leaflet: typeof globalThis.L;
-  @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
   @Prop() sqliteWorkerUrl: string;
+
+  @Method()
+  async obtainHeader() {
+    return 'Data Fetcher';
+  }
 
   @Method()
   async fetchData(query: any) {

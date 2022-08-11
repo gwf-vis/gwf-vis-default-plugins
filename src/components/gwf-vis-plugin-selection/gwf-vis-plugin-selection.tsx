@@ -1,19 +1,16 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginControl } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-selection',
   styleUrl: 'gwf-vis-plugin-selection.css',
   shadow: true,
 })
-export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-selection';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   private readonly defaultColors = ['#8CC63E', '#2989E3', '#724498', '#F02C89', '#FB943B', '#F4CD26'];
 
-  @Prop() leaflet: typeof globalThis.L;
-  @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
 

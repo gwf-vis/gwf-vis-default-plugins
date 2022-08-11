@@ -1,20 +1,18 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
 import Chart from 'chart.js/auto';
 import * as d3 from 'd3';
-import { GwfVisPluginControl, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-radar-chart',
   styleUrl: 'gwf-vis-plugin-radar-chart.css',
   shadow: true,
 })
-export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-radar-chart';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   private chart: Chart;
 
-  @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;

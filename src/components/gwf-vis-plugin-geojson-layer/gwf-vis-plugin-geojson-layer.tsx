@@ -1,5 +1,5 @@
-import { Component, Host, h, ComponentInterface, Prop } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginLayer } from '../../utils/gwf-vis-plugin';
+import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
+import { GloablInfoDict, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
 import * as d3 from 'd3';
 import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
 
@@ -8,9 +8,8 @@ import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/va
   styleUrl: 'gwf-vis-plugin-geojson-layer.css',
   shadow: true,
 })
-export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPluginLayer {
+export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPluginMapLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-geojson-layer';
-  static readonly __PLUGIN_TYPE__ = 'layer';
 
   private geojsonLayerInstance: L.GeoJSON;
 
@@ -58,6 +57,11 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     } else {
       this.applyData();
     }
+  }
+
+  @Method()
+  async obtainHeader() {
+    return 'GeoJSON Map Layer';
   }
 
   render() {

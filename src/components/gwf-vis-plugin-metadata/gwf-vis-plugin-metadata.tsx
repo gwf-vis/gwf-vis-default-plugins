@@ -1,18 +1,16 @@
 import { Component, Host, h, ComponentInterface, Prop, Method, State } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginControl } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-metadata',
   styleUrl: 'gwf-vis-plugin-metadata.css',
   shadow: true,
 })
-export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-metadata';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   @State() metadata: any;
 
-  @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => any;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;

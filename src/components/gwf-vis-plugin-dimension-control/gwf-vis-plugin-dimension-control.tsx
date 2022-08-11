@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Method, Prop, State, Watch } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginControl } from '../../utils/gwf-vis-plugin';
+import { GloablInfoDict, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
 
 export type Dimension = {
   id: number;
@@ -14,9 +14,8 @@ export type Dimension = {
   styleUrl: 'gwf-vis-plugin-dimension-control.css',
   shadow: true,
 })
-export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisPluginControl {
+export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-dimension-control';
-  static readonly __PLUGIN_TYPE__ = 'control';
 
   @State() dimensions: Dimension[];
   @State() dimension: Dimension;
@@ -31,7 +30,6 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
     this.updatingGlobalInfoDelegate(updatedGlobalInfo);
   }
 
-  @Prop() leaflet: typeof globalThis.L;
   @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
   @Prop() globalInfoDict: GloablInfoDict;
   @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
