@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method, State, Watch } from '@stencil/core';
-import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfo } from '../../utils/gwf-vis-plugin';
 
 export type Variable = {
   id: number;
@@ -22,18 +22,18 @@ export class GwfVisPluginVariableControl implements ComponentInterface, GwfVisPl
 
   @Watch('variable')
   handleValueChange(value: Variable) {
-    const updatedGlobalInfo = { ...this.globalInfoDict };
+    const updatedGlobalInfo = { ...this.globalInfo };
     updatedGlobalInfo.variableName = value.name;
-    this.updatingGlobalInfoDelegate(updatedGlobalInfo);
+    this.delegateOfUpdatingGlobalInfo(updatedGlobalInfo);
   }
 
-  @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
   @Prop() datasetId: string;
 
   async componentWillLoad() {
-    this.variables = await this.fetchingDataDelegate({
+    this.variables = await this.delegateOfFetchingData({
       type: 'variables',
       from: this.datasetId,
     });

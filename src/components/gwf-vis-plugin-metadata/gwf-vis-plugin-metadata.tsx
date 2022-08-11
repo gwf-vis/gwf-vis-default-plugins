@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method, State } from '@stencil/core';
-import { GloablInfoDict, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
+import { GloablInfo, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-metadata',
@@ -11,9 +11,9 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPlugin {
 
   @State() metadata: any;
 
-  @Prop() fetchingDataDelegate: (query: any) => any;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfFetchingData: (query: any) => any;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
 
   @Method()
   async obtainHeader() {
@@ -22,12 +22,12 @@ export class GwfVisPluginMetadata implements ComponentInterface, GwfVisPlugin {
 
   async componentWillRender() {
     const [metadataWithWrapper] =
-      (await this.fetchingDataDelegate?.({
+      (await this.delegateOfFetchingData?.({
         type: 'locations',
-        from: this.globalInfoDict?.userSelectionDict?.dataset,
+        from: this.globalInfo?.userSelection?.dataset,
         for: ['metadata'],
         with: {
-          id: this.globalInfoDict?.userSelectionDict?.location,
+          id: this.globalInfo?.userSelection?.location,
         },
       })) || [];
     if (metadataWithWrapper) {

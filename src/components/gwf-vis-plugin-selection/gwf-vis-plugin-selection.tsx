@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
-import { GloablInfoDict, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
+import { GloablInfo, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-selection',
@@ -11,8 +11,8 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
 
   private readonly defaultColors = ['#8CC63E', '#2989E3', '#724498', '#F02C89', '#FB943B', '#F4CD26'];
 
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
 
   @Method()
   async obtainHeader() {
@@ -25,10 +25,10 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
         <div part="content">
           <div part="info-section">
             <div>
-              <b>Dataset</b>: {this.globalInfoDict?.userSelectionDict?.dataset || 'No selection'}
+              <b>Dataset</b>: {this.globalInfo?.userSelection?.dataset || 'No selection'}
             </div>
             <div>
-              <b>Location ID</b>: {this.globalInfoDict?.userSelectionDict?.location || 'No selection'}
+              <b>Location ID</b>: {this.globalInfo?.userSelection?.location || 'No selection'}
             </div>
           </div>
           <div part="pin-section">
@@ -36,18 +36,18 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
               <button
                 class="solid"
                 onClick={() => {
-                  if (this.globalInfoDict?.userSelectionDict?.dataset && this.globalInfoDict?.userSelectionDict?.location) {
-                    if (!this.globalInfoDict.pinnedSelections) {
-                      this.globalInfoDict.pinnedSelections = [];
+                  if (this.globalInfo?.userSelection?.dataset && this.globalInfo?.userSelection?.location) {
+                    if (!this.globalInfo.pinnedSelections) {
+                      this.globalInfo.pinnedSelections = [];
                     }
-                    this.updatingGlobalInfoDelegate({
-                      ...this.globalInfoDict,
+                    this.delegateOfUpdatingGlobalInfo({
+                      ...this.globalInfo,
                       pinnedSelections: [
-                        ...this.globalInfoDict.pinnedSelections,
+                        ...this.globalInfo.pinnedSelections,
                         {
-                          dataset: this.globalInfoDict.userSelectionDict.dataset,
-                          location: this.globalInfoDict.userSelectionDict.location,
-                          color: this.defaultColors.find(color => !this.globalInfoDict.pinnedSelections.map(pin => pin.color).includes(color)) || 'hsl(0, 0%, 30%)',
+                          dataset: this.globalInfo.userSelection.dataset,
+                          location: this.globalInfo.userSelection.location,
+                          color: this.defaultColors.find(color => !this.globalInfo.pinnedSelections.map(pin => pin.color).includes(color)) || 'hsl(0, 0%, 30%)',
                         },
                       ],
                     });
@@ -59,11 +59,11 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
               <button
                 class="hollow"
                 onClick={() => {
-                  if (this.globalInfoDict?.userSelectionDict?.dataset && this.globalInfoDict?.userSelectionDict?.location) {
-                    const pinnedSelections = this.globalInfoDict.pinnedSelections.filter(
-                      pin => pin.dataset !== this.globalInfoDict?.userSelectionDict?.dataset || pin.location !== this.globalInfoDict?.userSelectionDict?.location,
+                  if (this.globalInfo?.userSelection?.dataset && this.globalInfo?.userSelection?.location) {
+                    const pinnedSelections = this.globalInfo.pinnedSelections.filter(
+                      pin => pin.dataset !== this.globalInfo?.userSelection?.dataset || pin.location !== this.globalInfo?.userSelection?.location,
                     );
-                    this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, pinnedSelections });
+                    this.delegateOfUpdatingGlobalInfo({ ...this.globalInfo, pinnedSelections });
                   }
                 }}
               >
@@ -71,15 +71,15 @@ export class GwfVisPluginCurrentSelection implements ComponentInterface, GwfVisP
               </button>
             </div>
             <div part="pin-container">
-              {this.globalInfoDict?.pinnedSelections?.length > 0
-                ? this.globalInfoDict.pinnedSelections.map(selection => (
+              {this.globalInfo?.pinnedSelections?.length > 0
+                ? this.globalInfo.pinnedSelections.map(selection => (
                     <button
                       class="pin"
                       style={{ background: selection.color }}
                       title={`Dataset: ${selection.dataset}\nLocation: ${selection.location}`}
                       onClick={() => {
-                        const userSelectionDict = { dataset: selection.dataset, location: selection.location };
-                        this.updatingGlobalInfoDelegate({ ...this.globalInfoDict, userSelectionDict });
+                        const userSelection = { dataset: selection.dataset, location: selection.location };
+                        this.delegateOfUpdatingGlobalInfo({ ...this.globalInfo, userSelection: userSelection });
                       }}
                     ></button>
                   ))

@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Method, Prop, State } from '@stencil/core';
-import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfo } from '../../utils/gwf-vis-plugin';
 import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
 
 @Component({
@@ -16,19 +16,19 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
   @State() currentColorScheme: string[];
   @State() currentDimensions: { [dimension: string]: number };
 
-  @Prop() fetchingDataDelegate: (query: any) => any;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfFetchingData: (query: any) => any;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
   @Prop() datasetId: string;
   @Prop() variableName?: string;
   @Prop() dimensions?: { [dimension: string]: number };
   @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
 
   async componentWillRender() {
-    this.currentVaribaleName = this.variableName || this.globalInfoDict?.variableName;
-    this.currentDimensions = this.dimensions || this.globalInfoDict?.dimensionDict;
+    this.currentVaribaleName = this.variableName || this.globalInfo?.variableName;
+    this.currentDimensions = this.dimensions || this.globalInfo?.dimensionDict;
     if (this.currentVaribaleName && this.currentDimensions) {
-      [{ 'min(value)': this.currentMinValue, 'max(value)': this.currentMaxValue }] = (await this.fetchingDataDelegate?.({
+      [{ 'min(value)': this.currentMinValue, 'max(value)': this.currentMaxValue }] = (await this.delegateOfFetchingData?.({
         type: 'values',
         from: this.datasetId,
         with: {

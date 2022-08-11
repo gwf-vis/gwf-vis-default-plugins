@@ -3,24 +3,24 @@ export interface GwfVisShapeData {
   data: any;
 }
 
-export interface GloablInfoDict {
+export interface GloablInfo {
   dimensionDict?: { [dimension: string]: number };
   variableName?: string;
-  userSelectionDict?: { dataset: string; location: string };
+  userSelection?: { dataset: string; location: string };
   pinnedSelections?: { dataset: string; location: string; color: string }[];
 }
 
 export interface GwfVisPlugin {
-  fetchingDataDelegate?: (query: any) => Promise<any>;
-  globalInfoDict?: GloablInfoDict;
-  updatingGlobalInfoDelegate?: (gloablInfoDict: GloablInfoDict) => void;
+  delegateOfFetchingData?: (query: any) => Promise<any>;
+  globalInfo?: GloablInfo;
+  delegateOfUpdatingGlobalInfo?: (gloablInfoDict: GloablInfo) => void;
   obtainHeader: () => Promise<string>;
 }
 
 export interface GwfVisPluginMap extends GwfVisPlugin {
   leaflet: typeof globalThis.L;
-  removingFromMapDelegate: (layer: L.Layer) => void;
-  addingToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  delegateOfRemovingFromMap: (layer: L.Layer) => void;
+  delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
 }
 
 export interface GwfVisPluginMapLayer extends GwfVisPluginMap {

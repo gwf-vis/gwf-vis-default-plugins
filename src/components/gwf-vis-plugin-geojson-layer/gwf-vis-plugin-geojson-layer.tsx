@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
+import { GloablInfo, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
 import * as d3 from 'd3';
 import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
 
@@ -14,11 +14,11 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   private geojsonLayerInstance: L.GeoJSON;
 
   @Prop() leaflet: typeof globalThis.L;
-  @Prop() addingToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-  @Prop() removingFromMapDelegate: (layer: L.Layer) => void;
-  @Prop() fetchingDataDelegate: (query: any) => any;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  @Prop() delegateOfRemovingFromMap: (layer: L.Layer) => void;
+  @Prop() delegateOfFetchingData: (query: any) => any;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
   @Prop() name: string;
   @Prop() type: 'base-layer' | 'overlay' = 'overlay';
   @Prop() active: boolean = true;
@@ -29,15 +29,15 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
 
   async connectedCallback() {
-    this.removingFromMapDelegate?.(this.geojsonLayerInstance);
+    this.delegateOfRemovingFromMap?.(this.geojsonLayerInstance);
     await this.drawShape();
     await this.applyData();
     await this.applyHighlighs();
-    this.addingToMapDelegate(this.geojsonLayerInstance, this.name, this.type, this.active);
+    this.delegateOfAddingToMap(this.geojsonLayerInstance, this.name, this.type, this.active);
   }
 
   async disconnectedCallback() {
-    this.removingFromMapDelegate?.(this.geojsonLayerInstance);
+    this.delegateOfRemovingFromMap?.(this.geojsonLayerInstance);
   }
 
   componentShouldUpdate(_newValue: any, _oldValue: any, propName: string) {
@@ -47,11 +47,11 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     }
     if (propName === 'datasetId') {
       this.drawShape().then(() => this.applyData().then(() => this.applyHighlighs()));
-    } else if (propName === 'globalInfoDict') {
+    } else if (propName === 'globalInfo') {
       if (_newValue?.variableName !== _oldValue?.variableName || _newValue?.dimensionDict !== _oldValue?.dimensionDict) {
         this.applyData();
       }
-      if (_newValue?.userSelectionDict !== _oldValue?.userSelectionDict || _newValue?.pinnedSelections !== _oldValue?.pinnedSelections) {
+      if (_newValue?.userSelection !== _oldValue?.userSelection || _newValue?.pinnedSelections !== _oldValue?.pinnedSelections) {
         this.applyHighlighs();
       }
     } else {
@@ -69,11 +69,11 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   }
 
   private async applyData() {
-    const variableName = this.variableName || this.globalInfoDict?.variableName;
-    const dimensions = this.dimensions || this.globalInfoDict?.dimensionDict;
+    const variableName = this.variableName || this.globalInfo?.variableName;
+    const dimensions = this.dimensions || this.globalInfo?.dimensionDict;
     let values, maxValue, minValue;
     if (variableName && dimensions) {
-      values = await this.fetchingDataDelegate?.({
+      values = await this.delegateOfFetchingData?.({
         type: 'values',
         from: this.datasetId,
         with: {
@@ -82,7 +82,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         },
         for: ['location', 'value'],
       });
-      [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.fetchingDataDelegate?.({
+      [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.delegateOfFetchingData?.({
         type: 'values',
         from: this.datasetId,
         with: {
@@ -118,12 +118,12 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         color: 'hsl(0, 0%, 70%)',
         weight: 1,
       };
-      const matchedPin = this.globalInfoDict?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties?.id);
+      const matchedPin = this.globalInfo?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties?.id);
       if (matchedPin) {
         style['color'] = matchedPin.color;
         style['weight'] = 3;
       }
-      if (this.globalInfoDict?.userSelectionDict?.dataset === this.datasetId && this.globalInfoDict?.userSelectionDict?.location === properties?.id) {
+      if (this.globalInfo?.userSelection?.dataset === this.datasetId && this.globalInfo?.userSelection?.location === properties?.id) {
         style['weight'] = 5;
         this.geojsonLayerInstance
           .getLayers()
@@ -135,7 +135,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   }
 
   private async drawShape() {
-    const locations = await this.fetchingDataDelegate?.({
+    const locations = await this.delegateOfFetchingData?.({
       type: 'locations',
       from: this.datasetId,
       for: ['id', 'geometry'],
@@ -157,9 +157,9 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       onEachFeature: ({ properties }, layer) => {
         locationIds.push(properties.id.toString());
         layer.on('click', () =>
-          this.updatingGlobalInfoDelegate?.({
-            ...this.globalInfoDict,
-            userSelectionDict: { dataset: this.datasetId, location: properties.id },
+          this.delegateOfUpdatingGlobalInfo?.({
+            ...this.globalInfo,
+            userSelection: { dataset: this.datasetId, location: properties.id },
           }),
         );
       },

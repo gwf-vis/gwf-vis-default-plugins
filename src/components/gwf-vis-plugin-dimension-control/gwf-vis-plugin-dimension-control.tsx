@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Method, Prop, State, Watch } from '@stencil/core';
-import { GloablInfoDict, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
+import { GloablInfo, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
 
 export type Dimension = {
   id: number;
@@ -24,19 +24,19 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
 
   @Watch('value')
   handleValueChange(value: number) {
-    const updatedGlobalInfo = { ...this.globalInfoDict };
+    const updatedGlobalInfo = { ...this.globalInfo };
     updatedGlobalInfo.dimensionDict = { ...updatedGlobalInfo.dimensionDict };
     updatedGlobalInfo.dimensionDict[this.dimension.name] = value;
-    this.updatingGlobalInfoDelegate(updatedGlobalInfo);
+    this.delegateOfUpdatingGlobalInfo(updatedGlobalInfo);
   }
 
-  @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfo: GloablInfo) => void;
   @Prop() datasetId: string;
 
   async componentWillLoad() {
-    this.dimensions = await this.fetchingDataDelegate({
+    this.dimensions = await this.delegateOfFetchingData({
       type: 'dimensions',
       from: this.datasetId,
     });
@@ -45,7 +45,7 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
   }
 
   componentShouldUpdate(newValue: any, _oldValue: any, propName: string) {
-    if (propName === 'globalInfoDict') {
+    if (propName === 'globalInfo') {
       const newDimensionValue = newValue?.dimensionDict?.[this.dimension?.name];
       if (typeof newDimensionValue === 'number' && this.value !== newValue?.dimensionDict?.[this.dimension?.name]) {
         this.value = newDimensionValue;

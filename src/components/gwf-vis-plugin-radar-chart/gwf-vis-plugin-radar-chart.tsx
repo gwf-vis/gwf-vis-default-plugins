@@ -1,7 +1,7 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
 import Chart from 'chart.js/auto';
 import * as d3 from 'd3';
-import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfo } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-radar-chart',
@@ -13,9 +13,9 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
 
   private chart: Chart;
 
-  @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
   @Prop() datasetId: string;
   @Prop() variableNames?: string[];
   @Prop() dimensions?: { [dimension: string]: number };
@@ -34,25 +34,25 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
   }
 
   async drawChart(canvasElement: HTMLCanvasElement) {
-    const datasetId = this.datasetId || this.globalInfoDict?.userSelectionDict?.dataset;
-    const locations = (this.globalInfoDict?.pinnedSelections || []).filter(location => location.dataset === datasetId);
+    const datasetId = this.datasetId || this.globalInfo?.userSelection?.dataset;
+    const locations = (this.globalInfo?.pinnedSelections || []).filter(location => location.dataset === datasetId);
     if (
-      this.globalInfoDict?.userSelectionDict &&
-      !locations.find(location => location.dataset === this.globalInfoDict.userSelectionDict.dataset && location.location === this.globalInfoDict.userSelectionDict.location)
+      this.globalInfo?.userSelection &&
+      !locations.find(location => location.dataset === this.globalInfo.userSelection.dataset && location.location === this.globalInfo.userSelection.location)
     ) {
-      locations.push({ ...this.globalInfoDict.userSelectionDict, color: 'hsl(0, 0%, 70%)' });
+      locations.push({ ...this.globalInfo.userSelection, color: 'hsl(0, 0%, 70%)' });
     }
     const variableNames =
       this.variableNames ||
       (
-        await this.fetchingDataDelegate({
+        await this.delegateOfFetchingData({
           type: 'variables',
           from: datasetId,
         })
       )?.map(variable => variable.name);
-    const dimensionDict = this.dimensions || this.globalInfoDict?.dimensionDict;
+    const dimensionDict = this.dimensions || this.globalInfo?.dimensionDict;
     const locationIds = locations.map(d => d.location);
-    const values = await this.fetchingDataDelegate({
+    const values = await this.delegateOfFetchingData({
       type: 'values',
       from: datasetId,
       with: {

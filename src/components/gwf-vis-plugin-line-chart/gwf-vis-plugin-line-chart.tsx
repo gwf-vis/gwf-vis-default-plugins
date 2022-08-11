@@ -1,7 +1,7 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
 import Chart from 'chart.js/auto';
 import { PointElement } from 'chart.js';
-import { GwfVisPlugin, GloablInfoDict } from '../../utils/gwf-vis-plugin';
+import { GwfVisPlugin, GloablInfo } from '../../utils/gwf-vis-plugin';
 import { VERTICLE_LINE_CHART_PLUGIN } from './varticle-line-chart-plugin';
 
 @Component({
@@ -17,9 +17,9 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
 
   private chart: Chart;
 
-  @Prop() fetchingDataDelegate: (query: any) => Promise<any>;
-  @Prop() globalInfoDict: GloablInfoDict;
-  @Prop() updatingGlobalInfoDelegate: (gloablInfoDict: GloablInfoDict) => void;
+  @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
+  @Prop() globalInfo: GloablInfo;
+  @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
   @Prop() datasetId: string;
   @Prop() variableNames?: string[];
   @Prop() dimension: string;
@@ -38,21 +38,21 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   }
 
   async drawChart(canvasElement: HTMLCanvasElement) {
-    const dimensionQeury = { ...this.globalInfoDict?.dimensionDict };
+    const dimensionQeury = { ...this.globalInfo?.dimensionDict };
     delete dimensionQeury[this.dimension];
-    const variableNames = this.variableNames || [this.globalInfoDict?.variableName];
-    const datasetId = this.datasetId || this.globalInfoDict?.userSelectionDict?.dataset;
-    const values = await this.fetchingDataDelegate({
+    const variableNames = this.variableNames || [this.globalInfo?.variableName];
+    const datasetId = this.datasetId || this.globalInfo?.userSelection?.dataset;
+    const values = await this.delegateOfFetchingData({
       type: 'values',
       from: datasetId,
       with: {
-        location: this.globalInfoDict?.userSelectionDict?.location,
+        location: this.globalInfo?.userSelection?.location,
         variable: variableNames,
         dimensions: dimensionQeury,
       },
       for: ['variable', 'value', `dimension_${this.dimension}`],
     });
-    const dimensions = await this.fetchingDataDelegate({
+    const dimensions = await this.delegateOfFetchingData({
       type: 'dimensions',
       from: datasetId,
     });
@@ -78,10 +78,10 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
             if (item.element instanceof PointElement) {
               const index = item.index;
               if (confirm(`Do you want to set dimension "${this.dimension}" to value "${index}"?`)) {
-                const updatedGlobalInfo = { ...this.globalInfoDict };
+                const updatedGlobalInfo = { ...this.globalInfo };
                 updatedGlobalInfo.dimensionDict = { ...updatedGlobalInfo.dimensionDict };
                 updatedGlobalInfo.dimensionDict[this.dimension] = index;
-                this.updatingGlobalInfoDelegate(updatedGlobalInfo);
+                this.delegateOfUpdatingGlobalInfo(updatedGlobalInfo);
               }
             }
             return false;

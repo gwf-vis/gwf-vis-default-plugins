@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
+import { GloablInfo, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
 
 @Component({
   tag: 'gwf-vis-plugin-tile-layer',
@@ -12,9 +12,9 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginMa
   private tileLayerInstance: L.TileLayer;
 
   @Prop() leaflet: typeof globalThis.L;
-  @Prop() addingToMapDelegate: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
-  @Prop() removingFromMapDelegate: (layer: L.Layer) => void;
-  @Prop() globalInfoDict: GloablInfoDict;
+  @Prop() delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+  @Prop() delegateOfRemovingFromMap: (layer: L.Layer) => void;
+  @Prop() globalInfo: GloablInfo;
   @Prop() name: string;
   @Prop() type: 'base-layer' | 'overlay' = 'base-layer';
   @Prop() active: boolean = true;
@@ -22,15 +22,15 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginMa
   @Prop() options?: L.TileLayerOptions;
 
   async connectedCallback() {
-    this.removingFromMapDelegate?.(this.tileLayerInstance);
+    this.delegateOfRemovingFromMap?.(this.tileLayerInstance);
     if (this.urlTemplate) {
       this.tileLayerInstance = this.leaflet.tileLayer(this.urlTemplate, this.options);
-      this.addingToMapDelegate(this.tileLayerInstance, this.name, this.type, this.active);
+      this.delegateOfAddingToMap(this.tileLayerInstance, this.name, this.type, this.active);
     }
   }
 
   async disconnectedCallback() {
-    this.removingFromMapDelegate?.(this.tileLayerInstance);
+    this.delegateOfRemovingFromMap?.(this.tileLayerInstance);
   }
 
   componentShouldUpdate(_newValue: any, _oldValue: any, propName: string) {

@@ -1,5 +1,5 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
-import { GloablInfoDict, GwfVisPluginData } from '../../utils/gwf-vis-plugin';
+import { GwfVisPluginData } from '../../utils/gwf-vis-plugin';
 import type { QueryExecResult } from 'sql.js';
 
 export type DbHelper = {
