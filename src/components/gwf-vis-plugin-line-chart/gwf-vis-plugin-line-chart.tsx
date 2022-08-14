@@ -1,6 +1,7 @@
 import { Component, Host, h, ComponentInterface, Method, Prop } from '@stencil/core';
 import Chart from 'chart.js/auto';
 import { PointElement } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { GwfVisPlugin, GloablInfo } from '../../utils/gwf-vis-plugin';
 import { VERTICLE_LINE_CHART_PLUGIN } from './varticle-line-chart-plugin';
 
@@ -23,6 +24,10 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   @Prop() datasetId: string;
   @Prop() variableNames?: string[];
   @Prop() dimension: string;
+
+  constructor() {
+    Chart.register(zoomPlugin);
+  }
 
   @Method()
   async obtainHeader() {
@@ -91,11 +96,32 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
           intersect: false,
           mode: 'index',
         },
+        plugins: {
+          zoom: {
+            zoom: {
+              wheel: {
+                enabled: true,
+                modifierKey: 'ctrl'
+              },
+              pinch: {
+                enabled: true,
+              },
+              mode: 'xy',
+              overScaleMode: 'xy',
+            },
+            pan: {
+              enabled: true,
+              mode: 'xy',
+              overScaleMode: 'xy',
+            },
+          },
+        },
       },
       plugins: [VERTICLE_LINE_CHART_PLUGIN],
     };
     if (this.chart) {
       this.chart.data = data;
+      this.chart.resetZoom();
       this.chart.update();
     } else {
       this.chart = new Chart(canvasElement, config as any);
