@@ -24,7 +24,7 @@ export interface GwfVisPluginMap extends GwfVisPlugin {
 }
 
 export interface GwfVisPluginMapLayer extends GwfVisPluginMap {
-  name: string;
+  layerName: string;
   type: 'base-layer' | 'overlay';
   active: boolean;
 }

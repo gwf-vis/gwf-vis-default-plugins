@@ -19,7 +19,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() delegateOfFetchingData: (query: any) => any;
   @Prop() globalInfo: GloablInfo;
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
-  @Prop() name: string;
+  @Prop() layerName: string;
   @Prop() type: 'base-layer' | 'overlay' = 'overlay';
   @Prop() active: boolean = true;
   @Prop() options?: L.GeoJSONOptions;
@@ -33,7 +33,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     await this.drawShape();
     await this.applyData();
     await this.applyHighlighs();
-    this.delegateOfAddingToMap(this.geojsonLayerInstance, this.name, this.type, this.active);
+    this.delegateOfAddingToMap(this.geojsonLayerInstance, this.layerName, this.type, this.active);
   }
 
   async disconnectedCallback() {

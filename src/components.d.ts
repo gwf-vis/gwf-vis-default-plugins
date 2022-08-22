@@ -30,8 +30,8 @@ export namespace Components {
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
         "globalInfo": GloablInfo;
+        "layerName": string;
         "leaflet": typeof globalThis.L;
-        "name": string;
         "obtainHeader": () => Promise<string>;
         "options"?: L.GeoJSONOptions;
         "type": 'base-layer' | 'overlay';
@@ -81,8 +81,8 @@ export namespace Components {
         "delegateOfAddingToMap": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "delegateOfRemovingFromMap": (layer: L.Layer) => void;
         "globalInfo": GloablInfo;
+        "layerName": string;
         "leaflet": typeof globalThis.L;
-        "name": string;
         "obtainHeader": () => Promise<string>;
         "options"?: L.TileLayerOptions;
         "type": 'base-layer' | 'overlay';
@@ -190,8 +190,8 @@ declare namespace LocalJSX {
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
         "globalInfo"?: GloablInfo;
+        "layerName"?: string;
         "leaflet"?: typeof globalThis.L;
-        "name"?: string;
         "options"?: L.GeoJSONOptions;
         "type"?: 'base-layer' | 'overlay';
         "variableName"?: string;
@@ -235,8 +235,8 @@ declare namespace LocalJSX {
         "delegateOfAddingToMap"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "delegateOfRemovingFromMap"?: (layer: L.Layer) => void;
         "globalInfo"?: GloablInfo;
+        "layerName"?: string;
         "leaflet"?: typeof globalThis.L;
-        "name"?: string;
         "options"?: L.TileLayerOptions;
         "type"?: 'base-layer' | 'overlay';
         "urlTemplate"?: string;

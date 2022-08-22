@@ -15,7 +15,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginMa
   @Prop() delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
   @Prop() delegateOfRemovingFromMap: (layer: L.Layer) => void;
   @Prop() globalInfo: GloablInfo;
-  @Prop() name: string;
+  @Prop() layerName: string;
   @Prop() type: 'base-layer' | 'overlay' = 'base-layer';
   @Prop() active: boolean = true;
   @Prop() urlTemplate: string;
@@ -25,7 +25,7 @@ export class GwfVisPluginTileLayer implements ComponentInterface, GwfVisPluginMa
     this.delegateOfRemovingFromMap?.(this.tileLayerInstance);
     if (this.urlTemplate) {
       this.tileLayerInstance = this.leaflet.tileLayer(this.urlTemplate, this.options);
-      this.delegateOfAddingToMap(this.tileLayerInstance, this.name, this.type, this.active);
+      this.delegateOfAddingToMap(this.tileLayerInstance, this.layerName, this.type, this.active);
     }
   }
 
