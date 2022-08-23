@@ -19,7 +19,7 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
   @Prop() delegateOfFetchingData: (query: any) => any;
   @Prop() globalInfo: GloablInfo;
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
-  @Prop() datasetId: string;
+  @Prop() dataSource: string;
   @Prop() variableName?: string;
   @Prop() dimensions?: { [dimension: string]: number };
   @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
@@ -30,7 +30,7 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
     if (this.currentVaribaleName && this.currentDimensions) {
       [{ 'min(value)': this.currentMinValue, 'max(value)': this.currentMaxValue }] = (await this.delegateOfFetchingData?.({
         type: 'values',
-        from: this.datasetId,
+        from: this.dataSource,
         with: {
           variable: this.currentVaribaleName,
         },

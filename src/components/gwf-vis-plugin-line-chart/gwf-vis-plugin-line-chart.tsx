@@ -21,7 +21,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
   @Prop() globalInfo: GloablInfo;
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
-  @Prop() datasetId: string;
+  @Prop() dataSource: string;
   @Prop() variableNames?: string[];
   @Prop() dimension: string;
 
@@ -46,10 +46,10 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
     const dimensionQeury = { ...this.globalInfo?.dimensionDict };
     delete dimensionQeury[this.dimension];
     const variableNames = this.variableNames || [this.globalInfo?.variableName];
-    const datasetId = this.datasetId || this.globalInfo?.userSelection?.dataset;
+    const dataSource = this.dataSource || this.globalInfo?.userSelection?.dataset;
     const values = await this.delegateOfFetchingData({
       type: 'values',
-      from: datasetId,
+      from: dataSource,
       with: {
         location: this.globalInfo?.userSelection?.location,
         variable: variableNames,
@@ -59,7 +59,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
     });
     const dimensions = await this.delegateOfFetchingData({
       type: 'dimensions',
-      from: datasetId,
+      from: dataSource,
     });
     const dimensionSize = dimensions?.find(dimension => dimension.name === this.dimension)?.size;
     const labels = [...new Array(dimensionSize || 0).keys()];

@@ -23,7 +23,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() type: 'base-layer' | 'overlay' = 'overlay';
   @Prop() active: boolean = true;
   @Prop() options?: L.GeoJSONOptions;
-  @Prop() datasetId: string;
+  @Prop() dataSource: string;
   @Prop() variableName?: string;
   @Prop() dimensions?: { [dimension: string]: number };
   @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
@@ -45,7 +45,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       this.connectedCallback();
       return;
     }
-    if (propName === 'datasetId') {
+    if (propName === 'dataSource') {
       this.drawShape().then(() => this.applyData().then(() => this.applyHighlighs()));
     } else if (propName === 'globalInfo') {
       if (_newValue?.variableName !== _oldValue?.variableName || _newValue?.dimensionDict !== _oldValue?.dimensionDict) {
@@ -75,7 +75,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
     if (variableName && dimensions) {
       values = await this.delegateOfFetchingData?.({
         type: 'values',
-        from: this.datasetId,
+        from: this.dataSource,
         with: {
           variable: variableName,
           dimensions,
@@ -84,7 +84,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       });
       [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.delegateOfFetchingData?.({
         type: 'values',
-        from: this.datasetId,
+        from: this.dataSource,
         with: {
           variable: variableName,
         },
@@ -118,12 +118,12 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         color: 'hsl(0, 0%, 70%)',
         weight: 1,
       };
-      const matchedPin = this.globalInfo?.pinnedSelections?.find(pin => pin.dataset === this.datasetId && pin.location === properties?.id);
+      const matchedPin = this.globalInfo?.pinnedSelections?.find(pin => pin.dataset === this.dataSource && pin.location === properties?.id);
       if (matchedPin) {
         style['color'] = matchedPin.color;
         style['weight'] = 3;
       }
-      if (this.globalInfo?.userSelection?.dataset === this.datasetId && this.globalInfo?.userSelection?.location === properties?.id) {
+      if (this.globalInfo?.userSelection?.dataset === this.dataSource && this.globalInfo?.userSelection?.location === properties?.id) {
         style['weight'] = 5;
         this.geojsonLayerInstance
           .getLayers()
@@ -137,7 +137,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   private async drawShape() {
     const locations = await this.delegateOfFetchingData?.({
       type: 'locations',
-      from: this.datasetId,
+      from: this.dataSource,
       for: ['id', 'geometry'],
     });
     const geojson = {
@@ -159,7 +159,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         layer.on('click', () =>
           this.delegateOfUpdatingGlobalInfo?.({
             ...this.globalInfo,
-            userSelection: { dataset: this.datasetId, location: properties.id },
+            userSelection: { dataset: this.dataSource, location: properties.id },
           }),
         );
       },

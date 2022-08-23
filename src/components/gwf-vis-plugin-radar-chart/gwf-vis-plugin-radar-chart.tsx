@@ -16,7 +16,7 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
   @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
   @Prop() globalInfo: GloablInfo;
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
-  @Prop() datasetId: string;
+  @Prop() dataSource: string;
   @Prop() variableNames?: string[];
   @Prop() dimensions?: { [dimension: string]: number };
 
@@ -34,8 +34,8 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
   }
 
   async drawChart(canvasElement: HTMLCanvasElement) {
-    const datasetId = this.datasetId || this.globalInfo?.userSelection?.dataset;
-    const locations = (this.globalInfo?.pinnedSelections || []).filter(location => location.dataset === datasetId);
+    const dataSource = this.dataSource || this.globalInfo?.userSelection?.dataset;
+    const locations = (this.globalInfo?.pinnedSelections || []).filter(location => location.dataset === dataSource);
     if (
       this.globalInfo?.userSelection &&
       !locations.find(location => location.dataset === this.globalInfo.userSelection.dataset && location.location === this.globalInfo.userSelection.location)
@@ -47,14 +47,14 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
       (
         await this.delegateOfFetchingData({
           type: 'variables',
-          from: datasetId,
+          from: dataSource,
         })
       )?.map(variable => variable.name);
     const dimensionDict = this.dimensions || this.globalInfo?.dimensionDict;
     const locationIds = locations.map(d => d.location);
     const values = await this.delegateOfFetchingData({
       type: 'values',
-      from: datasetId,
+      from: dataSource,
       with: {
         location: locationIds,
         variable: variableNames,

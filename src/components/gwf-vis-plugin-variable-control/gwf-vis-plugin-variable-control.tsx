@@ -30,12 +30,12 @@ export class GwfVisPluginVariableControl implements ComponentInterface, GwfVisPl
   @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
   @Prop() globalInfo: GloablInfo;
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
-  @Prop() datasetId: string;
+  @Prop() dataSource: string;
 
   async componentWillLoad() {
     this.variables = await this.delegateOfFetchingData({
       type: 'variables',
-      from: this.datasetId,
+      from: this.dataSource,
     });
     this.variable = this.variables?.[0];
   }

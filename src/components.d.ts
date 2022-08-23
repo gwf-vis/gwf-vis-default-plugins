@@ -14,7 +14,7 @@ export namespace Components {
         "sqliteWorkerUrl": string;
     }
     interface GwfVisPluginDimensionControl {
-        "datasetId": string;
+        "dataSource": string;
         "delegateOfFetchingData": (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo": (gloablInfo: GloablInfo) => void;
         "globalInfo": GloablInfo;
@@ -23,7 +23,7 @@ export namespace Components {
     interface GwfVisPluginGeojsonLayer {
         "active": boolean;
         "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
-        "datasetId": string;
+        "dataSource": string;
         "delegateOfAddingToMap": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "delegateOfFetchingData": (query: any) => any;
         "delegateOfRemovingFromMap": (layer: L.Layer) => void;
@@ -39,7 +39,7 @@ export namespace Components {
     }
     interface GwfVisPluginLegend {
         "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
-        "datasetId": string;
+        "dataSource": string;
         "delegateOfFetchingData": (query: any) => any;
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
@@ -48,7 +48,7 @@ export namespace Components {
         "variableName"?: string;
     }
     interface GwfVisPluginLineChart {
-        "datasetId": string;
+        "dataSource": string;
         "delegateOfFetchingData": (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "dimension": string;
@@ -63,7 +63,7 @@ export namespace Components {
         "obtainHeader": () => Promise<string>;
     }
     interface GwfVisPluginRadarChart {
-        "datasetId": string;
+        "dataSource": string;
         "delegateOfFetchingData": (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
@@ -89,7 +89,7 @@ export namespace Components {
         "urlTemplate": string;
     }
     interface GwfVisPluginVariableControl {
-        "datasetId": string;
+        "dataSource": string;
         "delegateOfFetchingData": (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "globalInfo": GloablInfo;
@@ -175,7 +175,7 @@ declare namespace LocalJSX {
         "sqliteWorkerUrl"?: string;
     }
     interface GwfVisPluginDimensionControl {
-        "datasetId"?: string;
+        "dataSource"?: string;
         "delegateOfFetchingData"?: (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo"?: (gloablInfo: GloablInfo) => void;
         "globalInfo"?: GloablInfo;
@@ -183,7 +183,7 @@ declare namespace LocalJSX {
     interface GwfVisPluginGeojsonLayer {
         "active"?: boolean;
         "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
-        "datasetId"?: string;
+        "dataSource"?: string;
         "delegateOfAddingToMap"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
         "delegateOfFetchingData"?: (query: any) => any;
         "delegateOfRemovingFromMap"?: (layer: L.Layer) => void;
@@ -198,7 +198,7 @@ declare namespace LocalJSX {
     }
     interface GwfVisPluginLegend {
         "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
-        "datasetId"?: string;
+        "dataSource"?: string;
         "delegateOfFetchingData"?: (query: any) => any;
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
@@ -206,7 +206,7 @@ declare namespace LocalJSX {
         "variableName"?: string;
     }
     interface GwfVisPluginLineChart {
-        "datasetId"?: string;
+        "dataSource"?: string;
         "delegateOfFetchingData"?: (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "dimension"?: string;
@@ -219,7 +219,7 @@ declare namespace LocalJSX {
         "globalInfo"?: GloablInfo;
     }
     interface GwfVisPluginRadarChart {
-        "datasetId"?: string;
+        "dataSource"?: string;
         "delegateOfFetchingData"?: (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
@@ -242,7 +242,7 @@ declare namespace LocalJSX {
         "urlTemplate"?: string;
     }
     interface GwfVisPluginVariableControl {
-        "datasetId"?: string;
+        "dataSource"?: string;
         "delegateOfFetchingData"?: (query: any) => Promise<any>;
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "globalInfo"?: GloablInfo;

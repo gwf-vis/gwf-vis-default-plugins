@@ -33,12 +33,12 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
   @Prop() delegateOfFetchingData: (query: any) => Promise<any>;
   @Prop() globalInfo: GloablInfo;
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfo: GloablInfo) => void;
-  @Prop() datasetId: string;
+  @Prop() dataSource: string;
 
   async componentWillLoad() {
     this.dimensions = await this.delegateOfFetchingData({
       type: 'dimensions',
-      from: this.datasetId,
+      from: this.dataSource,
     });
     this.dimension = this.dimensions?.[0];
     this.handleValueChange(this.value);
