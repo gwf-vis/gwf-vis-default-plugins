@@ -52,16 +52,19 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
       )?.map(variable => variable.name);
     const dimensionDict = this.dimensions || this.globalInfo?.dimensionDict;
     const locationIds = locations.map(d => d.location);
-    const values = await this.delegateOfFetchingData({
-      type: 'values',
-      from: dataSource,
-      with: {
-        location: locationIds,
-        variable: variableNames,
-        dimensions: dimensionDict,
-      },
-      for: ['location', 'variable', 'value'],
-    });
+    let values = [];
+    if (dataSource && locationIds?.length > 0 && Object.keys(dimensionDict || {}).length > 0) {
+      values = await this.delegateOfFetchingData({
+        type: 'values',
+        from: dataSource,
+        with: {
+          location: locationIds,
+          variable: variableNames,
+          dimensions: dimensionDict,
+        },
+        for: ['location', 'variable', 'value'],
+      });
+    }
 
     const data = {
       labels: variableNames,
@@ -85,7 +88,7 @@ export class GwfVisPluginRadarChart implements ComponentInterface, GwfVisPlugin 
     if (this.chart) {
       this.chart.data = data;
       this.chart.update();
-    } else {
+    } else if (values?.length > 0) {
       this.chart = new Chart(canvasElement, config as any);
     }
   }

@@ -44,23 +44,28 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
 
   async drawChart(canvasElement: HTMLCanvasElement) {
     const dimensionQeury = { ...this.globalInfo?.dimensionDict };
-    delete dimensionQeury[this.dimension];
-    const variableNames = this.variableNames || [this.globalInfo?.variableName];
+    delete dimensionQeury?.[this.dimension];
+    const variableNames = this.variableNames || (this.globalInfo?.variableName ? [this.globalInfo?.variableName] : []);
     const dataSource = this.dataSource || this.globalInfo?.userSelection?.dataset;
-    const values = await this.delegateOfFetchingData({
-      type: 'values',
-      from: dataSource,
-      with: {
-        location: this.globalInfo?.userSelection?.location,
-        variable: variableNames,
-        dimensions: dimensionQeury,
-      },
-      for: ['variable', 'value', `dimension_${this.dimension}`],
-    });
-    const dimensions = await this.delegateOfFetchingData({
-      type: 'dimensions',
-      from: dataSource,
-    });
+    const location = this.globalInfo?.userSelection?.location;
+    let values = [];
+    let dimensions = [];
+    if (dataSource && location && variableNames?.length > 0) {
+      values = await this.delegateOfFetchingData({
+        type: 'values',
+        from: dataSource,
+        with: {
+          location,
+          variable: variableNames,
+          dimensions: dimensionQeury,
+        },
+        for: ['variable', 'value', `dimension_${this.dimension}`],
+      });
+      dimensions = await this.delegateOfFetchingData({
+        type: 'dimensions',
+        from: dataSource,
+      });
+    }
     const dimensionSize = dimensions?.find(dimension => dimension.name === this.dimension)?.size;
     const labels = [...new Array(dimensionSize || 0).keys()];
     const data = {
@@ -101,7 +106,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
             zoom: {
               wheel: {
                 enabled: true,
-                modifierKey: 'ctrl'
+                modifierKey: 'ctrl',
               },
               pinch: {
                 enabled: true,
@@ -123,7 +128,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
       this.chart.data = data;
       this.chart.resetZoom();
       this.chart.update();
-    } else {
+    } else if (values?.length > 0) {
       this.chart = new Chart(canvasElement, config as any);
     }
   }
