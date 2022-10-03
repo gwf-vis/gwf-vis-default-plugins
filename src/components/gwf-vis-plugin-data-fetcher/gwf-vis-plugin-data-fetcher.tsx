@@ -20,6 +20,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
   private dbIdAndHelperMap = new Map<string, DbHelper>();
 
   @Prop() sqliteWorkerUrl: string;
+  @Prop() remoteSqlRunnerUrl: string;
 
   @Method()
   async obtainHeader() {
@@ -35,9 +36,9 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
     const dbWorker = await this.obtainDbWorker(dbUrl);
     switch (query?.type) {
       case 'locations': {
-        const [queryResult] =
+        const queryResult =
           (await this.execSql(
-            dbWorker,
+            dbWorker || dbUrl,
             `
             select ${query?.for?.map(d => d).join(', ')}
             from location
@@ -99,9 +100,9 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
           whereClauses.push(dimensionIdAndValuePairs.map(([key, value]) => `dimension_${key} = ${value}`).join(' and '));
         }
 
-        let [queryResult] =
+        let queryResult =
           (await this.execSql(
-            dbWorker,
+            dbWorker || dbUrl,
             `
             select ${selectClause} 
             from value
@@ -125,7 +126,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         return result;
       }
       case 'variables': {
-        const [queryResult] = (await this.execSql(dbWorker, 'select * from variable')) || [];
+        const queryResult = (await this.execSql(dbWorker || dbUrl, 'select * from variable')) || [];
         const propertiesToParseJSON = [];
         const result = queryResult?.values?.map(rowValues =>
           Object.fromEntries(
@@ -135,7 +136,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         return result;
       }
       case 'dimensions': {
-        const [queryResult] = (await this.execSql(dbWorker, 'select * from dimension')) || [];
+        const queryResult = (await this.execSql(dbWorker || dbUrl, 'select * from dimension')) || [];
         const propertiesToParseJSON = ['value_labels'];
         const result = queryResult?.values?.map(rowValues =>
           Object.fromEntries(
@@ -153,54 +154,80 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
     return <Host></Host>;
   }
 
-  private async execSql(dbWorker: Worker, sql: string, params?: any) {
+  private async execSql(dbWorkerOrUrl: Worker | string, sql: string) {
+    let result;
+    if (typeof dbWorkerOrUrl === 'string') {
+      result = await this.execSqlRemote(dbWorkerOrUrl, sql);
+    } else {
+      [result] = await this.execSqlLocal(dbWorkerOrUrl, sql);
+    }
+    return result;
+  }
+
+  private async execSqlRemote(path: string, sql: string) {
+    const response = await fetch(`${this.remoteSqlRunnerUrl}?path=${path}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sql }),
+    });
+    return await response.json();
+  }
+
+  private async execSqlLocal(dbWorker: Worker, sql: string) {
     return (
       await this.runSqlAction(dbWorker, {
         action: 'exec',
         sql,
-        params,
       })
     ).results as QueryExecResult[];
   }
 
   private async obtainDbWorker(dbUrl: string) {
-    const helper = this.dbIdAndHelperMap.get(dbUrl);
-    if (helper) {
-      const obtainDbWorkerWhenReady = () => {
-        const timeout = 100;
-        return new Promise(resolve => {
-          const helper = this.dbIdAndHelperMap.get(dbUrl);
-          if (helper.variableNameAndIdDict && helper.dimensionNameAndIdDict) {
-            resolve(helper.worker);
-          } else {
-            setTimeout(async () => {
-              resolve(await obtainDbWorkerWhenReady());
-            }, timeout);
-          }
-        });
-      };
-      return (await obtainDbWorkerWhenReady()) as Worker;
+    let dbWorker: Worker;
+    let dbReady: boolean;
+    if (!dbUrl?.startsWith('@')) {
+      const helper = this.dbIdAndHelperMap.get(dbUrl);
+      if (helper) {
+        const obtainDbWorkerWhenReady = () => {
+          const timeout = 100;
+          return new Promise(resolve => {
+            const helper = this.dbIdAndHelperMap.get(dbUrl);
+            if (helper.variableNameAndIdDict && helper.dimensionNameAndIdDict) {
+              resolve(helper.worker);
+            } else {
+              setTimeout(async () => {
+                resolve(await obtainDbWorkerWhenReady());
+              }, timeout);
+            }
+          });
+        };
+        return (await obtainDbWorkerWhenReady()) as Worker;
+      }
+      dbWorker = new Worker(this.sqliteWorkerUrl);
+      this.dbIdAndHelperMap.set(dbUrl, {
+        worker: dbWorker,
+      });
+      dbWorker.addEventListener('message', ({ data }) => {
+        const resolve = this.sqliteActionIdAndResolveMap.get(data.id.identifier);
+        resolve?.(data);
+        this.sqliteActionIdAndResolveMap?.delete(data.id.identifier);
+      });
+      const response = await fetch(dbUrl);
+      const dbBuffer = await response.arrayBuffer();
+      dbReady = (
+        await this.runSqlAction(dbWorker, {
+          action: 'open',
+          buffer: dbBuffer,
+        })
+      )?.ready;
     }
-    const dbWorker = new Worker(this.sqliteWorkerUrl);
-    this.dbIdAndHelperMap.set(dbUrl, {
-      worker: dbWorker,
-    });
-    dbWorker.addEventListener('message', ({ data }) => {
-      const resolve = this.sqliteActionIdAndResolveMap.get(data.id.identifier);
-      resolve?.(data);
-      this.sqliteActionIdAndResolveMap?.delete(data.id.identifier);
-    });
-    const response = await fetch(dbUrl);
-    const dbBuffer = await response.arrayBuffer();
-    const dbReady = (
-      await this.runSqlAction(dbWorker, {
-        action: 'open',
-        buffer: dbBuffer,
-      })
-    )?.ready;
-    let [queryResult] = (await this.execSql(dbWorker, 'select name, id from variable')) || [];
+    let queryResult = (await this.execSql(dbWorker || dbUrl, 'select name, id from variable')) || [];
     const variableNameAndIdDict = Object.fromEntries(queryResult?.values || []);
-    [queryResult] = (await this.execSql(dbWorker, 'select name, id from dimension')) || [];
+    queryResult = (await this.execSql(dbWorker || dbUrl, 'select name, id from dimension')) || [];
     const dimensionNameAndIdDict = Object.fromEntries(queryResult?.values || []);
     this.dbIdAndHelperMap.set(dbUrl, {
       worker: dbWorker,

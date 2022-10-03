@@ -9,8 +9,9 @@ import { GloablInfo } from "./utils/gwf-vis-plugin";
 import { ColorSchemeDefinition } from "./utils/variable-color-scheme";
 export namespace Components {
     interface GwfVisPluginDataFetcher {
-        "fetchData": (query: any) => Promise<{ [k: string]: any; }[]>;
+        "fetchData": (query: any) => Promise<any>;
         "obtainHeader": () => Promise<string>;
+        "remoteSqlRunnerUrl": string;
         "sqliteWorkerUrl": string;
     }
     interface GwfVisPluginDimensionControl {
@@ -172,6 +173,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface GwfVisPluginDataFetcher {
+        "remoteSqlRunnerUrl"?: string;
         "sqliteWorkerUrl"?: string;
     }
     interface GwfVisPluginDimensionControl {
