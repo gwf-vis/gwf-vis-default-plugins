@@ -97,7 +97,7 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
           whereClauses.push(`variable in (${variableIds.join(', ')})`);
         }
         if (dimensionIdAndValuePairs.length > 0) {
-          whereClauses.push(dimensionIdAndValuePairs.map(([key, value]) => `dimension_${key} = ${value}`).join(' and '));
+          whereClauses.push(dimensionIdAndValuePairs.map(([key, value]) => `dimension_${key} ${typeof value === 'number' ? `= ${value}` : 'is NULL'}`).join(' and '));
         }
 
         let queryResult =
