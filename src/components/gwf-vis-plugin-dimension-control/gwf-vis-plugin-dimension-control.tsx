@@ -18,7 +18,13 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-dimension-control';
 
   @State() dimensions: Dimension[];
+
   @State() dimension: Dimension;
+
+  @Watch('dimension')
+  handleDimensionChange(dimension: Dimension) {
+    this.value = this.globalInfo?.dimensionDict[dimension.name] ?? 0;
+  }
 
   @State() value: number = 0;
 
@@ -40,6 +46,12 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
       type: 'dimensions',
       from: this.dataSource,
     });
+    const updatedGlobalInfo = { ...this.globalInfo };
+    updatedGlobalInfo.dimensionDict = Object.assign(
+      updatedGlobalInfo.dimensionDict || {},
+      Object.fromEntries(this.dimensions?.map(dimension => [dimension.name, this.globalInfo?.dimensionDict?.[dimension.name] ?? null])),
+    );
+    this.delegateOfUpdatingGlobalInfo(updatedGlobalInfo);
     this.dimension = this.dimensions?.[0];
     this.handleValueChange(this.value);
   }
@@ -90,6 +102,21 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
           <div>
             <b>Current Value: </b>
             {this.value ?? 'N/A'}
+          </div>
+          <button
+            onClick={() => {
+              this.value = null;
+            }}
+          >
+            Set as NULL
+          </button>
+          <hr />
+          <div>
+            {Object.entries(this.globalInfo?.dimensionDict || {}).map(([key, value]) => (
+              <div>
+                {key}: {value ?? 'N/A'}
+              </div>
+            ))}
           </div>
         </div>
       </Host>
