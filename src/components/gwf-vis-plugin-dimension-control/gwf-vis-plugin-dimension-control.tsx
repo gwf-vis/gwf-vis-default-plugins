@@ -85,7 +85,7 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
                 this.value = +(currentTarget as HTMLInputElement).value;
               }}
             />
-            <span>{this.dimension?.size ?? 'N/A'}</span>
+            <span>{this.dimension?.size - 1 ?? 'N/A'}</span>
           </div>
           <div>
             <b>Current Value: </b>
