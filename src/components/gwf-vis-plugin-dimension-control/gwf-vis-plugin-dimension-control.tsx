@@ -1,5 +1,6 @@
 import { Component, Host, h, ComponentInterface, Method, Prop, State, Watch } from '@stencil/core';
 import { GloablInfo, GwfVisPlugin } from '../../utils/gwf-vis-plugin';
+import { Variable } from '../gwf-vis-plugin-variable-control/gwf-vis-plugin-variable-control';
 
 export type Dimension = {
   id: number;
@@ -17,7 +18,9 @@ export type Dimension = {
 export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisPlugin {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-dimension-control';
 
+  @State() variables: Variable[];
   @State() dimensions: Dimension[];
+  @State() activeDimensions: Dimension[];
 
   @State() dimension: Dimension;
 
@@ -42,10 +45,18 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
   @Prop() dataSource: string;
 
   async componentWillLoad() {
-    this.dimensions = await this.delegateOfFetchingData({
+    this.variables = await this.delegateOfFetchingData({
+      type: 'variables',
+      from: this.dataSource,
+    });
+    this.activeDimensions = this.dimensions = await this.delegateOfFetchingData({
       type: 'dimensions',
       from: this.dataSource,
     });
+    if (this.globalInfo?.variableName) {
+      const dimensions = this.variables?.find(variable => (variable.name = this.globalInfo?.variableName))?.dimensions;
+      this.activeDimensions = this.dimensions?.filter(dimension => dimensions.includes(dimension.name));
+    }
     const updatedGlobalInfo = { ...this.globalInfo };
     updatedGlobalInfo.dimensionDict = Object.assign(
       updatedGlobalInfo.dimensionDict || {},
@@ -56,8 +67,30 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
     this.handleValueChange(this.value);
   }
 
-  componentShouldUpdate(newValue: any, _oldValue: any, propName: string) {
+  componentShouldUpdate(newValue: any, oldValue: any, propName: string) {
     if (propName === 'globalInfo') {
+      if (newValue?.variableName && newValue?.variableName !== oldValue?.variableName) {
+        const newDimensions = this.variables?.find(variable => variable.name == newValue?.variableName)?.dimensions;
+        const oldDimensions = this.variables?.find(variable => variable.name == oldValue?.variableName)?.dimensions;
+        this.activeDimensions = this.dimensions?.filter(dimension => newDimensions.includes(dimension.name));
+        const addedDimensions = newDimensions?.filter(dimension => !oldDimensions?.includes(dimension));
+        const removedDimensions = oldDimensions?.filter(dimension => !newDimensions?.includes(dimension));
+        if (addedDimensions?.length || removedDimensions?.length) {
+          const newDimensionDict = newValue?.dimensionDict || {};
+          let message = `The current selected variable has different dimension definition from the previous selected variable."`;
+          if (addedDimensions?.length) {
+            message += `\nNew dimensions, which values are set to 0, are: ${addedDimensions.join(',')}.`;
+            addedDimensions.forEach(dimension => (newDimensionDict[dimension] = 0));
+          }
+          if (removedDimensions?.length) {
+            message += `\nInvalid dimensions, which values are set to NULL, are: ${removedDimensions.join(',')}.`;
+            removedDimensions.forEach(dimension => (newDimensionDict[dimension] = null));
+          }
+          this.delegateOfUpdatingGlobalInfo(Object.assign(newValue || {}, { dimensionDict: newDimensionDict }));
+          alert(message);
+        }
+      }
+
       const newDimensionValue = newValue?.dimensionDict?.[this.dimension?.name];
       if (typeof newDimensionValue === 'number' && this.value !== newValue?.dimensionDict?.[this.dimension?.name]) {
         this.value = newDimensionValue;
@@ -76,7 +109,7 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
       <Host>
         <div part="content">
           <select style={{ width: '100%' }} onChange={({ currentTarget }) => (this.dimension = this.dimensions?.find(d => d.id === +(currentTarget as HTMLSelectElement).value))}>
-            {this.dimensions?.map(dimension => {
+            {this.activeDimensions?.map(dimension => {
               return (
                 <option value={dimension.id} title={dimension.description} selected={this.dimension === dimension}>
                   {dimension.name}
@@ -103,13 +136,6 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
             <b>Current Value: </b>
             {this.value ?? 'N/A'}
           </div>
-          <button
-            onClick={() => {
-              this.value = null;
-            }}
-          >
-            Set as NULL
-          </button>
           <hr />
           <div>
             {Object.entries(this.globalInfo?.dimensionDict || {}).map(([key, value]) => (
