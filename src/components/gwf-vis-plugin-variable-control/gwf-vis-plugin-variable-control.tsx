@@ -6,6 +6,7 @@ export type Variable = {
   name: string;
   unit?: string;
   description?: string;
+  dimensions?: string[];
 };
 
 @Component({
