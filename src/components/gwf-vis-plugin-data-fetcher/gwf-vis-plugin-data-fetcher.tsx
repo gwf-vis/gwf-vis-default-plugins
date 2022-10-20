@@ -126,12 +126,19 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
         return result;
       }
       case 'variables': {
-        const queryResult = (await this.execSql(dbWorker || dbUrl, 'select * from variable')) || [];
+        let queryResult = (await this.execSql(dbWorker || dbUrl, 'select * from variable')) || [];
         const propertiesToParseJSON = [];
         const result = queryResult?.values?.map(rowValues =>
           Object.fromEntries(
             rowValues.map((value, i) => [queryResult.columns?.[i], propertiesToParseJSON.includes(queryResult.columns[i]) ? value && JSON.parse(value.toString()) : value]),
           ),
+        );
+        queryResult = (await this.execSql(dbWorker || dbUrl, 'select variable, dimension from variable_dimension')) || [];
+        result.forEach(
+          variable =>
+            (variable['dimensions'] = queryResult?.values
+              ?.filter(([variableId]) => variableId === variable['id'])
+              .map(([_, dimensionId]) => Object.entries(this.dbIdAndHelperMap.get(dbUrl)?.dimensionNameAndIdDict || {}).find(([_, id]) => id === dimensionId)?.[0])),
         );
         return result;
       }
