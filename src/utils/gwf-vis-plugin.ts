@@ -19,6 +19,7 @@ export interface GwfVisPlugin {
 
 export interface GwfVisPluginMap extends GwfVisPlugin {
   leaflet: typeof globalThis.L;
+  mapInstance?: L.Map;
   delegateOfRemovingFromMap: (layer: L.Layer) => void;
   delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
 }
