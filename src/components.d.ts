@@ -7,6 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfo } from "./utils/gwf-vis-plugin";
 import { ColorSchemeDefinition } from "./utils/variable-color-scheme";
+import { Map } from "leaflet";
 export namespace Components {
     interface GwfVisPluginDataFetcher {
         "fetchData": (query: any) => Promise<any>;
@@ -79,15 +80,22 @@ export namespace Components {
     }
     interface GwfVisPluginTileLayer {
         "active": boolean;
+        "clickable": boolean;
+        "dataSource": string;
         "delegateOfAddingToMap": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "delegateOfFetchingData": (query: any) => any;
         "delegateOfRemovingFromMap": (layer: L.Layer) => void;
+        "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
+        "dimensions"?: { [dimension: string]: number };
         "globalInfo": GloablInfo;
         "layerName": string;
         "leaflet": typeof globalThis.L;
+        "mapInstance"?: Map;
         "obtainHeader": () => Promise<string>;
         "options"?: L.TileLayerOptions;
         "type": 'base-layer' | 'overlay';
         "urlTemplate": string;
+        "variableName"?: string;
     }
     interface GwfVisPluginVariableControl {
         "dataSource": string;
@@ -234,14 +242,21 @@ declare namespace LocalJSX {
     }
     interface GwfVisPluginTileLayer {
         "active"?: boolean;
+        "clickable"?: boolean;
+        "dataSource"?: string;
         "delegateOfAddingToMap"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "delegateOfFetchingData"?: (query: any) => any;
         "delegateOfRemovingFromMap"?: (layer: L.Layer) => void;
+        "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
+        "dimensions"?: { [dimension: string]: number };
         "globalInfo"?: GloablInfo;
         "layerName"?: string;
         "leaflet"?: typeof globalThis.L;
+        "mapInstance"?: Map;
         "options"?: L.TileLayerOptions;
         "type"?: 'base-layer' | 'overlay';
         "urlTemplate"?: string;
+        "variableName"?: string;
     }
     interface GwfVisPluginVariableControl {
         "dataSource"?: string;
