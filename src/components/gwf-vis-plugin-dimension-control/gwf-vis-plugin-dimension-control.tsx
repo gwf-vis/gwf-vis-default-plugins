@@ -71,7 +71,9 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
     if (propName === 'globalInfo') {
       if (newValue?.variableName && newValue?.variableName !== oldValue?.variableName) {
         const newDimensions = this.variables?.find(variable => variable.name == newValue?.variableName)?.dimensions;
-        const oldDimensions = this.variables?.find(variable => variable.name == oldValue?.variableName)?.dimensions;
+        const oldDimensions = Object.entries(this.globalInfo?.dimensionDict ?? {})
+          .filter(([_, value]) => Number.isInteger(value) && value >= 0)
+          .map(([key]) => key);
         this.activeDimensions = this.dimensions?.filter(dimension => newDimensions.includes(dimension.name));
         const addedDimensions = newDimensions?.filter(dimension => !oldDimensions?.includes(dimension));
         const removedDimensions = oldDimensions?.filter(dimension => !newDimensions?.includes(dimension));

@@ -35,6 +35,19 @@ export class GwfVisPluginDataFetcher implements ComponentInterface, GwfVisPlugin
     }
     const dbWorker = await this.obtainDbWorker(dbUrl);
     switch (query?.type) {
+      case 'info': {
+        const queryResult =
+          (await this.execSql(
+            dbWorker || dbUrl,
+            `
+            select ${query?.for?.map(d => d).join(', ')}
+            from info
+            ${query?.with ? `where ${Object.entries(query?.with || {}).map(([key, value]) => `${key} = ${value}`)}` : ''}
+            `,
+          )) || [];
+        const result = queryResult?.values?.map(rowValues => Object.fromEntries(rowValues.map((value, i) => [queryResult.columns?.[i], value])));
+        return result;
+      }
       case 'locations': {
         const queryResult =
           (await this.execSql(

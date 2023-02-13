@@ -9,6 +9,24 @@ import { GloablInfo } from "./utils/gwf-vis-plugin";
 import { ColorSchemeDefinition } from "./utils/variable-color-scheme";
 import { Map } from "leaflet";
 export namespace Components {
+    interface GwfVisPluginContourLayer {
+        "active": boolean;
+        "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
+        "dataSource": string;
+        "delegateOfAddingToMap": (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "delegateOfFetchingData": (query: any) => any;
+        "delegateOfRemovingFromMap": (layer: L.Layer) => void;
+        "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
+        "dimensions"?: { [dimension: string]: number };
+        "globalInfo": GloablInfo;
+        "layerName": string;
+        "leaflet": typeof globalThis.L;
+        "obtainHeader": () => Promise<string>;
+        "options"?: L.GeoJSONOptions;
+        "thresholds"?: number | number[];
+        "type": 'base-layer' | 'overlay';
+        "variableName"?: string;
+    }
     interface GwfVisPluginDataFetcher {
         "fetchData": (query: any) => Promise<any>;
         "obtainHeader": () => Promise<string>;
@@ -106,6 +124,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLGwfVisPluginContourLayerElement extends Components.GwfVisPluginContourLayer, HTMLStencilElement {
+    }
+    var HTMLGwfVisPluginContourLayerElement: {
+        prototype: HTMLGwfVisPluginContourLayerElement;
+        new (): HTMLGwfVisPluginContourLayerElement;
+    };
     interface HTMLGwfVisPluginDataFetcherElement extends Components.GwfVisPluginDataFetcher, HTMLStencilElement {
     }
     var HTMLGwfVisPluginDataFetcherElement: {
@@ -167,6 +191,7 @@ declare global {
         new (): HTMLGwfVisPluginVariableControlElement;
     };
     interface HTMLElementTagNameMap {
+        "gwf-vis-plugin-contour-layer": HTMLGwfVisPluginContourLayerElement;
         "gwf-vis-plugin-data-fetcher": HTMLGwfVisPluginDataFetcherElement;
         "gwf-vis-plugin-dimension-control": HTMLGwfVisPluginDimensionControlElement;
         "gwf-vis-plugin-geojson-layer": HTMLGwfVisPluginGeojsonLayerElement;
@@ -180,6 +205,23 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface GwfVisPluginContourLayer {
+        "active"?: boolean;
+        "colorScheme"?: { [variableName: string]: ColorSchemeDefinition };
+        "dataSource"?: string;
+        "delegateOfAddingToMap"?: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
+        "delegateOfFetchingData"?: (query: any) => any;
+        "delegateOfRemovingFromMap"?: (layer: L.Layer) => void;
+        "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
+        "dimensions"?: { [dimension: string]: number };
+        "globalInfo"?: GloablInfo;
+        "layerName"?: string;
+        "leaflet"?: typeof globalThis.L;
+        "options"?: L.GeoJSONOptions;
+        "thresholds"?: number | number[];
+        "type"?: 'base-layer' | 'overlay';
+        "variableName"?: string;
+    }
     interface GwfVisPluginDataFetcher {
         "remoteSqlRunnerUrl"?: string;
         "sqliteWorkerUrl"?: string;
@@ -265,6 +307,7 @@ declare namespace LocalJSX {
         "globalInfo"?: GloablInfo;
     }
     interface IntrinsicElements {
+        "gwf-vis-plugin-contour-layer": GwfVisPluginContourLayer;
         "gwf-vis-plugin-data-fetcher": GwfVisPluginDataFetcher;
         "gwf-vis-plugin-dimension-control": GwfVisPluginDimensionControl;
         "gwf-vis-plugin-geojson-layer": GwfVisPluginGeojsonLayer;
@@ -281,6 +324,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "gwf-vis-plugin-contour-layer": LocalJSX.GwfVisPluginContourLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginContourLayerElement>;
             "gwf-vis-plugin-data-fetcher": LocalJSX.GwfVisPluginDataFetcher & JSXBase.HTMLAttributes<HTMLGwfVisPluginDataFetcherElement>;
             "gwf-vis-plugin-dimension-control": LocalJSX.GwfVisPluginDimensionControl & JSXBase.HTMLAttributes<HTMLGwfVisPluginDimensionControlElement>;
             "gwf-vis-plugin-geojson-layer": LocalJSX.GwfVisPluginGeojsonLayer & JSXBase.HTMLAttributes<HTMLGwfVisPluginGeojsonLayerElement>;
