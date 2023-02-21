@@ -1,0 +1,73 @@
+{
+  "fileBasePath": "",
+  "preferCanvas": false,
+  "view": {
+    "center": [0, 0],
+    "zoom": 3
+  },
+  "imports": {
+    "sample": "/src/plugins/sample.plugin.ts",
+    "sample-data": "/src/plugins/sample-data.plugin.ts"
+  },
+  "plugins": [
+    {
+      "import": "sample-data",
+      "container": "hidden"
+    },
+    {
+      "import": "sample",
+      "container": "sidebar",
+      "props": {
+        "layerName": "World_Imagery",
+        "active": true,
+        "urlTemplate": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        "options": {
+          "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+        }
+      }
+    },
+    {
+      "import": "sample",
+      "container": "sidebar",
+      "props": {
+        "layerName": "World_Physical_Map",
+        "urlTemplate": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}",
+        "options": {
+          "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+        }
+      }
+    },
+    {
+      "import": "sample",
+      "container": "sidebar",
+      "containerProps": {
+        "slot": "top"
+      },
+      "props": {
+        "layerName": "NatGeo_World_Map",
+        "layerType": "overlay",
+        "urlTemplate": "https://server.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}",
+        "options": {
+          "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+          "opacity": 0.5
+        }
+      }
+    },
+    {
+      "import": "sample",
+      "container": "main",
+      "containerProps": {
+        "width": "30rem"
+      },
+      "props": {
+        "layerName": "World_Street_Map",
+        "layerType": "overlay",
+        "urlTemplate": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        "options": {
+          "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+          "opacity": 0.5
+        }
+      }
+    }
+  ]
+}
