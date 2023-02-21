@@ -17,6 +17,7 @@
     "build": "tsc && vite build"
   },
   "dependencies": {
+    "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#b81f1e7df06563557a305c7f4127bc81e62fff05",
     "lit": "^2.6.1"
   },
   "devDependencies": {
