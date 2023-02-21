@@ -6,16 +6,16 @@
     "zoom": 3
   },
   "imports": {
-    "sample": "/src/plugins/sample.plugin.ts",
-    "sample-data": "/src/plugins/sample-data.plugin.ts"
+    "gwf-default.sample": "/src/plugins/sample.plugin.ts",
+    "gwf-default.sample-data": "/src/plugins/sample-data.plugin.ts"
   },
   "plugins": [
     {
-      "import": "sample-data",
+      "import": "gwf-default.sample-data",
       "container": "hidden"
     },
     {
-      "import": "sample",
+      "import": "gwf-default.sample",
       "container": "sidebar",
       "props": {
         "layerName": "World_Imagery",
@@ -27,7 +27,7 @@
       }
     },
     {
-      "import": "sample",
+      "import": "gwf-default.sample",
       "container": "sidebar",
       "props": {
         "layerName": "World_Physical_Map",
@@ -38,7 +38,7 @@
       }
     },
     {
-      "import": "sample",
+      "import": "gwf-default.sample",
       "container": "sidebar",
       "containerProps": {
         "slot": "top"
@@ -54,7 +54,7 @@
       }
     },
     {
-      "import": "sample",
+      "import": "gwf-default.sample",
       "container": "main",
       "containerProps": {
         "width": "30rem"
