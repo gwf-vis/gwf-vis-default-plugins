@@ -1,6 +1,7 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
 import { GloablInfo, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
 import * as d3 from 'd3';
+import { tricontour } from 'd3-tricontour';
 import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
 
 @Component({
@@ -53,25 +54,17 @@ export class GwfVisPluginContourLayer implements ComponentInterface, GwfVisPlugi
   }
 
   private async generateVis() {
-    let queryResult = await this.delegateOfFetchingData?.({
-      type: 'info',
+    const locations = await this.delegateOfFetchingData?.({
+      type: 'locations',
       from: this.dataSource,
-      for: ['key', 'value'],
-      with: { key: '"location_matrix"' },
+      for: ['id', 'geometry'],
     });
-    const locationMatirxInfo = JSON.parse(queryResult?.[0]?.value ?? null) as {
-      minLatitude: number;
-      maxLatitude: number;
-      minLongitude: number;
-      maxLongitude: number;
-      idMatrix: number[][];
-    } | null;
 
-    if (locationMatirxInfo) {
-      let valueQueryResult; //, maxValue, minValue;
-      const variableName = this.variableName || this.globalInfo?.variableName;
-      const dimensions = this.dimensions || this.globalInfo?.dimensionDict;
-      valueQueryResult = await this.delegateOfFetchingData?.({
+    const variableName = this.variableName || this.globalInfo?.variableName;
+    const dimensions = this.dimensions || this.globalInfo?.dimensionDict;
+    let values, maxValue, minValue;
+    if (variableName && dimensions) {
+      values = await this.delegateOfFetchingData?.({
         type: 'values',
         from: this.dataSource,
         with: {
@@ -80,48 +73,77 @@ export class GwfVisPluginContourLayer implements ComponentInterface, GwfVisPlugi
         },
         for: ['location', 'value'],
       });
-
-      if (valueQueryResult?.length > 0) {
-        const colorScheme = obtainVariableColorScheme(this.colorScheme, variableName);
-        const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
-        // const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
-
-        const values = locationMatirxInfo?.idMatrix?.flatMap(row =>
-          row.map(locationId => (valueQueryResult?.find(({ location }) => location === locationId)?.value ?? Number.NaN) as number),
-        );
-        const yCount = locationMatirxInfo?.idMatrix?.length;
-        const xCount = locationMatirxInfo?.idMatrix?.[0].length;
-        const contours = d3.contours().size([xCount, yCount]).thresholds(this.thresholds)(values);
-        const scaleX = d3.scaleLinear().domain([0, xCount]).range([locationMatirxInfo.minLongitude, locationMatirxInfo.maxLongitude]);
-        const scaleY = d3.scaleLinear().domain([0, yCount]).range([locationMatirxInfo.minLatitude, locationMatirxInfo.maxLatitude]);
-
-        function ndArrayChangeValue(arr: any[], fn: (value: any) => any, fn2: (value: any) => any) {
-          return arr.map((item, i) => (Array.isArray(item) ? ndArrayChangeValue(item, fn, fn2) : i === 0 ? fn(item) : fn2(item)));
-        }
-
-        contours.forEach(d => (d.coordinates = ndArrayChangeValue(d.coordinates, scaleX, scaleY)));
-        const defaultStyle = {
-          fillOpacity: 0.5,
-          weight: 0,
-        };
-
-        const thresholds = contours.map(contour => contour.value);
-        const scaleColor = d3.scaleSequentialQuantile(interpolateFunction).domain(thresholds.sort());
-
-        const geojson = {
-          type: 'FeatureCollection',
-          features: contours.map(g => ({ type: 'Feature', geometry: g })),
-        } as any;
-
-        this.contourLayerInstance = this.leaflet.geoJSON(geojson, {
-          style: ({ geometry }) => ({
-            ...defaultStyle,
-            color: scaleColor(geometry['value']) as any,
-            opacity: 0.5,
-          }),
-          ...this.options,
-        });
-      }
+      [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.delegateOfFetchingData?.({
+        type: 'values',
+        from: this.dataSource,
+        with: {
+          variable: variableName,
+        },
+        for: ['min(value)', 'max(value)'],
+      })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
+    const colorScheme = obtainVariableColorScheme(this.colorScheme, variableName);
+    const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
+    console.log(minValue, maxValue);
+    // const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
+
+    const data = locations
+      .map(
+        ({
+          id,
+          geometry: {
+            type,
+            coordinates: [lon, lat],
+          },
+        }) => (type === 'Point' ? { x: lon, y: lat, value: values?.find(({ location }) => location === id)?.value } : undefined),
+      )
+      ?.filter(({ value }) => typeof value !== 'undefined' && value !== null);
+
+    const thresholds = Array.isArray(this.thresholds) ? this.thresholds : this.obtainQuantile(minValue, maxValue, this.thresholds ?? 5);
+    const scaleColor = d3.scaleSequentialQuantile(interpolateFunction).domain(thresholds.sort());
+    const contours = tricontour()
+      .x(d => d.x)
+      .y(d => d.y)
+      .value(d => d.value)
+      .thresholds(thresholds)(data);
+
+    const defaultStyle = {
+      weight: 0,
+    };
+
+    const geojson = {
+      type: 'FeatureCollection',
+      features: contours.map(g => ({ type: 'Feature', geometry: g })),
+    } as any;
+
+    this.contourLayerInstance = this.leaflet.geoJSON(geojson, {
+      style: ({ geometry }) => ({
+        ...defaultStyle,
+        color: scaleColor(geometry['value']) as any,
+        opacity: 0.5,
+      }),
+      ...this.options,
+    });
+  }
+
+  private obtainQuantile(min: number, max: number, count: number) {
+    // check if parameters are valid numbers
+    if (isNaN(min) || isNaN(max) || isNaN(count)) {
+      throw Error('Invalid input');
+    }
+    // check if count is positive integer
+    if (count < 1 || !Number.isInteger(count)) {
+      throw Error('Count must be positive integer');
+    }
+    // create an empty array to store quantiles
+    let result = [];
+    // calculate the interval size between quantiles
+    let interval = (max - min) / count;
+    // loop through count times and push quantiles to result array
+    for (let i = 1; i < count; i++) {
+      result.push(min + i * interval);
+    }
+    // return result array
+    return result;
   }
 }
