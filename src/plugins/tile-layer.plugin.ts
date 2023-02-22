@@ -19,16 +19,16 @@ export default class GwfVisPluginTileLayer
 
   #tileLayerInstance?: leaflet.TileLayer;
 
-  leaflet!: typeof leaflet;
-  mapInstance!: leaflet.Map;
-  addMapLayerCallback!: (
+  leaflet?: typeof leaflet;
+  mapInstance?: leaflet.Map;
+  addMapLayerCallback?: (
     layer: leaflet.Layer,
     name: string,
     type: LayerType,
     active?: boolean | undefined
   ) => void;
-  removeMapLayerCallback!: (layer: leaflet.Layer) => void;
-  notifyLoadingCallback!: () => () => void;
+  removeMapLayerCallback?: (layer: leaflet.Layer) => void;
+  notifyLoadingCallback?: () => () => void;
 
   @property() layerName: string = "tile layer";
   @property() layerType: LayerType = "base-layer";
@@ -42,8 +42,10 @@ export default class GwfVisPluginTileLayer
 
   obtainHeader = () => `Tile Layer - ${this.layerName}`;
 
-  updated() {
+  hostFirstLoadedHandler() {
+    const loadingEndCallback = this.notifyLoadingCallback?.();
     this.initializeMapLayer();
+    loadingEndCallback?.();
   }
 
   render() {
@@ -52,13 +54,13 @@ export default class GwfVisPluginTileLayer
 
   private initializeMapLayer() {
     this.#tileLayerInstance &&
-      this.removeMapLayerCallback(this.#tileLayerInstance);
-    this.#tileLayerInstance = this.leaflet.tileLayer(
+      this.removeMapLayerCallback?.(this.#tileLayerInstance);
+    this.#tileLayerInstance = this.leaflet?.tileLayer(
       this.urlTemplate,
       this.options
     );
     this.#tileLayerInstance &&
-      this.addMapLayerCallback(
+      this.addMapLayerCallback?.(
         this.#tileLayerInstance,
         this.layerName,
         this.layerType,
