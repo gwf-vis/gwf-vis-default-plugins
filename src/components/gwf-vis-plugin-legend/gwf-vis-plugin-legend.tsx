@@ -23,6 +23,7 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
   @Prop() variableName?: string;
   @Prop() dimensions?: { [dimension: string]: number };
   @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
+  @Prop() fractionDigits: number = 2;
 
   async componentWillRender() {
     this.currentVaribaleName = this.variableName || this.globalInfo?.variableName;
@@ -55,9 +56,9 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
           </div>
           <div style={{ height: '1rem', background: `linear-gradient(to right, ${this.currentColorScheme?.map(color => color).join(', ')})` }}></div>
           <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
-            <div style={{ flex: '1', whiteSpace: 'nowrap' }}>{this.currentMinValue ?? 'N/A'}</div>
+            <div style={{ flex: '1', whiteSpace: 'nowrap' }}>{this.currentMinValue?.toFixed(this.fractionDigits) ?? 'N/A'}</div>
             <div style={{ flex: 'auto', width: '1rem' }}></div>
-            <div style={{ flex: '1', whiteSpace: 'nowrap' }}>{this.currentMaxValue ?? 'N/A'}</div>
+            <div style={{ flex: '1', whiteSpace: 'nowrap' }}>{this.currentMaxValue?.toFixed(this.fractionDigits) ?? 'N/A'}</div>
           </div>
         </div>
       </Host>

@@ -63,6 +63,7 @@ export namespace Components {
         "delegateOfFetchingData": (query: any) => any;
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
+        "fractionDigits": number;
         "globalInfo": GloablInfo;
         "obtainHeader": () => Promise<string>;
         "variableName"?: string;
@@ -254,6 +255,7 @@ declare namespace LocalJSX {
         "delegateOfFetchingData"?: (query: any) => any;
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "dimensions"?: { [dimension: string]: number };
+        "fractionDigits"?: number;
         "globalInfo"?: GloablInfo;
         "variableName"?: string;
     }
