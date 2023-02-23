@@ -22,13 +22,17 @@ export default class GWFVisPluginSqliteLocalDataProvider
 
   #SQL?: initSqlJs.SqlJsStatic;
 
-  obtainDataProviderIdentifier = () => "sqlite-local";
+  obtainDataProviderIdentifiers = () => ["sqlite-local"];
 
   obtainHeader = () => `<i>sqlite-local</i> Data Provider`;
 
   notifyLoadingCallback?: () => () => void;
 
-  async queryData(dataSource: string, queryObject: string) {
+  async queryData(
+    _identifier: string,
+    dataSource: string,
+    queryObject: string
+  ) {
     if (this.#SQL && dataSource && queryObject) {
       const loadingEndCallback = this.notifyLoadingCallback?.();
       const dbUrl = dataSource;
