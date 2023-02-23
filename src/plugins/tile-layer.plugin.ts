@@ -1,36 +1,11 @@
-import {
-  GWFVisPlugin,
-  GWFVisMapPlugin,
-  LayerType,
-  leaflet,
-} from "gwf-vis-host";
-import { html, css, LitElement } from "lit";
+import { LayerType, leaflet } from "gwf-vis-host";
 import { property } from "lit/decorators.js";
+import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 
-export default class GWFVisPluginTileLayer
-  extends LitElement
-  implements GWFVisPlugin, GWFVisMapPlugin
-{
-  static styles = css`
-    :host {
-      display: block;
-    }
-  `;
-
+export default class GWFVisPluginTileLayer extends GWFVisMapLayerPluginBase {
   #tileLayerInstance?: leaflet.TileLayer;
 
-  leaflet?: typeof leaflet;
-  mapInstance?: leaflet.Map;
-  addMapLayerCallback?: (
-    layer: leaflet.Layer,
-    name: string,
-    type: LayerType,
-    active?: boolean | undefined
-  ) => void;
-  removeMapLayerCallback?: (layer: leaflet.Layer) => void;
-  notifyLoadingCallback?: () => () => void;
-
-  @property() displayedName: string = "tile layer";
+  @property() displayName: string = "tile layer";
   @property() type: LayerType = "base-layer";
   @property() active: boolean = false;
   @property() urlTemplate: string =
@@ -40,19 +15,9 @@ export default class GWFVisPluginTileLayer
       "Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
   };
 
-  obtainHeader = () => `Tile Layer - ${this.displayedName}`;
+  obtainHeader = () => `Tile Layer - ${this.displayName}`;
 
-  hostFirstLoadedHandler() {
-    const loadingEndCallback = this.notifyLoadingCallback?.();
-    this.initializeMapLayer();
-    loadingEndCallback?.();
-  }
-
-  render() {
-    return html`${this.obtainHeader()}`;
-  }
-
-  private initializeMapLayer() {
+  protected override initializeMapLayer() {
     this.#tileLayerInstance &&
       this.removeMapLayerCallback?.(this.#tileLayerInstance);
     this.#tileLayerInstance = this.leaflet?.tileLayer(
@@ -62,7 +27,7 @@ export default class GWFVisPluginTileLayer
     this.#tileLayerInstance &&
       this.addMapLayerCallback?.(
         this.#tileLayerInstance,
-        this.displayedName,
+        this.displayName,
         this.type,
         this.active
       );
