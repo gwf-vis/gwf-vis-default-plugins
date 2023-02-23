@@ -1,4 +1,4 @@
-import { LayerType, leaflet } from "gwf-vis-host";
+import type { LayerType, leaflet } from "gwf-vis-host";
 import { property } from "lit/decorators.js";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 

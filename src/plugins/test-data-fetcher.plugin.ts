@@ -1,7 +1,7 @@
-import { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
+import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
+import type { QueryExecResult } from "sql.js";
 import { css, html, LitElement } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
-import { QueryExecResult } from "sql.js";
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
