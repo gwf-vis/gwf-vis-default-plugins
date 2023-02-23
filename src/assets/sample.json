@@ -9,7 +9,8 @@
     "gwf-default.sqlite-local-data-provider": "/src/plugins/sqlite-local-data-provider.plugin.ts",
     "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
-    "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts"
+    "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
+    "gwf-default.variable-control": "/src/plugins/variable-control.plugin.ts"
   },
   "plugins": [
     {
@@ -19,6 +20,14 @@
     {
       "import": "gwf-default.test-data-fetcher",
       "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.variable-control",
+      "container": "main",
+      "props": {
+        "header": "My Variable Control",
+        "dataSources": ["fake1", "fake2"]
+      }
     },
     {
       "import": "gwf-default.tile-layer",
