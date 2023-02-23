@@ -1,13 +1,13 @@
-import { GwfVisPlugin, GwfVisPluginWithData } from "gwf-vis-host";
+import { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
 import { css, html, LitElement } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
 import { QueryExecResult } from "sql.js";
 
-export default class GwfVisPluginGwfvisdbLocalDataProvider
+export default class GWFVisPluginGwfvisdbLocalDataProvider
   extends LitElement
   implements
-    GwfVisPlugin,
-    GwfVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
+    GWFVisPlugin,
+    GWFVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
 {
   static styles = css`
     :host {
