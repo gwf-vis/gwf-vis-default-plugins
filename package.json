@@ -17,7 +17,7 @@
     "build": "tsc && vite build"
   },
   "dependencies": {
-    "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#ad6b9e85bcc4731bb87315fded130cb255d96a5d",
+    "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#2e0c02a2f5d7a16c4a3a832ce75740897b43bc84",
     "lit": "^2.6.1",
     "sql.js": "^1.8.0"
   },
