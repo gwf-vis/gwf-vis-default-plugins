@@ -1,3 +1,5 @@
+import { GWFVisHost } from "gwf-vis-host";
+import { GWFVisHostConfig } from "gwf-vis-host/types/utils/gwf-vis-host-config";
 import { html, css, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ref } from "lit/directives/ref.js";
@@ -24,7 +26,7 @@ export class GWFVisApp extends LitElement {
   `;
 
   @state()
-  config: any;
+  config?: GWFVisHostConfig;
 
   async firstUpdated() {
     this.config = await fetch("./src/assets/sample.json").then((response) =>
@@ -37,7 +39,10 @@ export class GWFVisApp extends LitElement {
       this.config,
       () =>
         html`<gwf-vis-host
-          ${ref((el) => el && Object.assign(el, this.config))}
+          ${ref(
+            (el) =>
+              el && this.config && ((el as GWFVisHost).config = this.config)
+          )}
         ></gwf-vis-host>`
     );
   }
