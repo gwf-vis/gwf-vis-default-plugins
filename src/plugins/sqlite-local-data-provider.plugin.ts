@@ -1,13 +1,13 @@
-import { GwfVisDataProviderPlugin, GwfVisPlugin } from "gwf-vis-host";
+import { GWFVisDataProviderPlugin, GWFVisPlugin } from "gwf-vis-host";
 import { html, css, LitElement } from "lit";
 import initSqlJs from "sql.js";
 import sqlJsWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 
-export default class GwfVisPluginSqliteLocalDataProvider
+export default class GWFVisPluginSqliteLocalDataProvider
   extends LitElement
   implements
-    GwfVisPlugin,
-    GwfVisDataProviderPlugin<string, initSqlJs.QueryExecResult | undefined>
+    GWFVisPlugin,
+    GWFVisDataProviderPlugin<string, initSqlJs.QueryExecResult | undefined>
 {
   static styles = css`
     :host {

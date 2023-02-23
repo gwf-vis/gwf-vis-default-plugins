@@ -1,15 +1,15 @@
 import {
-  GwfVisPlugin,
-  GwfVisMapPlugin,
+  GWFVisPlugin,
+  GWFVisMapPlugin,
   LayerType,
   leaflet,
 } from "gwf-vis-host";
 import { html, css, LitElement } from "lit";
 import { property } from "lit/decorators.js";
 
-export default class GwfVisPluginTileLayer
+export default class GWFVisPluginTileLayer
   extends LitElement
-  implements GwfVisPlugin, GwfVisMapPlugin
+  implements GWFVisPlugin, GWFVisMapPlugin
 {
   static styles = css`
     :host {

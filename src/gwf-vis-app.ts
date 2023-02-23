@@ -4,7 +4,7 @@ import { ref } from "lit/directives/ref.js";
 import { when } from "lit/directives/when.js";
 
 @customElement("gwf-vis-app")
-export class GwfVisApp extends LitElement {
+export class GWFVisApp extends LitElement {
   static styles = css`
     :host {
       position: absolute;
