@@ -1,7 +1,9 @@
 import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
 import type { QueryExecResult } from "sql.js";
 import { css, html, LitElement } from "lit";
+import { map } from "lit/directives/map.js";
 import { createRef, ref } from "lit/directives/ref.js";
+import { state } from "lit/decorators.js";
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
@@ -18,11 +20,20 @@ export default class GWFVisPluginTestDataFetcher
     * {
       box-sizing: border-box;
     }
+
+    table,
+    th,
+    td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
   `;
 
   #dataSourceInputRef = createRef<HTMLInputElement>();
   #sqlTextareaRef = createRef<HTMLTextAreaElement>();
   #resultContainer = createRef<HTMLDivElement>();
+
+  @state() queryResult?: QueryExecResult;
 
   obtainHeader = () => "Test Data Fetcher";
   checkIfDataProviderRegisteredCallback?:
@@ -60,7 +71,23 @@ export default class GWFVisPluginTestDataFetcher
         <div
           style="max-height: 15em; width: 100%; overflow: auto;"
           ${ref(this.#resultContainer)}
-        ></div>
+        >
+          <table>
+            <tr>
+              ${map(
+                this.queryResult?.columns,
+                (column) => html`<th>${column}</th>`
+              )}
+            </tr>
+            ${map(
+              this.queryResult?.values,
+              (row) =>
+                html`<tr>
+                  ${map(row, (column) => html`<td>${column}</td>`)}
+                </tr>`
+            )}
+          </table>
+        </div>
       </gwf-vis-ui-collapse>
     `;
   }
@@ -70,10 +97,7 @@ export default class GWFVisPluginTestDataFetcher
       const dataSource = this.#dataSourceInputRef.value?.value;
       const sql = this.#sqlTextareaRef.value?.value;
       if (dataSource && sql) {
-        const result = await this.queryDataCallback?.(dataSource, sql);
-        this.#resultContainer.value?.replaceChildren(
-          document.createTextNode(JSON.stringify(result))
-        );
+        this.queryResult = await this.queryDataCallback?.(dataSource, sql);
       }
     }
   }
