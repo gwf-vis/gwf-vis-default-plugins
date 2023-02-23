@@ -3,7 +3,7 @@ import { css, html, LitElement } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
 import { QueryExecResult } from "sql.js";
 
-export default class GWFVisPluginGwfvisdbLocalDataProvider
+export default class GWFVisPluginTestDataFetcher
   extends LitElement
   implements
     GWFVisPlugin,
