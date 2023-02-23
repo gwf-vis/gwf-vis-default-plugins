@@ -1,4 +1,4 @@
-import { GWFVisDataProviderPlugin, GWFVisPlugin } from "gwf-vis-host";
+import type { GWFVisDataProviderPlugin, GWFVisPlugin } from "gwf-vis-host";
 import { html, css, LitElement } from "lit";
 import initSqlJs from "sql.js";
 import sqlJsWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
