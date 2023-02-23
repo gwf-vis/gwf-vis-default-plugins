@@ -64,7 +64,6 @@ export default class GWFVisPluginVariableControl
   @property() dataSources?: string[];
 
   render() {
-    debugger;
     return html`
       <div>
         <label>Data Source: </label>
