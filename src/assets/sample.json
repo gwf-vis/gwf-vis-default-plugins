@@ -6,9 +6,19 @@
     "zoom": 3
   },
   "imports": {
+    "gwf-default.sqlite-local-data-provider": "/src/plugins/sqlite-local-data-provider.plugin.ts",
+    "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts"
   },
   "plugins": [
+    {
+      "import": "gwf-default.sqlite-local-data-provider",
+      "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.test-data-fetcher",
+      "container": "sidebar"
+    },
     {
       "import": "gwf-default.tile-layer",
       "container": "main",

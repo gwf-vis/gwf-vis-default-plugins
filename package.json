@@ -18,9 +18,11 @@
   },
   "dependencies": {
     "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#ad6b9e85bcc4731bb87315fded130cb255d96a5d",
-    "lit": "^2.6.1"
+    "lit": "^2.6.1",
+    "sql.js": "^1.8.0"
   },
   "devDependencies": {
+    "@types/sql.js": "^1.4.4",
     "tiny-glob": "^0.2.9",
     "typescript": "^4.9.3",
     "vite": "^4.1.0"
