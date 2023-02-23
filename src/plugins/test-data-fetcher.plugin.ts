@@ -38,13 +38,13 @@ export default class GwfVisPluginGwfvisdbLocalDataProvider
   render() {
     return html`
       <label>Data source:</label>
-      <input
+      <gwf-vis-ui-input
         type="text"
         placeholder="Enter your data source..."
         value="sqlite-local:https://raw.githubusercontent.com/codecrafters-io/sample-sqlite-databases/master/superheroes.db"
         style="width: 100%;"
         ${ref(this.#dataSourceInputRef)}
-      />
+      ></gwf-vis-ui-input>
       <br />
       <label>SQL query:</label>
       <textarea
@@ -54,8 +54,14 @@ export default class GwfVisPluginGwfvisdbLocalDataProvider
         ${ref(this.#sqlTextareaRef)}
       ></textarea>
       <br />
-      <button @click=${this.queryData}>Query Data</button>
-      <div ${ref(this.#resultContainer)}></div>
+      <gwf-vis-ui-button @click=${this.queryData}>Query Data</gwf-vis-ui-button>
+      <gwf-vis-ui-collapse>
+        <h3 slot="header">Queried data</h3>
+        <div
+          style="max-height: 15em; width: 100%; overflow: auto;"
+          ${ref(this.#resultContainer)}
+        ></div>
+      </gwf-vis-ui-collapse>
     `;
   }
 
