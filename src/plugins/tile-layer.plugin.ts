@@ -30,8 +30,8 @@ export default class GwfVisPluginTileLayer
   removeMapLayerCallback?: (layer: leaflet.Layer) => void;
   notifyLoadingCallback?: () => () => void;
 
-  @property() layerName: string = "tile layer";
-  @property() layerType: LayerType = "base-layer";
+  @property() displayedName: string = "tile layer";
+  @property() type: LayerType = "base-layer";
   @property() active: boolean = false;
   @property() urlTemplate: string =
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
@@ -40,7 +40,7 @@ export default class GwfVisPluginTileLayer
       "Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
   };
 
-  obtainHeader = () => `Tile Layer - ${this.layerName}`;
+  obtainHeader = () => `Tile Layer - ${this.displayedName}`;
 
   hostFirstLoadedHandler() {
     const loadingEndCallback = this.notifyLoadingCallback?.();
@@ -62,8 +62,8 @@ export default class GwfVisPluginTileLayer
     this.#tileLayerInstance &&
       this.addMapLayerCallback?.(
         this.#tileLayerInstance,
-        this.layerName,
-        this.layerType,
+        this.displayedName,
+        this.type,
         this.active
       );
   }
