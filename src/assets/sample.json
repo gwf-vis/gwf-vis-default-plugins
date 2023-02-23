@@ -2,13 +2,14 @@
   "fileBasePath": "",
   "preferCanvas": false,
   "view": {
-    "center": [0, 0],
-    "zoom": 3
+    "center": [0, -100],
+    "zoom": 2
   },
   "imports": {
     "gwf-default.sqlite-local-data-provider": "/src/plugins/sqlite-local-data-provider.plugin.ts",
     "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
-    "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts"
+    "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
+    "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts"
   },
   "plugins": [
     {
@@ -65,6 +66,44 @@
         "options": {
           "attribution": "Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community",
           "opacity": 0.5
+        }
+      }
+    },
+    {
+      "import": "gwf-default.geojson-layer",
+      "container": "main",
+      "props": {
+        "displayName": "Something",
+        "type": "overlay",
+        "active": true,
+        "geojson": {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "properties": {},
+              "geometry": {
+                "coordinates": [-105.72343749999979, 55.68324040840892],
+                "type": "Point"
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {},
+              "geometry": {
+                "coordinates": [
+                  [
+                    [-118.02812194231379, 62.354263150241025],
+                    [-118.02812194231379, 48.11412751200518],
+                    [-92.89140319231419, 48.11412751200518],
+                    [-92.89140319231419, 62.354263150241025],
+                    [-118.02812194231379, 62.354263150241025]
+                  ]
+                ],
+                "type": "Polygon"
+              }
+            }
+          ]
         }
       }
     }
