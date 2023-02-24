@@ -26,7 +26,14 @@
       "container": "main",
       "props": {
         "header": "My Variable Control",
-        "dataSources": ["fake1", "fake2"]
+        "dataSources": [
+          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb"
+        ],
+        "dataSourceDict": {
+          "mesh": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "catchment": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb"
+        }
       }
     },
     {
