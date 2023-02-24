@@ -1,6 +1,6 @@
 import type { GWFVisDataProviderPlugin, GWFVisPlugin } from "gwf-vis-host";
 import { html, css, LitElement } from "lit";
-import initSqlJs from "sql.js";
+import initSqlJs, { Database } from "sql.js";
 import sqlJsWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 
 export default class GWFVisPluginSqliteLocalDataProvider
@@ -21,6 +21,7 @@ export default class GWFVisPluginSqliteLocalDataProvider
   `;
 
   #SQL?: initSqlJs.SqlJsStatic;
+  #dbInstanceMap = new Map<string, Database>();
 
   obtainDataProviderIdentifiers = () => ["sqlite-local"];
 
@@ -33,14 +34,10 @@ export default class GWFVisPluginSqliteLocalDataProvider
     dataSource: string,
     queryObject: string
   ) {
-    if (this.#SQL && dataSource && queryObject) {
+    if (dataSource && queryObject) {
       const loadingEndCallback = this.notifyLoadingCallback?.();
-      const dbUrl = dataSource;
-      const dbBuffer = await fetch(dbUrl).then((response) =>
-        response.arrayBuffer()
-      );
-      const db = new this.#SQL.Database(new Uint8Array(dbBuffer));
-      const result = db.exec(queryObject)?.[0];
+      const db = await this.obtainDbInstance(dataSource);
+      const result = db?.exec(queryObject)?.[0];
       loadingEndCallback?.();
       return result;
     }
@@ -57,5 +54,22 @@ export default class GWFVisPluginSqliteLocalDataProvider
 
   render() {
     return html`<i>sqlite-local</i> Data Provider`;
+  }
+
+  private async obtainDbInstance(dataSource: string) {
+    let db = this.#dbInstanceMap.get(dataSource);
+    if (db) {
+      return db;
+    }
+    if (this.#SQL) {
+      const dbUrl = dataSource;
+      const dbBuffer = await fetch(dbUrl).then((response) =>
+        response.arrayBuffer()
+      );
+      db = new this.#SQL.Database(new Uint8Array(dbBuffer));
+      this.#dbInstanceMap.set(dataSource, db);
+      return db;
+    }
+    return undefined;
   }
 }
