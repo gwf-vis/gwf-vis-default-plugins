@@ -100,7 +100,6 @@ export default class GWFVisPluginVariableControl
 
   @state() currentAvailableDimensions?: Dimension[];
 
-  // #dimensionValueDict?: DimensionValueDict;
   @state() get dimensionValueDict() {
     if (!this.sharedStates) {
       return;
