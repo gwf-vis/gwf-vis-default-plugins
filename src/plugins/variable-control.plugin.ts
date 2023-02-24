@@ -88,7 +88,7 @@ export default class GWFVisPluginVariableControl
       <div id="dimension-control-container">
         <table>
           ${map(this.currentVariableDimensions, ({ name, size }) => {
-            const value = this.getDimensionValue(name);
+            const value = this.obtainDimensionValue(name);
             return html`
               <tr>
                 <td>
@@ -106,7 +106,7 @@ export default class GWFVisPluginVariableControl
                     value=${value}
                     title=${value}
                     @change=${({ currentTarget }: Event) =>
-                      this.setDimensionValue(
+                      this.assignDimensionValue(
                         name,
                         +((currentTarget as HTMLInputElement)?.value ?? 0)
                       )}
@@ -121,7 +121,7 @@ export default class GWFVisPluginVariableControl
     `;
   }
 
-  private getDimensionValue(dimensionName: string) {
+  private obtainDimensionValue(dimensionName: string) {
     if (!this.currentDimensionValueDict) {
       this.currentDimensionValueDict = {};
     }
@@ -132,7 +132,7 @@ export default class GWFVisPluginVariableControl
     return value;
   }
 
-  private setDimensionValue(dimensionName: string, value: number) {
+  private assignDimensionValue(dimensionName: string, value: number) {
     if (!this.currentDimensionValueDict) {
       this.currentDimensionValueDict = {};
     }
