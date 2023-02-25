@@ -1,44 +1,27 @@
 import type {
   GWFVisPlugin,
-  GWFVisPluginWithData,
   GWFVisPluginWithSharedStates,
   SharedStates,
 } from "gwf-vis-host";
+import type {
+  Variable,
+  Dimension,
+  DimensionValueDict,
+  GWFVisDefaultPluginSharedStates,
+  GWFVisDefaultPluginWithData,
+} from "../utils/basic";
 import { css, html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { QueryExecResult, SqlValue } from "sql.js";
 
-type Variable = {
-  id: number;
-  name: string;
-  unit?: string;
-  description?: string;
-};
-
-type Dimension = {
-  id: number;
-  name: string;
-  size: number;
-  description?: string;
-  value_labels?: string[];
-};
-
-type DimensionValueDict = {
-  [dataSource: string]: {
-    [variableId: number]: {
-      [dimensionId: number]: number | undefined;
-    };
-  };
-};
-
 export default class GWFVisPluginVariableControl
   extends LitElement
   implements
     GWFVisPlugin,
     GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
+    GWFVisDefaultPluginWithData
 {
   static styles = css`
     :host {
@@ -122,11 +105,7 @@ export default class GWFVisPluginVariableControl
     this.updateSharedStatesDelegate?.({ ...this.sharedStates });
   }
 
-  @property() sharedStates?: SharedStates & {
-    "gwf-default.currentDataSource"?: string;
-    "gwf-default.currentVariableId"?: number;
-    "gwf-default.dimensionValueDict"?: DimensionValueDict;
-  };
+  @property() sharedStates?: GWFVisDefaultPluginSharedStates;
   @property() header?: string;
   @property() dataSources?: string[];
   @property() dataSourceDict?: { [name: string]: string };
