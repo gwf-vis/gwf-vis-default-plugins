@@ -15,6 +15,10 @@ export type Dimension = {
   value_labels?: string[];
 };
 
+export type VariableWithDimensions = Variable & {
+  dimensions?: Dimension[];
+};
+
 export type DimensionValueDict = {
   [dataSource: string]: {
     [variableId: number]: {

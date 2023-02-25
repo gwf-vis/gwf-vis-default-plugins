@@ -9,6 +9,7 @@ import type {
   DimensionValueDict,
   GWFVisDefaultPluginSharedStates,
   GWFVisDefaultPluginWithData,
+  VariableWithDimensions,
 } from "../utils/basic";
 import { css, html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
@@ -54,6 +55,12 @@ export default class GWFVisPluginVariableControl
       ) => Promise<QueryExecResult | undefined>)
     | undefined;
 
+  private get currentVariable() {
+    return this.currentAvailableVariables?.find(
+      (variable) => variable.id === this.currentVariableId
+    );
+  }
+
   @state() get currentDataSource() {
     return this.sharedStates?.["gwf-default.currentDataSource"];
   }
@@ -81,7 +88,7 @@ export default class GWFVisPluginVariableControl
     this.requestUpdate("currentVariableId", oldValue);
   }
 
-  @state() currentAvailableVariables?: Variable[];
+  @state() currentAvailableVariables?: VariableWithDimensions[];
 
   @state() currentAvailableDimensions?: Dimension[];
 
@@ -247,49 +254,53 @@ export default class GWFVisPluginVariableControl
   }
 
   private async updateCurrentAvailableVariables() {
-    if (!this.currentDataSource) {
+    const dataSource = this.currentDataSource;
+    if (!dataSource) {
       this.currentAvailableVariables = undefined;
       return;
     }
-    const sql = `SELECT id, name, unit, description FROM variable`;
-    const sqlResult = await this.queryDataDelegate?.(
-      this.currentDataSource,
-      sql
-    );
-    const result = sqlResult?.values?.map(
-      (d) =>
-        Object.fromEntries(
-          d?.map((value, columnIndex) => [
-            sqlResult.columns?.[columnIndex],
-            value,
-          ])
-        ) as Variable
-    );
-    this.currentAvailableVariables = result;
+    const variables = await this.obtainVariables(dataSource);
+    this.currentAvailableVariables = variables;
   }
 
-  private async updateCurrentAvailableDimensions() {
+  private updateCurrentAvailableDimensions() {
     if (!this.currentDataSource || !this.currentVariableId) {
       this.currentAvailableDimensions = undefined;
       return;
     }
-    const sql = `
-      SELECT 
-        dimension.* 
-      FROM 
-        dimension, variable_dimension 
-      WHERE 
-        variable_dimension.variable = ${this.currentVariableId} AND dimension.id = variable_dimension.dimension
-    `;
-    const sqlResult = await this.queryDataDelegate?.(
-      this.currentDataSource,
-      sql
+    this.currentAvailableDimensions = this.currentVariable?.dimensions;
+    this.initializeCurrentDimensionValuesIfNotYetInitialized();
+  }
+
+  private async obtainVariables(dataSource: string) {
+    let sql = `SELECT id, name, unit, description FROM variable`;
+    let sqlResult = await this.queryDataDelegate?.(dataSource, sql);
+    const variables = sqlResult?.values?.map(
+      (d) =>
+        Object.fromEntries(
+          d?.map((value, columnIndex) => [
+            sqlResult?.columns?.[columnIndex],
+            value,
+          ])
+        ) as Variable
     );
-    const result = sqlResult?.values?.map(
+    const dimensions = await this.obtainDimensions(dataSource);
+    await this.fillCorrespondingDimensionsIntoVariables(
+      dataSource,
+      variables,
+      dimensions
+    );
+    return variables;
+  }
+
+  private async obtainDimensions(dataSource: string) {
+    const sql = `SELECT id, name, size, description, value_labels FROM dimension`;
+    const sqlResult = await this.queryDataDelegate?.(dataSource, sql);
+    const dimensions = sqlResult?.values?.map(
       (d) =>
         Object.fromEntries(
           d?.map((value, columnIndex) => {
-            const columnName = sqlResult.columns?.[columnIndex];
+            const columnName = sqlResult?.columns?.[columnIndex];
             if (columnName === "value_labels") {
               value = value ? JSON.parse(value as string) : undefined;
             }
@@ -297,8 +308,33 @@ export default class GWFVisPluginVariableControl
           })
         ) as Dimension
     );
-    this.currentAvailableDimensions = result;
-    this.initializeCurrentDimensionValuesIfNotYetInitialized();
+    return dimensions;
+  }
+
+  private async fillCorrespondingDimensionsIntoVariables(
+    dataSource: string,
+    variables: Variable[] | undefined,
+    dimensions: Dimension[] | undefined
+  ) {
+    const sql2 = `SELECT variable, dimension FROM variable_dimension`;
+    const sqlResult2 = await this.queryDataDelegate?.(dataSource, sql2);
+    sqlResult2?.values?.forEach(([variableId, dimensionId]) => {
+      const variable = variables?.find(
+        (variable) => variable.id === variableId
+      );
+      const dimension = dimensions?.find(
+        (dimension) => dimension.id === dimensionId
+      );
+      if (!variable) {
+        return;
+      }
+      let variableDimensions = (variable as VariableWithDimensions).dimensions;
+      if (!variableDimensions) {
+        variableDimensions = (variable as VariableWithDimensions).dimensions =
+          [];
+      }
+      dimension && variableDimensions.push(dimension);
+    });
   }
 
   private initializeCurrentDimensionValuesIfNotYetInitialized() {
