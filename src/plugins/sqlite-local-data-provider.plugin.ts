@@ -20,36 +20,36 @@ export default class GWFVisPluginSqliteLocalDataProvider
     }
   `;
 
+  notifyLoadingDelegate?: () => () => void;
+
   #SQL?: initSqlJs.SqlJsStatic;
   #dbInstanceMap = new Map<string, Database>();
 
-  obtainDataProviderIdentifiers = () => ["sqlite-local"];
+  obtainHeaderCallback = () => `sqlite-local Data Provider`;
 
-  obtainHeader = () => `<i>sqlite-local</i> Data Provider`;
+  obtainDataProviderIdentifiersCallback = () => ["sqlite-local"];
 
-  notifyLoadingCallback?: () => () => void;
-
-  async queryData(
+  async queryDataCallback(
     _identifier: string,
     dataSource: string,
     queryObject: string
   ) {
     if (dataSource && queryObject) {
-      const loadingEndCallback = this.notifyLoadingCallback?.();
+      const loadingEndDelegate = this.notifyLoadingDelegate?.();
       const db = await this.obtainDbInstance(dataSource);
       const result = db?.exec(queryObject)?.[0];
-      loadingEndCallback?.();
+      loadingEndDelegate?.();
       return result;
     }
     return undefined;
   }
 
-  async hostFirstLoadedHandler() {
-    const loadingEndCallback = this.notifyLoadingCallback?.();
+  async hostFirstLoadedCallback() {
+    const loadingEndDelegate = this.notifyLoadingDelegate?.();
     this.#SQL = await initSqlJs({
       locateFile: () => sqlJsWasmUrl,
     });
-    loadingEndCallback?.();
+    loadingEndDelegate?.();
   }
 
   render() {

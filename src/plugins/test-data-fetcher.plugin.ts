@@ -29,22 +29,23 @@ export default class GWFVisPluginTestDataFetcher
     }
   `;
 
+  checkIfDataProviderRegisteredDelegate?:
+    | ((identifier: string) => boolean)
+    | undefined;
+  queryDataDelegate?:
+    | ((
+        dataSource: string,
+        queryObject: string
+      ) => Promise<QueryExecResult | undefined>)
+    | undefined;
+
   #dataSourceInputRef = createRef<HTMLInputElement>();
   #sqlTextareaRef = createRef<HTMLTextAreaElement>();
   #resultContainer = createRef<HTMLDivElement>();
 
   @state() queryResult?: QueryExecResult;
 
-  obtainHeader = () => "Test Data Fetcher";
-  checkIfDataProviderRegisteredCallback?:
-    | ((identifier: string) => boolean)
-    | undefined;
-  queryDataCallback?:
-    | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<QueryExecResult | undefined>)
-    | undefined;
+  obtainHeaderCallback = () => "Test Data Fetcher";
 
   render() {
     return html`
@@ -93,11 +94,11 @@ export default class GWFVisPluginTestDataFetcher
   }
 
   private async queryData() {
-    if (this.checkIfDataProviderRegisteredCallback?.("sqlite-local")) {
+    if (this.checkIfDataProviderRegisteredDelegate?.("sqlite-local")) {
       const dataSource = this.#dataSourceInputRef.value?.value;
       const sql = this.#sqlTextareaRef.value?.value;
       if (dataSource && sql) {
-        this.queryResult = await this.queryDataCallback?.(dataSource, sql);
+        this.queryResult = await this.queryDataDelegate?.(dataSource, sql);
       }
     }
   }

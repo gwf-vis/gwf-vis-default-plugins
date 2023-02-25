@@ -1,9 +1,9 @@
-import { leaflet } from "gwf-vis-host";
 import {
+  leaflet,
   GWFVisMapPlugin,
   GWFVisPlugin,
   LayerType,
-} from "gwf-vis-host/types/utils/plugin";
+} from "gwf-vis-host";
 import { css, html, LitElement } from "lit";
 import { property } from "lit/decorators";
 
@@ -17,30 +17,31 @@ export abstract class GWFVisMapLayerPluginBase
     }
   `;
 
-  @property() abstract displayName: string;
-  @property() abstract type: LayerType;
-  @property() abstract active: boolean;
-
-  leaflet?: typeof import("leaflet");
-  addMapLayerCallback?: (
+  removeMapLayerDelegate?: (layer: leaflet.Layer) => void;
+  notifyLoadingDelegate?: () => () => void;
+  addMapLayerDelegate?: (
     layer: leaflet.Layer,
     name: string,
     type: LayerType,
     active?: boolean
   ) => void;
-  removeMapLayerCallback?: (layer: leaflet.Layer) => void;
-  notifyLoadingCallback?: () => () => void;
 
-  abstract obtainHeader: () => string;
+  @property() abstract displayName: string;
+  @property() abstract type: LayerType;
+  @property() abstract active: boolean;
 
-  hostFirstLoadedHandler() {
-    const loadingEndCallback = this.notifyLoadingCallback?.();
+  leaflet?: typeof import("leaflet");
+
+  abstract obtainHeaderCallback: () => string;
+
+  hostFirstLoadedCallback() {
+    const loadingEndDelegate = this.notifyLoadingDelegate?.();
     this.initializeMapLayer();
-    loadingEndCallback?.();
+    loadingEndDelegate?.();
   }
 
   render() {
-    return html`${this.obtainHeader()}`;
+    return html`${this.obtainHeaderCallback()}`;
   }
 
   protected abstract initializeMapLayer(): void;

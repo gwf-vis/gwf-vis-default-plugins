@@ -60,13 +60,11 @@ export default class GWFVisPluginVariableControl
     }
   `;
 
-  updateSharedStatesCallback?: (sharedStates: SharedStates) => void;
-
-  obtainHeader = () => this.header ?? "Variable Control";
-  checkIfDataProviderRegisteredCallback?:
+  updateSharedStatesDelegate?: (sharedStates: SharedStates) => void;
+  checkIfDataProviderRegisteredDelegate?:
     | ((identifier: string) => boolean)
     | undefined;
-  queryDataCallback?:
+  queryDataDelegate?:
     | ((
         dataSource: string,
         queryObject: string
@@ -117,7 +115,7 @@ export default class GWFVisPluginVariableControl
       return;
     }
     this.sharedStates["gwf-default.dimensionValueDict"] = value;
-    this.updateSharedStatesCallback?.({ ...this.sharedStates });
+    this.updateSharedStatesDelegate?.({ ...this.sharedStates });
   }
 
   @property() sharedStates?: SharedStates & {
@@ -127,7 +125,9 @@ export default class GWFVisPluginVariableControl
   @property() dataSources?: string[];
   @property() dataSourceDict?: { [name: string]: string };
 
-  hostFirstLoadedHandler() {}
+  obtainHeaderCallback = () => this.header ?? "Variable Control";
+
+  hostFirstLoadedCallback() {}
 
   render() {
     return html`
@@ -267,7 +267,7 @@ export default class GWFVisPluginVariableControl
       return;
     }
     const sql = `SELECT id, name, unit, description FROM variable`;
-    const sqlResult = await this.queryDataCallback?.(
+    const sqlResult = await this.queryDataDelegate?.(
       this.currentDataSource,
       sql
     );
@@ -296,7 +296,7 @@ export default class GWFVisPluginVariableControl
       WHERE 
         variable_dimension.variable = ${this.currentVariableId} AND dimension.id = variable_dimension.dimension
     `;
-    const sqlResult = await this.queryDataCallback?.(
+    const sqlResult = await this.queryDataDelegate?.(
       this.currentDataSource,
       sql
     );
