@@ -28,7 +28,7 @@ type Dimension = {
 type DimensionValueDict = {
   [dataSource: string]: {
     [variableId: number]: {
-      [dimensionName: string]: number | undefined;
+      [dimensionId: number]: number | undefined;
     };
   };
 };
@@ -183,11 +183,11 @@ export default class GWFVisPluginVariableControl
       <hr />
       <div id="dimension-control-container">
         <table>
-          ${map(this.currentAvailableDimensions, ({ name, size }) => {
+          ${map(this.currentAvailableDimensions, ({ id, name, size }) => {
             const value = this.obtainDimensionValue(
               this.currentDataSource,
               this.currentVariableId,
-              name
+              id
             );
             return html`
               <tr>
@@ -209,7 +209,7 @@ export default class GWFVisPluginVariableControl
                       this.assignDimensionValue(
                         this.currentDataSource,
                         this.currentVariableId,
-                        name,
+                        id,
                         +((currentTarget as HTMLInputElement)?.value ?? 0)
                       )}
                   />
@@ -226,30 +226,30 @@ export default class GWFVisPluginVariableControl
   private obtainDimensionValue(
     dataSource?: string,
     variableId?: number,
-    dimensionName?: string
+    dimensionId?: number
   ) {
     if (!this.dimensionValueDict) {
       return;
     }
-    if (!dataSource || variableId == null || !dimensionName) {
+    if (!dataSource || variableId == null || dimensionId == null) {
       return;
     }
     let value =
-      this.dimensionValueDict[dataSource]?.[variableId]?.[dimensionName];
+      this.dimensionValueDict[dataSource]?.[variableId]?.[dimensionId];
     return value;
   }
 
   private assignDimensionValue(
     dataSource?: string,
     variableId?: number,
-    dimensionName?: string,
+    dimensionId?: number,
     value?: number,
     silent: boolean = false
   ) {
     if (!this.dimensionValueDict) {
       this.dimensionValueDict = {};
     }
-    if (!dataSource || variableId == null || !dimensionName) {
+    if (!dataSource || variableId == null || dimensionId == null) {
       return;
     }
     let dictForDataSource = this.dimensionValueDict[dataSource];
@@ -260,7 +260,7 @@ export default class GWFVisPluginVariableControl
     if (!dictForVariable) {
       dictForVariable = dictForDataSource[variableId] = {};
     }
-    dictForVariable[dimensionName] = value;
+    dictForVariable[dimensionId] = value;
     if (!silent) {
       this.dimensionValueDict = { ...this.dimensionValueDict };
     }
@@ -327,13 +327,13 @@ export default class GWFVisPluginVariableControl
       let value = this.obtainDimensionValue(
         this.currentDataSource,
         this.currentVariableId,
-        dimension.name
+        dimension.id
       );
       if (!value) {
         value = this.assignDimensionValue(
           this.currentDataSource,
           this.currentVariableId,
-          dimension.name,
+          dimension.id,
           0,
           true
         );
