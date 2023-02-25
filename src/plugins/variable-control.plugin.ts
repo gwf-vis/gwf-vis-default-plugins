@@ -88,7 +88,32 @@ export default class GWFVisPluginVariableControl
     this.requestUpdate("currentVariableId", oldValue);
   }
 
-  @state() currentAvailableVariables?: VariableWithDimensions[];
+  @state() get currentAvailableVariables() {
+    if (!this.currentDataSource) {
+      return;
+    }
+    return this.sharedStates?.["gwf-default.cache.availableVariablesDict"]?.[
+      this.currentDataSource
+    ];
+  }
+  set currentAvailableVariables(value: VariableWithDimensions[] | undefined) {
+    if (!this.sharedStates) {
+      return;
+    }
+    if (!this.currentDataSource) {
+      return;
+    }
+    const oldValue = this.currentAvailableVariables;
+    let availablVariablesDict =
+      this.sharedStates["gwf-default.cache.availableVariablesDict"];
+    if (!availablVariablesDict) {
+      availablVariablesDict = this.sharedStates[
+        "gwf-default.cache.availableVariablesDict"
+      ] = {};
+    }
+    availablVariablesDict[this.currentDataSource] = value;
+    this.requestUpdate("currentAvailableVariables", oldValue);
+  }
 
   @state() currentAvailableDimensions?: Dimension[];
 

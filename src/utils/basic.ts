@@ -31,6 +31,10 @@ export type GWFVisDefaultPluginSharedStates = SharedStates & {
   "gwf-default.currentDataSource"?: string;
   "gwf-default.currentVariableId"?: number;
   "gwf-default.dimensionValueDict"?: DimensionValueDict;
+} & {
+  "gwf-default.cache.availableVariablesDict"?: {
+    [dataSource: string]: VariableWithDimensions[] | undefined;
+  };
 };
 
 export type GWFVisDefaultPluginWithData = GWFVisPluginWithData<
