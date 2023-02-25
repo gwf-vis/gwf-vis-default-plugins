@@ -71,25 +71,29 @@ export default class GWFVisPluginVariableControl
       ) => Promise<QueryExecResult | undefined>)
     | undefined;
 
-  #currentDataSource?: string;
   @state() get currentDataSource() {
-    return this.#currentDataSource;
+    return this.sharedStates?.["gwf-default.currentDataSource"];
   }
   set currentDataSource(value: string | undefined) {
-    const oldValue = this.#currentDataSource;
-    this.#currentDataSource = value;
+    if (!this.sharedStates) {
+      return;
+    }
+    const oldValue = this.currentDataSource;
+    this.sharedStates["gwf-default.currentDataSource"] = value;
     this.updateCurrentAvailableVariables();
     this.currentVariableId = undefined;
     this.requestUpdate("currentDataSource", oldValue);
   }
 
-  #currentVariableId?: number;
   @state() get currentVariableId() {
-    return this.#currentVariableId;
+    return this.sharedStates?.["gwf-default.currentVariableId"];
   }
   set currentVariableId(value: number | undefined) {
-    const oldValue = this.#currentVariableId;
-    this.#currentVariableId = value;
+    if (!this.sharedStates) {
+      return;
+    }
+    const oldValue = this.currentVariableId;
+    this.sharedStates["gwf-default.currentVariableId"] = value;
     this.updateCurrentAvailableDimensions();
     this.requestUpdate("currentVariableId", oldValue);
   }
@@ -119,6 +123,8 @@ export default class GWFVisPluginVariableControl
   }
 
   @property() sharedStates?: SharedStates & {
+    "gwf-default.currentDataSource"?: string;
+    "gwf-default.currentVariableId"?: number;
     "gwf-default.dimensionValueDict"?: DimensionValueDict;
   };
   @property() header?: string;
@@ -134,7 +140,7 @@ export default class GWFVisPluginVariableControl
       <div>
         <label>Data Source: </label>
         <select
-          title=${ifDefined(this.#currentDataSource)}
+          title=${ifDefined(this.currentDataSource)}
           @change=${({ currentTarget }: Event) =>
             (this.currentDataSource = (
               currentTarget as HTMLSelectElement
