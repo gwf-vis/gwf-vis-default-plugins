@@ -15,17 +15,17 @@ export default class GWFVisPluginTileLayer extends GWFVisMapLayerPluginBase {
       "Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
   };
 
-  obtainHeader = () => `Tile Layer - ${this.displayName}`;
+  obtainHeaderCallback = () => `Tile Layer - ${this.displayName}`;
 
   protected override initializeMapLayer() {
     this.#tileLayerInstance &&
-      this.removeMapLayerCallback?.(this.#tileLayerInstance);
+      this.removeMapLayerDelegate?.(this.#tileLayerInstance);
     this.#tileLayerInstance = this.leaflet?.tileLayer(
       this.urlTemplate,
       this.options
     );
     this.#tileLayerInstance &&
-      this.addMapLayerCallback?.(
+      this.addMapLayerDelegate?.(
         this.#tileLayerInstance,
         this.displayName,
         this.type,

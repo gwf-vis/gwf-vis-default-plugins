@@ -12,18 +12,18 @@ export default class GWFVisPluginGeoJSONLayer extends GWFVisMapLayerPluginBase {
   @property() geojson?: GeoJsonObject | GeoJsonObject[] | string;
   @property() options?: leaflet.GeoJSONOptions;
 
-  obtainHeader = () => `GeoJSON Layer - ${this.displayName}`;
+  obtainHeaderCallback = () => `GeoJSON Layer - ${this.displayName}`;
 
   protected override initializeMapLayer() {
     this.#geojsonLayerInstance &&
-      this.removeMapLayerCallback?.(this.#geojsonLayerInstance);
+      this.removeMapLayerDelegate?.(this.#geojsonLayerInstance);
     this.#geojsonLayerInstance = this.leaflet?.geoJSON(this.obtainGeoJSON(), {
       ...this.options,
       pointToLayer: (_feature, latlng) =>
         new globalThis.L.CircleMarker(latlng, { radius: 10 }),
     });
     this.#geojsonLayerInstance &&
-      this.addMapLayerCallback?.(
+      this.addMapLayerDelegate?.(
         this.#geojsonLayerInstance,
         this.displayName,
         this.type,
