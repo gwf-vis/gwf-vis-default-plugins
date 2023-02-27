@@ -17,16 +17,16 @@ export type GWFVisDefaultPluginWithData = GWFVisPluginWithData<
 export type CallerPlugin = GWFVisDefaultPluginWithData &
   GWFVisDefaultPluginSharedStates;
 
-export async function runAsyncWithLoading(
-  callback: (() => Promise<void>) | undefined,
+export async function runAsyncWithLoading<T = any>(
+  callback: (() => Promise<T>) | undefined,
   callerPlugin: CallerPlugin | undefined
 ) {
   const loadingEndDelegate = callerPlugin?.notifyLoadingDelegate?.();
-  await new Promise<void>((resolve) =>
+  return await new Promise<T>((resolve) =>
     setTimeout(async () => {
-      await callback?.();
+      const result = (await callback?.()) as T;
       loadingEndDelegate?.();
-      resolve();
+      resolve(result);
     })
   );
 }
