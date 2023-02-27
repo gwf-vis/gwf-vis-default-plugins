@@ -4,18 +4,18 @@ import type {
   SharedStates,
 } from "gwf-vis-host";
 import type {
-  Variable,
-  Dimension,
   DimensionValueDict,
   GWFVisDefaultPluginSharedStates,
   GWFVisDefaultPluginWithData,
-  VariableWithDimensions,
 } from "../utils/basic";
+import type { VariableWithDimensions, Dimension } from "../utils/data";
+
 import { css, html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { QueryExecResult, SqlValue } from "sql.js";
+import { QueryExecResult } from "sql.js";
+import { obtainAvailableVariables } from "../utils/data";
 
 export default class GWFVisPluginVariableControl
   extends LitElement
@@ -88,32 +88,7 @@ export default class GWFVisPluginVariableControl
     this.requestUpdate("currentVariableId", oldValue);
   }
 
-  @state() get currentAvailableVariables() {
-    if (!this.currentDataSource) {
-      return;
-    }
-    return this.sharedStates?.["gwf-default.cache.availableVariablesDict"]?.[
-      this.currentDataSource
-    ];
-  }
-  set currentAvailableVariables(value: VariableWithDimensions[] | undefined) {
-    if (!this.sharedStates) {
-      return;
-    }
-    if (!this.currentDataSource) {
-      return;
-    }
-    const oldValue = this.currentAvailableVariables;
-    let availablVariablesDict =
-      this.sharedStates["gwf-default.cache.availableVariablesDict"];
-    if (!availablVariablesDict) {
-      availablVariablesDict = this.sharedStates[
-        "gwf-default.cache.availableVariablesDict"
-      ] = {};
-    }
-    availablVariablesDict[this.currentDataSource] = value;
-    this.requestUpdate("currentAvailableVariables", oldValue);
-  }
+  @state() currentAvailableVariables?: VariableWithDimensions[];
 
   @state() currentAvailableDimensions?: Dimension[];
 
@@ -284,7 +259,7 @@ export default class GWFVisPluginVariableControl
       this.currentAvailableVariables = undefined;
       return;
     }
-    const variables = await this.obtainVariables(dataSource);
+    const variables = await obtainAvailableVariables(dataSource, this);
     this.currentAvailableVariables = variables;
   }
 
@@ -295,71 +270,6 @@ export default class GWFVisPluginVariableControl
     }
     this.currentAvailableDimensions = this.currentVariable?.dimensions;
     this.initializeCurrentDimensionValuesIfNotYetInitialized();
-  }
-
-  private async obtainVariables(dataSource: string) {
-    let sql = `SELECT id, name, unit, description FROM variable`;
-    let sqlResult = await this.queryDataDelegate?.(dataSource, sql);
-    const variables = sqlResult?.values?.map(
-      (d) =>
-        Object.fromEntries(
-          d?.map((value, columnIndex) => [
-            sqlResult?.columns?.[columnIndex],
-            value,
-          ])
-        ) as Variable
-    );
-    const dimensions = await this.obtainDimensions(dataSource);
-    await this.fillCorrespondingDimensionsIntoVariables(
-      dataSource,
-      variables,
-      dimensions
-    );
-    return variables;
-  }
-
-  private async obtainDimensions(dataSource: string) {
-    const sql = `SELECT id, name, size, description, value_labels FROM dimension`;
-    const sqlResult = await this.queryDataDelegate?.(dataSource, sql);
-    const dimensions = sqlResult?.values?.map(
-      (d) =>
-        Object.fromEntries(
-          d?.map((value, columnIndex) => {
-            const columnName = sqlResult?.columns?.[columnIndex];
-            if (columnName === "value_labels") {
-              value = value ? JSON.parse(value as string) : undefined;
-            }
-            return [columnName, value as SqlValue | string[]];
-          })
-        ) as Dimension
-    );
-    return dimensions;
-  }
-
-  private async fillCorrespondingDimensionsIntoVariables(
-    dataSource: string,
-    variables: Variable[] | undefined,
-    dimensions: Dimension[] | undefined
-  ) {
-    const sql2 = `SELECT variable, dimension FROM variable_dimension`;
-    const sqlResult2 = await this.queryDataDelegate?.(dataSource, sql2);
-    sqlResult2?.values?.forEach(([variableId, dimensionId]) => {
-      const variable = variables?.find(
-        (variable) => variable.id === variableId
-      );
-      const dimension = dimensions?.find(
-        (dimension) => dimension.id === dimensionId
-      );
-      if (!variable) {
-        return;
-      }
-      let variableDimensions = (variable as VariableWithDimensions).dimensions;
-      if (!variableDimensions) {
-        variableDimensions = (variable as VariableWithDimensions).dimensions =
-          [];
-      }
-      dimension && variableDimensions.push(dimension);
-    });
   }
 
   private initializeCurrentDimensionValuesIfNotYetInitialized() {
