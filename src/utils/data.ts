@@ -1,9 +1,6 @@
 import type { SqlValue } from "sql.js";
-import type {
-  CallerPlugin,
-  GWFVisDefaultPluginSharedStates,
-  GWFVisDefaultPluginWithData,
-} from "./basic";
+import type { CallerPlugin } from "./basic";
+import type { GWFVisDefaultPluginSharedStates } from "./state";
 
 export type Variable = {
   id: number;

@@ -6,11 +6,11 @@ import type {
 } from "gwf-vis-host";
 import type { QueryExecResult } from "sql.js";
 import {
-  GWFVisDefaultPluginSharedStates,
   GWFVisDefaultPluginWithData,
   runAsyncWithLoading,
 } from "../utils/basic";
 import type { Dimension, Location, Value } from "../utils/data";
+import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { property } from "lit/decorators.js";
 import {
