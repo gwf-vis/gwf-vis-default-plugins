@@ -5,10 +5,10 @@ import type {
 } from "gwf-vis-host";
 import type {
   DimensionValueDict,
-  GWFVisDefaultPluginSharedStates,
   GWFVisDefaultPluginWithData,
 } from "../utils/basic";
 import type { VariableWithDimensions, Dimension } from "../utils/data";
+import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { css, html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
