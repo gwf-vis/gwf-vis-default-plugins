@@ -1,23 +1,5 @@
 import type { GWFVisPluginWithData, SharedStates } from "gwf-vis-host";
-
-export type Variable = {
-  id: number;
-  name: string;
-  unit?: string;
-  description?: string;
-};
-
-export type Dimension = {
-  id: number;
-  name: string;
-  size: number;
-  description?: string;
-  value_labels?: string[];
-};
-
-export type VariableWithDimensions = Variable & {
-  dimensions?: Dimension[];
-};
+import { VariableWithDimensions } from "./data";
 
 export type DimensionValueDict = {
   [dataSource: string]: {
