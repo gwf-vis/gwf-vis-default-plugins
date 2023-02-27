@@ -70,6 +70,7 @@ export default class GWFVisPluginVariableControl
     }
     const oldValue = this.currentDataSource;
     this.sharedStates["gwf-default.currentDataSource"] = value;
+    this.updateSharedStatesDelegate?.({ ...this.sharedStates });
     this.updateCurrentAvailableVariables();
     this.currentVariableId = undefined;
     this.requestUpdate("currentDataSource", oldValue);
@@ -84,6 +85,7 @@ export default class GWFVisPluginVariableControl
     }
     const oldValue = this.currentVariableId;
     this.sharedStates["gwf-default.currentVariableId"] = value;
+    this.updateSharedStatesDelegate?.({ ...this.sharedStates });
     this.updateCurrentAvailableDimensions();
     this.requestUpdate("currentVariableId", oldValue);
   }
