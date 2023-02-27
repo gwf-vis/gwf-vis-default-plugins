@@ -1,5 +1,6 @@
 import type { SqlValue } from "sql.js";
-import {
+import type {
+  CallerPlugin,
   GWFVisDefaultPluginSharedStates,
   GWFVisDefaultPluginWithData,
 } from "./basic";
@@ -35,9 +36,6 @@ export type Value = {
   variable: Variable;
   dimensionIdAndValueDict: { [dimensionId: number]: number | undefined };
 };
-
-type CallerPlugin = GWFVisDefaultPluginWithData &
-  GWFVisDefaultPluginSharedStates;
 
 export async function obtainAvailableVariables(
   dataSource: string | undefined,

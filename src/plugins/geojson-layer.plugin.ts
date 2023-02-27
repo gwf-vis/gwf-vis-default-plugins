@@ -5,9 +5,10 @@ import type {
   leaflet,
 } from "gwf-vis-host";
 import type { QueryExecResult } from "sql.js";
-import type {
+import {
   GWFVisDefaultPluginSharedStates,
   GWFVisDefaultPluginWithData,
+  runAsyncWithLoading,
 } from "../utils/basic";
 import type { Dimension, Location, Value } from "../utils/data";
 
@@ -17,6 +18,7 @@ import {
   obtainAvailableVariables,
 } from "../utils/data";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
+import { obtainObjectChangedPropertyNameSet } from "../utils/state";
 
 export default class GWFVisPluginGeoJSONLayer
   extends GWFVisMapLayerPluginBase
@@ -34,11 +36,11 @@ export default class GWFVisPluginGeoJSONLayer
 
   #geojsonLayerInstance?: leaflet.GeoJSON;
   #currentLocations?: Location[];
+  #previousSharedStates?: GWFVisDefaultPluginSharedStates;
 
   @property() displayName: string = "geojson layer";
   @property() type: LayerType = "overlay";
   @property() active: boolean = false;
-  @property() geojson?: GeoJsonObject | GeoJsonObject[] | string;
   @property() options?: leaflet.GeoJSONOptions;
   @property() dataFrom?: {
     dataSource?: string;
@@ -46,13 +48,36 @@ export default class GWFVisPluginGeoJSONLayer
     dimensionValueDict?: { [dimension: string]: number };
   };
 
+  #geojson?: GeoJsonObject | GeoJsonObject[] | string;
+  @property() get geojson() {
+    return this.#geojson;
+  }
+  set geojson(value: GeoJsonObject | GeoJsonObject[] | string | undefined) {
+    this.#geojson = value;
+    this.updateMap();
+  }
+
   #sharedStates?: GWFVisDefaultPluginSharedStates;
   get sharedStates() {
     return this.#sharedStates;
   }
   set sharedStates(value: GWFVisDefaultPluginSharedStates | undefined) {
     this.#sharedStates = value;
-    this.updateMap();
+    const changedProps = obtainObjectChangedPropertyNameSet(
+      this.#previousSharedStates,
+      this.#sharedStates
+    );
+    this.#previousSharedStates = { ...this.sharedStates };
+    runAsyncWithLoading(async () => {
+      if (changedProps.has("gwf-default.currentDataSource")) {
+        await this.updateMap();
+      } else if (
+        changedProps.has("gwf-default.currentVariableId") ||
+        changedProps.has("gwf-default.dimensionValueDict")
+      ) {
+        await this.updateData();
+      }
+    }, this);
   }
 
   obtainHeaderCallback = () => `GeoJSON Layer - ${this.displayName}`;
@@ -76,15 +101,10 @@ export default class GWFVisPluginGeoJSONLayer
   }
 
   private async updateMap() {
-    const loadingEndDelegate = this.notifyLoadingDelegate?.();
-    await new Promise<void>((resolve) =>
-      setTimeout(async () => {
-        await this.updateFeatures();
-        this.#currentLocations && (await this.updateData());
-        loadingEndDelegate?.();
-        resolve();
-      })
-    );
+    await runAsyncWithLoading(async () => {
+      await this.updateFeatures();
+      await this.updateData();
+    }, this);
   }
 
   private async updateFeatures() {
@@ -100,6 +120,9 @@ export default class GWFVisPluginGeoJSONLayer
   }
 
   private async updateData() {
+    if (!this.#currentLocations) {
+      return;
+    }
     const values = await this.obtainDatasetValues();
     if (!values) {
       return;
@@ -251,6 +274,9 @@ export default class GWFVisPluginGeoJSONLayer
   }
 
   private async obtainDatasetLocations(dataSource?: string) {
+    if (this.geojson) {
+      return;
+    }
     if (!dataSource) {
       return;
     }
