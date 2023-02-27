@@ -89,6 +89,15 @@
       "import": "gwf-default.geojson-layer",
       "container": "main",
       "props": {
+        "displayName": "GeoJSON",
+        "type": "overlay",
+        "active": true
+      }
+    },
+    {
+      "import": "gwf-default.geojson-layer",
+      "container": "main",
+      "props": {
         "displayName": "Something",
         "type": "overlay",
         "active": true,

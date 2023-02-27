@@ -23,6 +23,19 @@ export type VariableWithDimensions = Variable & {
   dimensions?: Dimension[];
 };
 
+export type Location = {
+  id: number;
+  geometry: GeoJSON.Geometry;
+  metadata: unknown;
+};
+
+export type Value = {
+  location: Location;
+  value: number;
+  variable: Variable;
+  dimensionIdAndValueDict: { [dimensionId: number]: number | undefined };
+};
+
 type CallerPlugin = GWFVisDefaultPluginWithData &
   GWFVisDefaultPluginSharedStates;
 
@@ -44,6 +57,16 @@ export async function obtainAvailableVariables(
   return sharedStates?.["gwf-default.cache.availableVariablesDict"]?.[
     dataSource
   ];
+}
+
+export async function obtainAvailableLocations(
+  dataSource: string | undefined,
+  callerPlugin: CallerPlugin | undefined
+) {
+  if (!dataSource || !callerPlugin) {
+    return;
+  }
+  return queryLocations(dataSource, callerPlugin);
 }
 
 function obtainAvailableVariablesFromCache(
@@ -118,6 +141,24 @@ async function queryDimensions(dataSource: string, callerPlugin: CallerPlugin) {
       ) as Dimension
   );
   return dimensions;
+}
+
+async function queryLocations(dataSource: string, callerPlugin: CallerPlugin) {
+  const sql = `SELECT id, geometry, metadata FROM location`;
+  const sqlResult = await callerPlugin.queryDataDelegate?.(dataSource, sql);
+  const locations = sqlResult?.values?.map(
+    (d) =>
+      Object.fromEntries(
+        d?.map((value, columnIndex) => {
+          const columnName = sqlResult?.columns?.[columnIndex];
+          if (columnName === "geometry" || columnName === "metadata") {
+            value = value ? JSON.parse(value as string) : undefined;
+          }
+          return [columnName, value as any];
+        })
+      ) as Location
+  );
+  return locations;
 }
 
 async function fillCorrespondingDimensionsIntoVariables(
