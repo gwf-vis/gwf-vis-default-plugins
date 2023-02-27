@@ -2,6 +2,7 @@ import type { GWFVisDataProviderPlugin, GWFVisPlugin } from "gwf-vis-host";
 import { html, css, LitElement } from "lit";
 import initSqlJs, { Database } from "sql.js";
 import sqlJsWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
+import { runAsyncWithLoading } from "../utils/basic";
 
 export default class GWFVisPluginSqliteLocalDataProvider
   extends LitElement
@@ -35,21 +36,23 @@ export default class GWFVisPluginSqliteLocalDataProvider
     queryObject: string
   ) {
     if (dataSource && queryObject) {
-      const loadingEndDelegate = this.notifyLoadingDelegate?.();
-      const db = await this.obtainDbInstance(dataSource);
-      const result = db?.exec(queryObject)?.[0];
-      loadingEndDelegate?.();
+      const result = await runAsyncWithLoading(async () => {
+        const db = await this.obtainDbInstance(dataSource);
+        return db?.exec(queryObject)?.[0];
+      }, this);
       return result;
     }
     return undefined;
   }
 
   async hostFirstLoadedCallback() {
-    const loadingEndDelegate = this.notifyLoadingDelegate?.();
-    this.#SQL = await initSqlJs({
-      locateFile: () => sqlJsWasmUrl,
-    });
-    loadingEndDelegate?.();
+    this.#SQL = await runAsyncWithLoading(
+      async () =>
+        await initSqlJs({
+          locateFile: () => sqlJsWasmUrl,
+        }),
+      this
+    );
   }
 
   render() {
