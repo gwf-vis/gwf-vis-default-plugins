@@ -10,7 +10,12 @@ import {
   runAsyncWithLoading,
 } from "../utils/basic";
 import type { ColorSchemeDefinition } from "../utils/color";
-import type { Dimension, Location, Value } from "../utils/data";
+import type {
+  Dimension,
+  Location,
+  Value,
+  VariableWithDimensions,
+} from "../utils/data";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import {
@@ -168,9 +173,7 @@ export default class GWFVisPluginGeoJSONLayer
     if (typeof this.geojson === "object") {
       return this.geojson;
     }
-    const dataSource =
-      this.dataFrom?.dataSource ??
-      this.sharedStates?.["gwf-default.currentDataSource"];
+    const dataSource = this.obtainCurrentDataSource();
     if (!dataSource) {
       return;
     }
@@ -198,7 +201,7 @@ export default class GWFVisPluginGeoJSONLayer
     if (!dataSource) {
       return;
     }
-    let variable = await this.obtainCurrentVariable();
+    let variable = await this.obtainCurrentVariable(dataSource);
     if (!variable) {
       return;
     }
@@ -218,7 +221,7 @@ export default class GWFVisPluginGeoJSONLayer
     if (!dataSource) {
       return;
     }
-    let variable = await this.obtainCurrentVariable();
+    let variable = await this.obtainCurrentVariable(dataSource);
     if (!variable) {
       return;
     }
@@ -227,14 +230,7 @@ export default class GWFVisPluginGeoJSONLayer
       return;
     }
     const dimensionIdAndValueDict =
-      (await this.obtainDimensionIdAndValueDict(
-        dataSource,
-        variable.dimensions,
-        this.dataFrom?.dimensionValueDict
-      )) ??
-      this.sharedStates?.["gwf-default.dimensionValueDict"]?.[dataSource]?.[
-        variableId
-      ];
+      await this.obtainCurrentDimensionIdAndValueDict(dataSource, variable);
     if (!dimensionIdAndValueDict) {
       return;
     }
@@ -340,10 +336,10 @@ export default class GWFVisPluginGeoJSONLayer
     );
   }
 
-  private async obtainCurrentVariable() {
-    const dataSource = this.obtainCurrentDataSource();
+  private async obtainCurrentVariable(dataSource?: string) {
+    const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
     let variable = await this.findVariableByName(
-      dataSource,
+      currentDataSource,
       this.dataFrom?.variableName
     );
     const variableId =
@@ -352,14 +348,36 @@ export default class GWFVisPluginGeoJSONLayer
       return;
     }
     if (!variable) {
-      variable = await this.findVariableById(dataSource, variableId);
+      variable = await this.findVariableById(currentDataSource, variableId);
     }
     return variable;
   }
 
+  private async obtainCurrentDimensionIdAndValueDict(
+    dataSource?: string,
+    variable?: VariableWithDimensions
+  ) {
+    const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
+    const currentVariable =
+      variable ?? (await this.obtainCurrentVariable(currentDataSource));
+    if (!currentDataSource || !currentVariable) {
+      return;
+    }
+    const dimensionIdAndValueDict =
+      (await this.obtainDimensionIdAndValueDict(
+        dataSource,
+        currentVariable.dimensions,
+        this.dataFrom?.dimensionValueDict
+      )) ??
+      this.sharedStates?.["gwf-default.dimensionValueDict"]?.[
+        currentDataSource
+      ]?.[currentVariable.id];
+    return dimensionIdAndValueDict;
+  }
+
   private async obtainCurrentColorScheme() {
     const dataSource = this.obtainCurrentDataSource();
-    const variable = await this.obtainCurrentVariable();
+    const variable = await this.obtainCurrentVariable(dataSource);
     if (!dataSource || !variable) {
       return;
     }
