@@ -10,7 +10,7 @@
     "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
-    "gwf-default.variable-control": "/src/plugins/variable-control.plugin.ts"
+    "gwf-default.data-control": "/src/plugins/data-control.plugin.ts"
   },
   "plugins": [
     {
@@ -22,10 +22,10 @@
       "container": "sidebar"
     },
     {
-      "import": "gwf-default.variable-control",
+      "import": "gwf-default.data-control",
       "container": "main",
       "props": {
-        "header": "My Variable Control",
+        "header": "My Data Control",
         "dataSources": [
           "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb"
