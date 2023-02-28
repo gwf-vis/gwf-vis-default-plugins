@@ -2,8 +2,8 @@
   "fileBasePath": "",
   "preferCanvas": false,
   "view": {
-    "center": [0, -100],
-    "zoom": 2
+    "center": [51, -116],
+    "zoom": 9
   },
   "imports": {
     "gwf-default.sqlite-local-data-provider": "/src/plugins/sqlite-local-data-provider.plugin.ts",
