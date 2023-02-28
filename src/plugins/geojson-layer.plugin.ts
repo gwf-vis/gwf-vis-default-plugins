@@ -9,6 +9,7 @@ import {
   GWFVisDefaultPluginWithData,
   runAsyncWithLoading,
 } from "../utils/basic";
+import type { ColorSchemeDefinition } from "../utils/color";
 import type { Dimension, Location, Value } from "../utils/data";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
@@ -46,6 +47,9 @@ export default class GWFVisPluginGeoJSONLayer
     dataSource?: string;
     variableName?: string;
     dimensionValueDict?: { [dimension: string]: number };
+  };
+  colorScheme?: {
+    [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
 
   #geojson?: GeoJsonObject | GeoJsonObject[] | string;
@@ -131,7 +135,8 @@ export default class GWFVisPluginGeoJSONLayer
     if (max == null && min == null) {
       return;
     }
-    const scaleColor = generateColorScale().domain([
+    const currentColorScheme = await this.obtainCurrentColorScheme();
+    const scaleColor = generateColorScale(currentColorScheme).domain([
       min as number,
       max as number,
     ]) as (value: number) => any;
@@ -350,5 +355,18 @@ export default class GWFVisPluginGeoJSONLayer
       variable = await this.findVariableById(dataSource, variableId);
     }
     return variable;
+  }
+
+  private async obtainCurrentColorScheme() {
+    const dataSource = this.obtainCurrentDataSource();
+    const variable = await this.obtainCurrentVariable();
+    if (!dataSource || !variable) {
+      return;
+    }
+    return (
+      this.colorScheme?.[dataSource]?.[variable.name] ??
+      this.colorScheme?.[dataSource]?.[""] ??
+      this.colorScheme?.[""]
+    );
   }
 }

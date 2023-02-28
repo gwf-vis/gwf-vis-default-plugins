@@ -91,7 +91,14 @@
       "props": {
         "displayName": "GeoJSON",
         "type": "overlay",
-        "active": true
+        "active": true,
+        "colorScheme": {
+          "": { "type": "sequential", "scheme": ["blue", "red"] },
+          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb": {
+            "": { "type": "sequential", "scheme": ["green", "orange"] },
+            "scalarSWE": { "type": "quantize", "scheme": "schemeOranges[5]" }
+          }
+        }
       }
     },
     {
