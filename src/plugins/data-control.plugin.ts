@@ -17,7 +17,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { QueryExecResult } from "sql.js";
 import { obtainAvailableVariables } from "../utils/data";
 
-export default class GWFVisPluginVariableControl
+export default class GWFVisPluginDataControl
   extends LitElement
   implements
     GWFVisPlugin,
@@ -119,7 +119,7 @@ export default class GWFVisPluginVariableControl
   @property() dataSources?: string[];
   @property() dataSourceDict?: { [name: string]: string };
 
-  obtainHeaderCallback = () => this.header ?? "Variable Control";
+  obtainHeaderCallback = () => this.header ?? "Data Control";
 
   hostFirstLoadedCallback() {}
 
