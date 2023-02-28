@@ -19,6 +19,7 @@ import {
 } from "../utils/data";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import { obtainObjectChangedPropertyNameSet } from "../utils/state";
+import { generateColorScale } from "../utils/color";
 
 export default class GWFVisPluginGeoJSONLayer
   extends GWFVisMapLayerPluginBase
@@ -131,6 +132,10 @@ export default class GWFVisPluginGeoJSONLayer
     if (max == null && min == null) {
       return;
     }
+    const scaleColor = generateColorScale().domain([
+      min as number,
+      max as number,
+    ]) as (value: number) => any;
     this.#geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(
@@ -143,15 +148,10 @@ export default class GWFVisPluginGeoJSONLayer
       const value = values?.find(
         ({ location }) => location.id === properties?.id
       )?.value;
-      const hue =
-        value != null && max != null && min != null
-          ? ((value - min) / (max - min)) * 360
-          : undefined;
-      // TODO use color scheme
-      const fillColor = hue != null ? `hsl(${hue}, 100%, 50%)` : "transparent";
+      const fillColor = value != null ? scaleColor(value) : "transparent";
       const style = {
         fillColor,
-        fillOpacity: 0.5,
+        fillOpacity: 0.7,
       };
       return style;
     });
