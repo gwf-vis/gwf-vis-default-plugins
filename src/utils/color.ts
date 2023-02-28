@@ -8,6 +8,26 @@ export type ColorSchemeDefinition = {
   reverse?: boolean;
 };
 
+export function generateGradientCSSString(
+  colorScale: ((value: number) => any) | undefined,
+  min: number = 0,
+  max: number = 1,
+  steps: number = 10
+) {
+  if (!colorScale) {
+    return;
+  }
+  let gradient = "linear-gradient(to right";
+  for (let i = 0; i <= steps; i++) {
+    let value = min + ((max - min) * i) / steps;
+    let color = colorScale(value);
+    let position = (i * 100) / steps;
+    gradient += `, ${color} ${position}%`;
+  }
+  gradient += ")";
+  return gradient;
+}
+
 export function generateColorScale(
   colorSchemeDefinition?: ColorSchemeDefinition
 ) {
