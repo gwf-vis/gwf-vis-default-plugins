@@ -29,7 +29,7 @@ export class GWFVisApp extends LitElement {
   config?: GWFVisHostConfig;
 
   async firstUpdated() {
-    this.config = await fetch("./src/assets/sample.json").then((response) =>
+    this.config = await fetch("./src/assets/config.json").then((response) =>
       response.json()
     );
   }
