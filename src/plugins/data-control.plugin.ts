@@ -298,8 +298,10 @@ export default class GWFVisPluginDataControl
     if (!dataSource) {
       return;
     }
-    return Object.entries(this.dataSourceDict ?? {}).find(
-      ([_, source]) => dataSource === source
-    )?.[0];
+    return (
+      Object.entries(this.dataSourceDict ?? {}).find(
+        ([_, source]) => dataSource === source
+      )?.[0] ?? dataSource
+    );
   }
 }
