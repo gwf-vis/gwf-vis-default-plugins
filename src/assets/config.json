@@ -10,6 +10,7 @@
     "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
+    "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts"
   },
   "plugins": [
@@ -20,6 +21,23 @@
     {
       "import": "gwf-default.test-data-fetcher",
       "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.legend",
+      "container": "main",
+      "props": {
+        "colorScheme": {
+          "": { "type": "sequential", "scheme": ["blue", "red"] },
+          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb": {
+            "": { "type": "sequential", "scheme": ["green", "orange"] },
+            "scalarSWE": { "type": "quantize", "scheme": "schemeOranges[5]" }
+          }
+        },
+        "dataSourceDict": {
+          "mesh": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "catchment": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb"
+        }
+      }
     },
     {
       "import": "gwf-default.data-control",
