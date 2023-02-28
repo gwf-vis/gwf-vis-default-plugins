@@ -34,6 +34,12 @@ export type Value = {
   dimensionIdAndValueDict: { [dimensionId: number]: number | undefined };
 };
 
+export type DataFrom = {
+  dataSource?: string;
+  variableName?: string;
+  dimensionValueDict?: { [dimension: string]: number };
+};
+
 export async function obtainAvailableVariables(
   dataSource: string | undefined,
   callerPlugin: CallerPlugin | undefined
