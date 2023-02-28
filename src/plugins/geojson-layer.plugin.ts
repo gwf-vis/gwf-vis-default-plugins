@@ -12,7 +12,6 @@ import {
 import type { Dimension, Location, Value } from "../utils/data";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
-import { property } from "lit/decorators.js";
 import {
   obtainAvailableLocations,
   obtainAvailableVariables,
@@ -39,18 +38,18 @@ export default class GWFVisPluginGeoJSONLayer
   #currentLocations?: Location[];
   #previousSharedStates?: GWFVisDefaultPluginSharedStates;
 
-  @property() displayName: string = "geojson layer";
-  @property() type: LayerType = "overlay";
-  @property() active: boolean = false;
-  @property() options?: leaflet.GeoJSONOptions;
-  @property() dataFrom?: {
+  displayName: string = "geojson layer";
+  type: LayerType = "overlay";
+  active: boolean = false;
+  options?: leaflet.GeoJSONOptions;
+  dataFrom?: {
     dataSource?: string;
     variableName?: string;
     dimensionValueDict?: { [dimension: string]: number };
   };
 
   #geojson?: GeoJsonObject | GeoJsonObject[] | string;
-  @property() get geojson() {
+  get geojson() {
     return this.#geojson;
   }
   set geojson(value: GeoJsonObject | GeoJsonObject[] | string | undefined) {
