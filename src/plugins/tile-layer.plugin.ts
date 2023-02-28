@@ -1,16 +1,15 @@
 import type { LayerType, leaflet } from "gwf-vis-host";
-import { property } from "lit/decorators.js";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 
 export default class GWFVisPluginTileLayer extends GWFVisMapLayerPluginBase {
   #tileLayerInstance?: leaflet.TileLayer;
 
-  @property() displayName: string = "tile layer";
-  @property() type: LayerType = "base-layer";
-  @property() active: boolean = false;
-  @property() urlTemplate: string =
+  displayName: string = "tile layer";
+  type: LayerType = "base-layer";
+  active: boolean = false;
+  urlTemplate: string =
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-  @property() options?: leaflet.TileLayerOptions = {
+  options?: leaflet.TileLayerOptions = {
     attribution:
       "Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
   };
