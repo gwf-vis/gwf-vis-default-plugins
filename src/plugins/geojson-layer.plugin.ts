@@ -11,6 +11,7 @@ import {
 } from "../utils/basic";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type {
+  DataFrom,
   Dimension,
   Location,
   Value,
@@ -48,11 +49,7 @@ export default class GWFVisPluginGeoJSONLayer
   type: LayerType = "overlay";
   active: boolean = false;
   options?: leaflet.GeoJSONOptions;
-  dataFrom?: {
-    dataSource?: string;
-    variableName?: string;
-    dimensionValueDict?: { [dimension: string]: number };
-  };
+  dataFrom?: DataFrom;
   colorScheme?: {
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
