@@ -6,7 +6,7 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { GloablInfo } from "./utils/gwf-vis-plugin";
-import { ColorSchemeDefinition } from "./utils/variable-color-scheme";
+import { ColorSchemeDefinition } from "./utils/color";
 import { Map } from "leaflet";
 export namespace Components {
     interface GwfVisPluginContourLayer {

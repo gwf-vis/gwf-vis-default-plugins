@@ -1,8 +1,7 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
 import { GloablInfo, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
-import * as d3 from 'd3';
 import { tricontour } from 'd3-tricontour';
-import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
+import { ColorSchemeDefinition, generateColorScale, obtainVariableColorSchemeDefinition } from '../../utils/color';
 
 @Component({
   tag: 'gwf-vis-plugin-contour-layer',
@@ -82,8 +81,8 @@ export class GwfVisPluginContourLayer implements ComponentInterface, GwfVisPlugi
         for: ['min(value)', 'max(value)'],
       })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
-    const colorScheme = obtainVariableColorScheme(this.colorScheme, variableName);
-    const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
+    const colorSchemeDefinition = obtainVariableColorSchemeDefinition(this.colorScheme, variableName);
+    const scaleColor = generateColorScale(colorSchemeDefinition);
     console.log(minValue, maxValue);
     // const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
 
@@ -100,7 +99,7 @@ export class GwfVisPluginContourLayer implements ComponentInterface, GwfVisPlugi
       ?.filter(({ value }) => typeof value !== 'undefined' && value !== null);
 
     const thresholds = Array.isArray(this.thresholds) ? this.thresholds : this.obtainQuantile(minValue, maxValue, this.thresholds ?? 5);
-    const scaleColor = d3.scaleSequentialQuantile(interpolateFunction).domain(thresholds.sort());
+    scaleColor?.domain(thresholds.sort());
     const contours = tricontour()
       .x(d => d.x)
       .y(d => d.y)

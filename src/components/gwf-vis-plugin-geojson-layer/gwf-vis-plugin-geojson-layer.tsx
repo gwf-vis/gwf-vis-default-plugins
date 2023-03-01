@@ -1,7 +1,6 @@
 import { Component, Host, h, ComponentInterface, Prop, Method } from '@stencil/core';
 import { GloablInfo, GwfVisPluginMapLayer } from '../../utils/gwf-vis-plugin';
-import * as d3 from 'd3';
-import { ColorSchemeDefinition, obtainVariableColorScheme } from '../../utils/variable-color-scheme';
+import { ColorSchemeDefinition, generateColorScale, obtainVariableColorSchemeDefinition } from '../../utils/color';
 
 @Component({
   tag: 'gwf-vis-plugin-geojson-layer',
@@ -91,9 +90,9 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         for: ['min(value)', 'max(value)'],
       })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
     }
-    const colorScheme = obtainVariableColorScheme(this.colorScheme, variableName);
-    const interpolateFunction = d3.piecewise(d3.interpolate, colorScheme);
-    const scaleColor = d3.scaleSequential(interpolateFunction).domain([minValue, maxValue]);
+    const colorSchemeDefinition = obtainVariableColorSchemeDefinition(this.colorScheme, variableName);
+    const scaleColor = generateColorScale(colorSchemeDefinition);
+    scaleColor?.domain([minValue, maxValue]);
     this.geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(({ location }) => location === locationId)?.value;
