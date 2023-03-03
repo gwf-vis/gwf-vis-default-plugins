@@ -19,12 +19,14 @@ import type {
 } from "../utils/data";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
-import {
-  obtainAvailableLocations,
-  obtainAvailableVariables,
-} from "../utils/data";
+import { obtainAvailableLocations } from "../utils/data";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import { generateColorScale } from "../utils/color";
+import {
+  findVariableById,
+  findVariableByName,
+  obtainMaxAndMinForVariable,
+} from "../utils/data";
 import { obtainObjectChangedPropertyNameSet } from "../utils/state";
 
 export default class GWFVisPluginGeoJSONLayer
@@ -133,7 +135,14 @@ export default class GWFVisPluginGeoJSONLayer
     if (!values) {
       return;
     }
-    const { max, min } = (await this.obtainDatasetMaxAndMinForVariable()) ?? {};
+    const { max, min } =
+      (await obtainMaxAndMinForVariable(
+        this.obtainCurrentDataSource(),
+        (
+          await this.obtainCurrentVariable()
+        )?.id,
+        this
+      )) ?? {};
     if (max == null && min == null) {
       return;
     }
@@ -191,26 +200,6 @@ export default class GWFVisPluginGeoJSONLayer
         })) || [],
     } as GeoJSON.FeatureCollection;
     return geojson;
-  }
-
-  private async obtainDatasetMaxAndMinForVariable() {
-    const dataSource = this.obtainCurrentDataSource();
-    if (!dataSource) {
-      return;
-    }
-    let variable = await this.obtainCurrentVariable(dataSource);
-    if (!variable) {
-      return;
-    }
-    const variableId = variable?.id;
-    if (variableId == null) {
-      return;
-    }
-
-    const sql = `SELECT MAX(value), MIN(value) FROM value where variable = ${variableId}`;
-    const sqlResult = await this.queryDataDelegate?.(dataSource, sql);
-    const [max, min] = sqlResult?.values?.[0] ?? [];
-    return { max: +(max ?? Number.NaN), min: +(min ?? Number.NaN) };
   }
 
   private async obtainDatasetValues() {
@@ -275,30 +264,6 @@ export default class GWFVisPluginGeoJSONLayer
     return locations;
   }
 
-  private async findVariableByName(
-    dataSource: string | undefined,
-    variableName: string | undefined
-  ) {
-    if (!dataSource || !variableName) {
-      return;
-    }
-    const availableVariables = await obtainAvailableVariables(dataSource, this);
-    return availableVariables?.find(
-      (variable) => variable.name === variableName
-    );
-  }
-
-  private async findVariableById(
-    dataSource: string | undefined,
-    variableId: number | undefined
-  ) {
-    if (!dataSource || variableId == null) {
-      return;
-    }
-    const availableVariables = await obtainAvailableVariables(dataSource, this);
-    return availableVariables?.find((variable) => variable.id === variableId);
-  }
-
   private async obtainDimensionIdAndValueDict(
     dataSource: string | undefined,
     availableDimensions: Dimension[] | undefined,
@@ -335,9 +300,10 @@ export default class GWFVisPluginGeoJSONLayer
 
   private async obtainCurrentVariable(dataSource?: string) {
     const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
-    let variable = await this.findVariableByName(
+    let variable = await findVariableByName(
       currentDataSource,
-      this.dataFrom?.variableName
+      this.dataFrom?.variableName,
+      this
     );
     const variableId =
       variable?.id ?? this.sharedStates?.["gwf-default.currentVariableId"];
@@ -345,7 +311,7 @@ export default class GWFVisPluginGeoJSONLayer
       return;
     }
     if (!variable) {
-      variable = await this.findVariableById(currentDataSource, variableId);
+      variable = await findVariableById(currentDataSource, variableId, this);
     }
     return variable;
   }

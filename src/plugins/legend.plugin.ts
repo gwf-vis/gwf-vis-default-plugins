@@ -11,7 +11,11 @@ import { property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { when } from "lit/directives/when.js";
 import { generateColorScale, generateGradientCSSString } from "../utils/color";
-import { obtainAvailableVariables } from "../utils/data";
+import {
+  findVariableById,
+  findVariableByName,
+  obtainMaxAndMinForVariable,
+} from "../utils/data";
 import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
 export default class GWFVisPluginTestDataFetcher
@@ -60,7 +64,14 @@ export default class GWFVisPluginTestDataFetcher
     if (changedProperties.size === 1 && changedProperties.has("info")) {
       return;
     }
-    const { max, min } = (await this.obtainDatasetMaxAndMinForVariable()) ?? {};
+    const { max, min } =
+      (await obtainMaxAndMinForVariable(
+        this.obtainCurrentDataSource(),
+        (
+          await this.obtainCurrentVariable()
+        )?.id,
+        this
+      )) ?? {};
     const currentDataSource = await this.obtainCurrentDataSource();
     const currentVariable = await this.obtainCurrentVariable(currentDataSource);
     const currentColorScheme = await this.obtainCurrentColorScheme();
@@ -169,35 +180,12 @@ export default class GWFVisPluginTestDataFetcher
   }
 
   // TODO refactor below duplicate functions (from geojson layer)
-  private async findVariableByName(
-    dataSource: string | undefined,
-    variableName: string | undefined
-  ) {
-    if (!dataSource || !variableName) {
-      return;
-    }
-    const availableVariables = await obtainAvailableVariables(dataSource, this);
-    return availableVariables?.find(
-      (variable) => variable.name === variableName
-    );
-  }
-
-  private async findVariableById(
-    dataSource: string | undefined,
-    variableId: number | undefined
-  ) {
-    if (!dataSource || variableId == null) {
-      return;
-    }
-    const availableVariables = await obtainAvailableVariables(dataSource, this);
-    return availableVariables?.find((variable) => variable.id === variableId);
-  }
-
   private async obtainCurrentVariable(dataSource?: string) {
     const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
-    let variable = await this.findVariableByName(
+    let variable = await findVariableByName(
       currentDataSource,
-      this.dataFrom?.variableName
+      this.dataFrom?.variableName,
+      this
     );
     const variableId =
       variable?.id ?? this.sharedStates?.["gwf-default.currentVariableId"];
@@ -205,7 +193,7 @@ export default class GWFVisPluginTestDataFetcher
       return;
     }
     if (!variable) {
-      variable = await this.findVariableById(currentDataSource, variableId);
+      variable = await findVariableById(currentDataSource, variableId, this);
     }
     return variable;
   }
@@ -221,25 +209,5 @@ export default class GWFVisPluginTestDataFetcher
       this.colorScheme?.[dataSource]?.[""] ??
       this.colorScheme?.[""]
     );
-  }
-
-  private async obtainDatasetMaxAndMinForVariable() {
-    const dataSource = this.obtainCurrentDataSource();
-    if (!dataSource) {
-      return;
-    }
-    let variable = await this.obtainCurrentVariable(dataSource);
-    if (!variable) {
-      return;
-    }
-    const variableId = variable?.id;
-    if (variableId == null) {
-      return;
-    }
-
-    const sql = `SELECT MAX(value), MIN(value) FROM value where variable = ${variableId}`;
-    const sqlResult = await this.queryDataDelegate?.(dataSource, sql);
-    const [max, min] = sqlResult?.values?.[0] ?? [];
-    return { max: +(max ?? Number.NaN), min: +(min ?? Number.NaN) };
   }
 }
