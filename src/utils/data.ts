@@ -40,6 +40,50 @@ export type DataFrom = {
   dimensionValueDict?: { [dimension: string]: number };
 };
 
+export async function findVariableByName(
+  dataSource: string | undefined,
+  variableName: string | undefined,
+  callerPlugin: CallerPlugin | undefined
+) {
+  if (!dataSource || !variableName) {
+    return;
+  }
+  const availableVariables = await obtainAvailableVariables(
+    dataSource,
+    callerPlugin
+  );
+  return availableVariables?.find((variable) => variable.name === variableName);
+}
+
+export async function findVariableById(
+  dataSource: string | undefined,
+  variableId: number | undefined,
+  callerPlugin: CallerPlugin | undefined
+) {
+  if (!dataSource || variableId == null) {
+    return;
+  }
+  const availableVariables = await obtainAvailableVariables(
+    dataSource,
+    callerPlugin
+  );
+  return availableVariables?.find((variable) => variable.id === variableId);
+}
+
+export async function obtainMaxAndMinForVariable(
+  dataSource: string | undefined,
+  variableId: number | undefined,
+  callerPlugin: CallerPlugin | undefined
+) {
+  if (!dataSource || variableId == null) {
+    return;
+  }
+  const sql = `SELECT MAX(value), MIN(value) FROM value where variable = ${variableId}`;
+  const sqlResult = await callerPlugin?.queryDataDelegate?.(dataSource, sql);
+  const [max, min] = sqlResult?.values?.[0] ?? [];
+  return { max: +(max ?? Number.NaN), min: +(min ?? Number.NaN) };
+}
+
 export async function obtainAvailableVariables(
   dataSource: string | undefined,
   callerPlugin: CallerPlugin | undefined
