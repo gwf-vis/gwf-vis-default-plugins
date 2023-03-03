@@ -3,6 +3,7 @@ import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
 import type { QueryExecResult } from "sql.js";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type { DataFrom, Variable } from "../utils/data";
+import type { DataSourceNameDict } from "../utils/data-source-name-dict";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { html, LitElement, PropertyValues } from "lit";
@@ -11,6 +12,7 @@ import { map } from "lit/directives/map.js";
 import { when } from "lit/directives/when.js";
 import { generateColorScale, generateGradientCSSString } from "../utils/color";
 import { obtainAvailableVariables } from "../utils/data";
+import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
@@ -50,7 +52,7 @@ export default class GWFVisPluginTestDataFetcher
 
   @property() sharedStates?: GWFVisDefaultPluginSharedStates;
   @property() fractionDigits: number = 2;
-  @property() dataSourceDict?: { [name: string]: string };
+  @property() dataSourceDict?: DataSourceNameDict;
 
   obtainHeaderCallback = () => this.header ?? "Legend";
 
@@ -78,8 +80,10 @@ export default class GWFVisPluginTestDataFetcher
       <div part="content">
         <div>
           <b>Data Source: </b>
-          ${this.obtainDataSourceDisplayName(this.info?.currentDataSource) ??
-          "N/A"}
+          ${obtainDataSourceDisplayName(
+            this.info?.currentDataSource,
+            this.dataSourceDict
+          ) ?? "N/A"}
         </div>
         <div>
           <b>Variable: </b>
@@ -237,17 +241,5 @@ export default class GWFVisPluginTestDataFetcher
     const sqlResult = await this.queryDataDelegate?.(dataSource, sql);
     const [max, min] = sqlResult?.values?.[0] ?? [];
     return { max: +(max ?? Number.NaN), min: +(min ?? Number.NaN) };
-  }
-
-  // TODO refactor below duplicate functions (from data control)
-  private obtainDataSourceDisplayName(dataSource?: string) {
-    if (!dataSource) {
-      return;
-    }
-    return (
-      Object.entries(this.dataSourceDict ?? {}).find(
-        ([_, source]) => dataSource === source
-      )?.[0] ?? dataSource
-    );
   }
 }

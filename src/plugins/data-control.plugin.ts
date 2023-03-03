@@ -8,6 +8,7 @@ import type {
   GWFVisDefaultPluginWithData,
 } from "../utils/basic";
 import type { VariableWithDimensions, Dimension } from "../utils/data";
+import type { DataSourceNameDict } from "../utils/data-source-name-dict";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { css, html, LitElement } from "lit";
@@ -16,6 +17,7 @@ import { map } from "lit/directives/map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { QueryExecResult } from "sql.js";
 import { obtainAvailableVariables } from "../utils/data";
+import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
 export default class GWFVisPluginDataControl
   extends LitElement
@@ -117,7 +119,7 @@ export default class GWFVisPluginDataControl
   @property() sharedStates?: GWFVisDefaultPluginSharedStates;
   @property() header?: string;
   @property() dataSources?: string[];
-  @property() dataSourceDict?: { [name: string]: string };
+  @property() dataSourceDict?: DataSourceNameDict;
 
   obtainHeaderCallback = () => this.header ?? "Data Control";
 
@@ -142,7 +144,7 @@ export default class GWFVisPluginDataControl
                 value=${dataSource}
                 ?selected=${dataSource === this.currentDataSource}
               >
-                ${this.obtainDataSourceDisplayName(dataSource)}
+                ${obtainDataSourceDisplayName(dataSource, this.dataSourceDict)}
               </option>`
           )}
         </select>
@@ -292,16 +294,5 @@ export default class GWFVisPluginDataControl
       }
     });
     this.dimensionValueDict = { ...this.dimensionValueDict };
-  }
-
-  private obtainDataSourceDisplayName(dataSource?: string) {
-    if (!dataSource) {
-      return;
-    }
-    return (
-      Object.entries(this.dataSourceDict ?? {}).find(
-        ([_, source]) => dataSource === source
-      )?.[0] ?? dataSource
-    );
   }
 }
