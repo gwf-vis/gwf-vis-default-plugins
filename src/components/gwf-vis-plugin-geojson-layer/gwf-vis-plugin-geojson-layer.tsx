@@ -10,7 +10,15 @@ import { ColorSchemeDefinition, generateColorScale, obtainVariableColorSchemeDef
 export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPluginMapLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-geojson-layer';
 
-  private geojsonLayerInstance: L.GeoJSON;
+  private _geojsonLayerInstance?: L.GeoJSON;
+  private get geojsonLayerInstance() {
+    return this._geojsonLayerInstance;
+  }
+  private set geojsonLayerInstance(value: L.GeoJSON | undefined) {
+    this.delegateOfRemovingFromMap?.(this.geojsonLayerInstance);
+    this._geojsonLayerInstance = value;
+    this.delegateOfAddingToMap(this.geojsonLayerInstance, this.layerName, this.type, this.active);
+  }
 
   @Prop() leaflet: typeof globalThis.L;
   @Prop() delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -28,11 +36,9 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   @Prop() colorScheme?: { [variableName: string]: ColorSchemeDefinition };
 
   async connectedCallback() {
-    this.delegateOfRemovingFromMap?.(this.geojsonLayerInstance);
     await this.drawShape();
     await this.applyData();
     await this.applyHighlighs();
-    this.delegateOfAddingToMap(this.geojsonLayerInstance, this.layerName, this.type, this.active);
   }
 
   async disconnectedCallback() {
