@@ -12,8 +12,9 @@ import { map } from "lit/directives/map.js";
 import { when } from "lit/directives/when.js";
 import { generateColorScale, generateGradientCSSString } from "../utils/color";
 import {
-  findVariableById,
-  findVariableByName,
+  obtainCurrentColorScheme,
+  obtainCurrentDataSource,
+  obtainCurrentVariable,
   obtainMaxAndMinForVariable,
 } from "../utils/data";
 import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
@@ -64,17 +65,30 @@ export default class GWFVisPluginTestDataFetcher
     if (changedProperties.size === 1 && changedProperties.has("info")) {
       return;
     }
+    const currentDataSource = obtainCurrentDataSource(
+      this.dataFrom,
+      this.sharedStates
+    );
+    const currentVariable = await obtainCurrentVariable(
+      currentDataSource,
+      this.dataFrom,
+      this.sharedStates,
+      this
+    );
     const { max, min } =
       (await obtainMaxAndMinForVariable(
-        this.obtainCurrentDataSource(),
-        (
-          await this.obtainCurrentVariable()
-        )?.id,
+        currentDataSource,
+        currentVariable?.id,
         this
       )) ?? {};
-    const currentDataSource = await this.obtainCurrentDataSource();
-    const currentVariable = await this.obtainCurrentVariable(currentDataSource);
-    const currentColorScheme = await this.obtainCurrentColorScheme();
+    const currentColorScheme = await obtainCurrentColorScheme(
+      currentDataSource,
+      currentVariable,
+      this.dataFrom,
+      this.colorScheme,
+      this.sharedStates,
+      this
+    );
     const colorScale = generateColorScale(currentColorScheme);
     this.info = {
       min,
@@ -170,44 +184,5 @@ export default class GWFVisPluginTestDataFetcher
         </div>
       </div>
     `;
-  }
-
-  private obtainCurrentDataSource() {
-    return (
-      this.dataFrom?.dataSource ??
-      this.sharedStates?.["gwf-default.currentDataSource"]
-    );
-  }
-
-  // TODO refactor below duplicate functions (from geojson layer)
-  private async obtainCurrentVariable(dataSource?: string) {
-    const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
-    let variable = await findVariableByName(
-      currentDataSource,
-      this.dataFrom?.variableName,
-      this
-    );
-    const variableId =
-      variable?.id ?? this.sharedStates?.["gwf-default.currentVariableId"];
-    if (variableId == null) {
-      return;
-    }
-    if (!variable) {
-      variable = await findVariableById(currentDataSource, variableId, this);
-    }
-    return variable;
-  }
-
-  private async obtainCurrentColorScheme() {
-    const dataSource = this.obtainCurrentDataSource();
-    const variable = await this.obtainCurrentVariable(dataSource);
-    if (!dataSource || !variable) {
-      return;
-    }
-    return (
-      this.colorScheme?.[dataSource]?.[variable.name] ??
-      this.colorScheme?.[dataSource]?.[""] ??
-      this.colorScheme?.[""]
-    );
   }
 }
