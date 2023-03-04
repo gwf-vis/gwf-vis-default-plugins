@@ -2,6 +2,8 @@ import type { SqlValue } from "sql.js";
 import type { CallerPlugin } from "./basic";
 import type { GWFVisDefaultPluginSharedStates } from "./state";
 
+import { ColorSchemeDefinition } from "./color";
+
 export type Variable = {
   id: number;
   name: string;
@@ -39,6 +41,73 @@ export type DataFrom = {
   variableName?: string;
   dimensionValueDict?: { [dimension: string]: number };
 };
+
+export function obtainCurrentDataSource(
+  dataFrom?: DataFrom,
+  sharedStates?: GWFVisDefaultPluginSharedStates
+) {
+  return (
+    dataFrom?.dataSource ?? sharedStates?.["gwf-default.currentDataSource"]
+  );
+}
+
+export async function obtainCurrentVariable(
+  dataSource?: string,
+  dataFrom?: DataFrom,
+  sharedStates?: GWFVisDefaultPluginSharedStates,
+  callerPlugin?: CallerPlugin | undefined
+) {
+  const currentDataSource =
+    dataSource ?? obtainCurrentDataSource(dataFrom, sharedStates);
+  let variable = await findVariableByName(
+    currentDataSource,
+    dataFrom?.variableName,
+    callerPlugin
+  );
+  const variableId =
+    variable?.id ?? sharedStates?.["gwf-default.currentVariableId"];
+  if (variableId == null) {
+    return;
+  }
+  if (!variable) {
+    variable = await findVariableById(
+      currentDataSource,
+      variableId,
+      callerPlugin
+    );
+  }
+  return variable;
+}
+
+export async function obtainCurrentColorScheme(
+  dataSource?: string,
+  variable?: Variable,
+  dataFrom?: DataFrom,
+  colorScheme?: {
+    [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
+  },
+  sharedStates?: GWFVisDefaultPluginSharedStates,
+  callerPlugin?: CallerPlugin | undefined
+) {
+  const currentDataSource =
+    dataSource ?? obtainCurrentDataSource(dataFrom, sharedStates);
+  const currentVariable =
+    variable ??
+    (await obtainCurrentVariable(
+      dataSource,
+      dataFrom,
+      sharedStates,
+      callerPlugin
+    ));
+  if (!currentDataSource || !currentVariable) {
+    return;
+  }
+  return (
+    colorScheme?.[currentDataSource]?.[currentVariable.name] ??
+    colorScheme?.[currentDataSource]?.[""] ??
+    colorScheme?.[""]
+  );
+}
 
 export async function findVariableByName(
   dataSource: string | undefined,

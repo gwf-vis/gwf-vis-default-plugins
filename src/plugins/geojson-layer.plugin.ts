@@ -23,8 +23,9 @@ import { obtainAvailableLocations } from "../utils/data";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import { generateColorScale } from "../utils/color";
 import {
-  findVariableById,
-  findVariableByName,
+  obtainCurrentColorScheme,
+  obtainCurrentDataSource,
+  obtainCurrentVariable,
   obtainMaxAndMinForVariable,
 } from "../utils/data";
 import { obtainObjectChangedPropertyNameSet } from "../utils/state";
@@ -135,18 +136,33 @@ export default class GWFVisPluginGeoJSONLayer
     if (!values) {
       return;
     }
+    const currentDataSource = obtainCurrentDataSource(
+      this.dataFrom,
+      this.sharedStates
+    );
+    const currentVariable = await obtainCurrentVariable(
+      currentDataSource,
+      this.dataFrom,
+      this.sharedStates,
+      this
+    );
     const { max, min } =
       (await obtainMaxAndMinForVariable(
-        this.obtainCurrentDataSource(),
-        (
-          await this.obtainCurrentVariable()
-        )?.id,
+        currentDataSource,
+        currentVariable?.id,
         this
       )) ?? {};
     if (max == null && min == null) {
       return;
     }
-    const currentColorScheme = await this.obtainCurrentColorScheme();
+    const currentColorScheme = await obtainCurrentColorScheme(
+      currentDataSource,
+      currentVariable,
+      this.dataFrom,
+      this.colorScheme,
+      this.sharedStates,
+      this
+    );
     const scaleColor = generateColorScale(currentColorScheme).domain([
       min as number,
       max as number,
@@ -179,7 +195,10 @@ export default class GWFVisPluginGeoJSONLayer
     if (typeof this.geojson === "object") {
       return this.geojson;
     }
-    const dataSource = this.obtainCurrentDataSource();
+    const dataSource = obtainCurrentDataSource(
+      this.dataFrom,
+      this.sharedStates
+    );
     if (!dataSource) {
       return;
     }
@@ -203,11 +222,19 @@ export default class GWFVisPluginGeoJSONLayer
   }
 
   private async obtainDatasetValues() {
-    const dataSource = this.obtainCurrentDataSource();
+    const dataSource = obtainCurrentDataSource(
+      this.dataFrom,
+      this.sharedStates
+    );
     if (!dataSource) {
       return;
     }
-    let variable = await this.obtainCurrentVariable(dataSource);
+    let variable = await obtainCurrentVariable(
+      dataSource,
+      this.dataFrom,
+      this.sharedStates,
+      this
+    );
     if (!variable) {
       return;
     }
@@ -291,38 +318,20 @@ export default class GWFVisPluginGeoJSONLayer
     return result;
   }
 
-  private obtainCurrentDataSource() {
-    return (
-      this.dataFrom?.dataSource ??
-      this.sharedStates?.["gwf-default.currentDataSource"]
-    );
-  }
-
-  private async obtainCurrentVariable(dataSource?: string) {
-    const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
-    let variable = await findVariableByName(
-      currentDataSource,
-      this.dataFrom?.variableName,
-      this
-    );
-    const variableId =
-      variable?.id ?? this.sharedStates?.["gwf-default.currentVariableId"];
-    if (variableId == null) {
-      return;
-    }
-    if (!variable) {
-      variable = await findVariableById(currentDataSource, variableId, this);
-    }
-    return variable;
-  }
-
   private async obtainCurrentDimensionIdAndValueDict(
     dataSource?: string,
     variable?: VariableWithDimensions
   ) {
-    const currentDataSource = dataSource ?? this.obtainCurrentDataSource();
+    const currentDataSource =
+      dataSource ?? obtainCurrentDataSource(this.dataFrom, this.sharedStates);
     const currentVariable =
-      variable ?? (await this.obtainCurrentVariable(currentDataSource));
+      variable ??
+      (await obtainCurrentVariable(
+        currentDataSource,
+        this.dataFrom,
+        this.#sharedStates,
+        this
+      ));
     if (!currentDataSource || !currentVariable) {
       return;
     }
@@ -336,18 +345,5 @@ export default class GWFVisPluginGeoJSONLayer
         currentDataSource
       ]?.[currentVariable.id];
     return dimensionIdAndValueDict;
-  }
-
-  private async obtainCurrentColorScheme() {
-    const dataSource = this.obtainCurrentDataSource();
-    const variable = await this.obtainCurrentVariable(dataSource);
-    if (!dataSource || !variable) {
-      return;
-    }
-    return (
-      this.colorScheme?.[dataSource]?.[variable.name] ??
-      this.colorScheme?.[dataSource]?.[""] ??
-      this.colorScheme?.[""]
-    );
   }
 }
