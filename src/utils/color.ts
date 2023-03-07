@@ -38,7 +38,7 @@ function generateQuantizeColorScale(scheme?: string | string[], reverse: boolean
   if (Array.isArray(scheme)) {
     resultScheme = scheme;
   } else if (typeof scheme === 'string') {
-    const [_, name, count] = scheme.match(/(\w+)(\[\d+\])/) ?? [];
+    const [_, name, count] = scheme.match(/(\w+)\[(\d+)\]/) ?? [];
     resultScheme = (d3 as any)[name]?.[count];
   }
   if (!resultScheme) {
