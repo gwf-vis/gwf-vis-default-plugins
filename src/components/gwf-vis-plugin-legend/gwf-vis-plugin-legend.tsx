@@ -1,7 +1,7 @@
 import { Component, Host, h, ComponentInterface, Method, Prop, State } from '@stencil/core';
 import { GwfVisPlugin, GloablInfo } from '../../utils/gwf-vis-plugin';
 import { ColorSchemeDefinition, generateColorScale, generateGradientCSSString, obtainVariableColorSchemeDefinition } from '../../utils/color';
-import { ScaleQuantize, ScaleSequential } from 'd3';
+import { ScaleQuantile, ScaleQuantize, ScaleSequential } from 'd3';
 
 @Component({
   tag: 'gwf-vis-plugin-legend',
@@ -14,8 +14,9 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
   @State() currentVaribaleName: string;
   @State() currentMinValue: number;
   @State() currentMaxValue: number;
+  @State() currentAllValues: number[] = [];
   @State() currentColorDefiniton: ColorSchemeDefinition;
-  @State() currentColorScale: ScaleQuantize<any, never> | ScaleSequential<any, never>;
+  @State() currentColorScale: ScaleQuantize<any, never> | ScaleQuantile<any, never> | ScaleSequential<any, never>;
   @State() currentDimensions: { [dimension: string]: number };
 
   @Prop() delegateOfFetchingData: (query: any) => any;
@@ -30,18 +31,35 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
   async componentWillRender() {
     this.currentVaribaleName = this.variableName || this.globalInfo?.variableName;
     this.currentDimensions = this.dimensions || this.globalInfo?.dimensionDict;
-    if (this.currentVaribaleName && this.currentDimensions) {
-      [{ 'min(value)': this.currentMinValue, 'max(value)': this.currentMaxValue }] = (await this.delegateOfFetchingData?.({
-        type: 'values',
-        from: this.dataSource,
-        with: {
-          variable: this.currentVaribaleName,
-        },
-        for: ['min(value)', 'max(value)'],
-      })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
-    }
     this.currentColorDefiniton = obtainVariableColorSchemeDefinition(this.colorScheme, this.currentVaribaleName);
+    if (this.currentVaribaleName && this.currentDimensions) {
+      if (this.currentColorDefiniton.type === 'quantile') {
+        this.currentAllValues =
+          (
+            await this.delegateOfFetchingData?.({
+              type: 'values',
+              from: this.dataSource,
+              with: {
+                variable: this.currentVaribaleName,
+              },
+              for: ['value'],
+            })
+          )?.map(d => d.value) || [];
+      } else {
+        [{ 'min(value)': this.currentMinValue, 'max(value)': this.currentMaxValue }] = (await this.delegateOfFetchingData?.({
+          type: 'values',
+          from: this.dataSource,
+          with: {
+            variable: this.currentVaribaleName,
+          },
+          for: ['min(value)', 'max(value)'],
+        })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
+      }
+    }
     this.currentColorScale = generateColorScale(this.currentColorDefiniton);
+    if (this.currentColorDefiniton.type === 'quantile') {
+      this.currentColorScale.domain(this.currentAllValues);
+    }
   }
 
   @Method()
@@ -57,14 +75,14 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
             <b>Variable: </b>
             {this.currentVaribaleName ?? 'N/A'}
           </div>
-          {this.currentColorDefiniton?.type === 'quantize' ? this.renderQuantize() : this.renderSequential()}
+          {this.currentColorDefiniton?.type === 'sequential' ? this.renderSequential() : this.renderQuantileOrQuantize()}
         </div>
       </Host>
     );
   }
 
-  private renderQuantize() {
-    const colorScale = this.currentColorScale as ScaleQuantize<any> | undefined;
+  private renderQuantileOrQuantize() {
+    const colorScale = this.currentColorScale as ScaleQuantize<any> | ScaleQuantile<any, never> | undefined;
     if (!colorScale) {
       return;
     }

@@ -76,7 +76,8 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   private async applyData() {
     const variableName = this.variableName || this.globalInfo?.variableName;
     const dimensions = this.dimensions || this.globalInfo?.dimensionDict;
-    let values, maxValue, minValue;
+    let values, allValues = [], maxValue, minValue;
+    const colorSchemeDefinition = obtainVariableColorSchemeDefinition(this.colorScheme, variableName);
     if (variableName && dimensions) {
       values = await this.delegateOfFetchingData?.({
         type: 'values',
@@ -87,18 +88,35 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         },
         for: ['location', 'value'],
       });
-      [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.delegateOfFetchingData?.({
-        type: 'values',
-        from: this.dataSource,
-        with: {
-          variable: variableName,
-        },
-        for: ['min(value)', 'max(value)'],
-      })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
+      if (colorSchemeDefinition.type === 'quantile') {
+        allValues =
+          (
+            await this.delegateOfFetchingData?.({
+              type: 'values',
+              from: this.dataSource,
+              with: {
+                variable: variableName,
+              },
+              for: ['value'],
+            })
+          )?.map(d => d.value) || [];
+      } else {
+        [{ 'min(value)': minValue, 'max(value)': maxValue }] = (await this.delegateOfFetchingData?.({
+          type: 'values',
+          from: this.dataSource,
+          with: {
+            variable: variableName,
+          },
+          for: ['min(value)', 'max(value)'],
+        })) || [{ 'min(value)': undefined, 'max(value)': undefined }];
+      }
     }
-    const colorSchemeDefinition = obtainVariableColorSchemeDefinition(this.colorScheme, variableName);
     const scaleColor = generateColorScale(colorSchemeDefinition);
-    scaleColor?.domain([minValue, maxValue]);
+    if (colorSchemeDefinition.type === 'quantile') {
+      scaleColor?.domain(allValues);
+    } else {
+      scaleColor?.domain([minValue, maxValue]);
+    }
     this.geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(({ location }) => location === locationId)?.value;

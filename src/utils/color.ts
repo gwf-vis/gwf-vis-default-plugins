@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-export type ColorSchemeType = 'quantize' | 'sequential';
+export type ColorSchemeType = 'quantile' | 'quantize' | 'sequential';
 
 export type ColorSchemeDefinition = {
   type?: ColorSchemeType;
@@ -25,12 +25,30 @@ export function generateGradientCSSString(colorScale: ((value: number) => any) |
 
 export function generateColorScale(colorSchemeDefinition?: ColorSchemeDefinition) {
   switch (colorSchemeDefinition?.type) {
+    case 'quantile':
+      return generateQuantileColorScale(colorSchemeDefinition?.scheme, colorSchemeDefinition?.reverse);
     case 'quantize':
       return generateQuantizeColorScale(colorSchemeDefinition?.scheme, colorSchemeDefinition?.reverse);
-
     default:
       return generateSequentialColorScale(colorSchemeDefinition?.scheme, colorSchemeDefinition?.reverse);
   }
+}
+
+function generateQuantileColorScale(scheme?: string | string[], reverse: boolean = false) {
+  let resultScheme: any[] | undefined;
+  if (Array.isArray(scheme)) {
+    resultScheme = scheme;
+  } else if (typeof scheme === 'string') {
+    const [_, name, count] = scheme.match(/(\w+)\[(\d+)\]/) ?? [];
+    resultScheme = (d3 as any)[name]?.[count];
+  }
+  if (!resultScheme) {
+    resultScheme = [...d3.schemeRdBu[11]].reverse();
+  }
+  if (reverse) {
+    resultScheme.reverse();
+  }
+  return d3.scaleQuantile(resultScheme);
 }
 
 function generateQuantizeColorScale(scheme?: string | string[], reverse: boolean = false) {
