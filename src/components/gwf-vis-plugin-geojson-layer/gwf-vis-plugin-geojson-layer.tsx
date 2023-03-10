@@ -76,7 +76,10 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
   private async applyData() {
     const variableName = this.variableName || this.globalInfo?.variableName;
     const dimensions = this.dimensions || this.globalInfo?.dimensionDict;
-    let values, allValues = [], maxValue, minValue;
+    let values,
+      allValues = [],
+      maxValue,
+      minValue;
     const colorSchemeDefinition = obtainVariableColorSchemeDefinition(this.colorScheme, variableName);
     if (variableName && dimensions) {
       values = await this.delegateOfFetchingData?.({
@@ -88,7 +91,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
         },
         for: ['location', 'value'],
       });
-      if (colorSchemeDefinition.type === 'quantile') {
+      if (colorSchemeDefinition?.type === 'quantile') {
         allValues =
           (
             await this.delegateOfFetchingData?.({
@@ -112,7 +115,7 @@ export class GwfVisPluginGeojsonLayer implements ComponentInterface, GwfVisPlugi
       }
     }
     const scaleColor = generateColorScale(colorSchemeDefinition);
-    if (colorSchemeDefinition.type === 'quantile') {
+    if (colorSchemeDefinition?.type === 'quantile') {
       scaleColor?.domain(allValues);
     } else {
       scaleColor?.domain([minValue, maxValue]);

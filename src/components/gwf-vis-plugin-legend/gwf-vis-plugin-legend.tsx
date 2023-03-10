@@ -57,7 +57,7 @@ export class GwfVisPluginLegend implements ComponentInterface, GwfVisPlugin {
       }
     }
     this.currentColorScale = generateColorScale(this.currentColorDefiniton);
-    if (this.currentColorDefiniton.type === 'quantile') {
+    if (this.currentColorDefiniton?.type === 'quantile') {
       this.currentColorScale.domain(this.currentAllValues);
     }
   }
