@@ -41,6 +41,10 @@ export default class GWFVisPluginDataControl
       overflow-y: auto;
     }
 
+    .dimension-value-input {
+      width: 100%;
+    }
+
     select {
       max-width: 20em;
     }
@@ -185,7 +189,20 @@ export default class GWFVisPluginDataControl
                   <b>${name}</b>
                 </td>
                 <td>
-                  <i>(${value})</i>
+                  <input
+                    class="dimension-value-input"
+                    type="number"
+                    min="0"
+                    max=${size - 1}
+                    .value=${value?.toString() ?? "N/A"}
+                    @change=${({ currentTarget }: Event) =>
+                      this.assignDimensionValue(
+                        this.currentDataSource,
+                        this.currentVariableId,
+                        id,
+                        +((currentTarget as HTMLInputElement)?.value ?? 0)
+                      )}
+                  />
                 </td>
                 <td>0</td>
                 <td>
