@@ -134,6 +134,13 @@ export default class GWFVisPluginGeoJSONLayer
     }
     const values = await this.obtainDatasetValues();
     if (!values) {
+      this.#geojsonLayerInstance?.setStyle(() => {
+        const style = {
+          fillColor: "transparent",
+          fillOpacity: 0.7,
+        };
+        return style;
+      });
       return;
     }
     const currentDataSource = obtainCurrentDataSource(
