@@ -157,7 +157,7 @@ export default class GWFVisPluginDataControl
             (this.currentVariableId = +(currentTarget as HTMLSelectElement)
               ?.value)}
         >
-          <option value="" ?selected=${!this.currentVariableId}></option>
+          <option value="" ?selected=${this.currentVariableId == null}></option>
           ${map(
             this.currentAvailableVariables,
             ({ name, id }) =>
@@ -268,7 +268,7 @@ export default class GWFVisPluginDataControl
   }
 
   private updateCurrentAvailableDimensions() {
-    if (!this.currentDataSource || !this.currentVariableId) {
+    if (!this.currentDataSource || this.currentVariableId == null) {
       this.currentAvailableDimensions = undefined;
       return;
     }
