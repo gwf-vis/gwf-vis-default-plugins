@@ -1,11 +1,12 @@
 import type { SharedStates } from "gwf-vis-host";
-import type { DimensionValueDict } from "./basic";
+import type { DimensionValueDict, LocationSelection } from "./basic";
 import type { VariableWithDimensions } from "./data";
 
 export type GWFVisDefaultPluginSharedStates = SharedStates & {
   "gwf-default.currentDataSource"?: string;
   "gwf-default.currentVariableId"?: number;
   "gwf-default.dimensionValueDict"?: DimensionValueDict;
+  "gwf-default.locationSelection"?: LocationSelection;
 } & {
   "gwf-default.cache.availableVariablesDict"?: {
     [dataSource: string]: VariableWithDimensions[] | undefined;

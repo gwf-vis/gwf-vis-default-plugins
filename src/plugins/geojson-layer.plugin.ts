@@ -3,10 +3,12 @@ import type {
   GWFVisPluginWithSharedStates,
   LayerType,
   leaflet,
+  SharedStates,
 } from "gwf-vis-host";
 import type { QueryExecResult } from "sql.js";
 import {
   GWFVisDefaultPluginWithData,
+  LocationSelection,
   runAsyncWithLoading,
 } from "../utils/basic";
 import type { ColorSchemeDefinition } from "../utils/color";
@@ -34,6 +36,9 @@ export default class GWFVisPluginGeoJSONLayer
   extends GWFVisMapLayerPluginBase
   implements GWFVisPluginWithSharedStates, GWFVisDefaultPluginWithData
 {
+  updateSharedStatesDelegate?:
+    | ((sharedStates: SharedStates) => void)
+    | undefined;
   checkIfDataProviderRegisteredDelegate?:
     | ((identifier: string) => boolean)
     | undefined;
@@ -86,6 +91,9 @@ export default class GWFVisPluginGeoJSONLayer
       ) {
         await this.updateData();
       }
+      if (changedProps.has("gwf-default.locationSelection")) {
+        await this.updateHighlights();
+      }
     }, this);
   }
 
@@ -98,6 +106,19 @@ export default class GWFVisPluginGeoJSONLayer
       ...this.options,
       pointToLayer: (_feature, latlng) =>
         new globalThis.L.CircleMarker(latlng, { radius: 10 }),
+      onEachFeature: (feature, layer) => {
+        layer.on("click", () => {
+          const locationSelection: LocationSelection = {
+            dataSource:
+              obtainCurrentDataSource(this.dataFrom, this.sharedStates) ?? "",
+            locationId: feature.properties?.id ?? Number.NaN,
+          };
+          this.updateSharedStatesDelegate?.({
+            ...this.sharedStates,
+            "gwf-default.locationSelection": locationSelection,
+          });
+        });
+      },
     });
     this.#geojsonLayerInstance &&
       this.addMapLayerDelegate?.(
@@ -113,6 +134,7 @@ export default class GWFVisPluginGeoJSONLayer
     await runAsyncWithLoading(async () => {
       await this.updateFeatures();
       await this.updateData();
+      await this.updateHighlights();
     }, this);
   }
 
@@ -191,6 +213,30 @@ export default class GWFVisPluginGeoJSONLayer
         fillColor,
         fillOpacity: 0.7,
       };
+      return style;
+    });
+  }
+
+  private async updateHighlights() {
+    const locationSelection =
+      this.sharedStates?.["gwf-default.locationSelection"];
+    this.#geojsonLayerInstance?.setStyle((feature) => {
+      const { properties } = feature ?? {};
+      const dataSource =
+        obtainCurrentDataSource(this.dataFrom, this.sharedStates) ?? "";
+      const locationId = properties?.id;
+      let style = { color: "hsl(0, 0%, 50%)", weight: 1 };
+      if (
+        dataSource === locationSelection?.dataSource &&
+        locationId === locationSelection.locationId
+      ) {
+        style.weight = 3;
+        (
+          this.#geojsonLayerInstance
+            ?.getLayers()
+            ?.find((layer) => (layer as any).feature === feature) as any
+        )?.bringToFront();
+      }
       return style;
     });
   }
