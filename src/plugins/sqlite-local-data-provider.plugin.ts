@@ -45,16 +45,6 @@ export default class GWFVisPluginSqliteLocalDataProvider
     return undefined;
   }
 
-  async hostFirstLoadedCallback() {
-    this.#SQL = await runAsyncWithLoading(
-      async () =>
-        await initSqlJs({
-          locateFile: () => sqlJsWasmUrl,
-        }),
-      this
-    );
-  }
-
   render() {
     return html`<i>sqlite-local</i> Data Provider`;
   }
@@ -64,15 +54,28 @@ export default class GWFVisPluginSqliteLocalDataProvider
     if (db) {
       return db;
     }
-    if (this.#SQL) {
-      const dbUrl = dataSource;
-      const dbBuffer = await fetch(dbUrl).then((response) =>
-        response.arrayBuffer()
-      );
-      db = new this.#SQL.Database(new Uint8Array(dbBuffer));
-      this.#dbInstanceMap.set(dataSource, db);
-      return db;
+    if (!this.#SQL) {
+      this.#SQL = await this.loadSQL();
+      if (!this.#SQL) {
+        throw Error("Fail to load sql.js.");
+      }
     }
-    return undefined;
+    const dbUrl = dataSource;
+    const dbBuffer = await fetch(dbUrl).then((response) =>
+      response.arrayBuffer()
+    );
+    db = new this.#SQL.Database(new Uint8Array(dbBuffer));
+    this.#dbInstanceMap.set(dataSource, db);
+    return db;
+  }
+
+  private async loadSQL() {
+    return await runAsyncWithLoading(
+      async () =>
+        await initSqlJs({
+          locateFile: () => sqlJsWasmUrl,
+        }),
+      this
+    );
   }
 }
