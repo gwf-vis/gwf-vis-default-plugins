@@ -109,9 +109,11 @@ export default class GWFVisPluginGeoJSONLayer
       onEachFeature: (feature, layer) => {
         layer.on("click", () => {
           const locationSelection: LocationSelection = {
-            dataSource:
-              obtainCurrentDataSource(this.dataFrom, this.sharedStates) ?? "",
-            locationId: feature.properties?.id ?? Number.NaN,
+            dataSource: obtainCurrentDataSource(
+              this.dataFrom,
+              this.sharedStates
+            ),
+            locationId: feature.properties?.id,
           };
           this.updateSharedStatesDelegate?.({
             ...this.sharedStates,
