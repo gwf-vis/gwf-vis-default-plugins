@@ -14,7 +14,8 @@
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
-    "gwf-default.data-control": "/src/plugins/data-control.plugin.ts"
+    "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
+    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts"
   },
   "plugins": [
     {
@@ -23,6 +24,10 @@
     },
     {
       "import": "gwf-default.test-data-fetcher",
+      "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.metadata",
       "container": "sidebar"
     },
     {

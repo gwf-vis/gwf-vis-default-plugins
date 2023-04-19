@@ -183,6 +183,31 @@ export async function obtainAvailableLocations(
   return queryLocations(dataSource, callerPlugin);
 }
 
+export async function obtainLocationMetadata(
+  dataSource: string | undefined,
+  locationId: number,
+  callerPlugin: CallerPlugin
+) {
+  if (!dataSource || !callerPlugin) {
+    return;
+  }
+  const sql = `SELECT metadata FROM location WHERE id = ${locationId}`;
+  const sqlResult = await callerPlugin.queryDataDelegate?.(dataSource, sql);
+  const locations = sqlResult?.values?.map(
+    (d) =>
+      Object.fromEntries(
+        d?.map((value, columnIndex) => {
+          const columnName = sqlResult?.columns?.[columnIndex];
+          if (columnName === "metadata") {
+            value = value ? JSON.parse(value as string) : undefined;
+          }
+          return [columnName, value as any];
+        })
+      ) as Location
+  );
+  return locations?.at(0)?.metadata as Record<string, any>;
+}
+
 function obtainAvailableVariablesFromCache(
   dataSource: string,
   callerPlugin: CallerPlugin
