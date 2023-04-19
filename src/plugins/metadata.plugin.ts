@@ -1,6 +1,7 @@
 import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
 import type { QueryExecResult } from "sql.js";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
+
 import { css, html, LitElement } from "lit";
 import { state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
@@ -46,8 +47,8 @@ export default class GWFVisPluginTestDataFetcher
       return;
     }
     this.obtainMetadata(
-      locationSelection.dataSource,
-      locationSelection.locationId
+      locationSelection?.dataSource,
+      locationSelection?.locationId
     );
   }
 
@@ -86,14 +87,15 @@ export default class GWFVisPluginTestDataFetcher
     `;
   }
 
-  private async obtainMetadata(dataSource: string, locationId: number) {
-    if (!locationId) {
+  private async obtainMetadata(dataSource?: string, locationId?: number) {
+    if (!dataSource || locationId == null) {
       this.metadata = {};
+      return;
     }
     runAsyncWithLoading(async () => {
       this.metadata = await obtainLocationMetadata(
         dataSource,
-        locationId,
+        locationId as number,
         this
       );
     }, this);

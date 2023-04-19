@@ -2,8 +2,8 @@ import type { GWFVisPluginWithData } from "gwf-vis-host";
 import type { GWFVisDefaultPluginSharedStates } from "./state";
 
 export type LocationSelection = {
-  dataSource: string;
-  locationId: number;
+  dataSource?: string;
+  locationId?: number;
 };
 
 export type DimensionValueDict = {
