@@ -15,7 +15,8 @@
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
-    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts"
+    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
+    "gwf-prairie-water.chart": "/src/plugins/prairie-water-chart.plugin.ts"
   },
   "plugins": [
     {
@@ -24,6 +25,10 @@
     },
     {
       "import": "gwf-default.metadata",
+      "container": "sidebar"
+    },
+    {
+      "import": "gwf-prairie-water.chart",
       "container": "sidebar"
     },
     {
