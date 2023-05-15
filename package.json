@@ -19,11 +19,13 @@
   "dependencies": {
     "d3": "^7.8.2",
     "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#d434a97a4576b7eb7b6fada8fe7f6f63f87a7f48",
+    "leaflet.vectorgrid": "^1.3.0",
     "lit": "^2.6.1",
     "sql.js": "^1.8.0"
   },
   "devDependencies": {
     "@types/d3": "^7.4.0",
+    "@types/leaflet.vectorgrid": "^1.3.1",
     "@types/sql.js": "^1.4.4",
     "tiny-glob": "^0.2.9",
     "typescript": "^4.9.3",

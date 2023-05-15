@@ -3,86 +3,25 @@
   "preferCanvas": false,
   "view": {
     "center": [
-      51,
-      -116
+      0,
+      0
     ],
-    "zoom": 9
+    "zoom": 3
   },
   "imports": {
     "gwf-default.sqlite-local-data-provider": "/src/plugins/sqlite-local-data-provider.plugin.ts",
     "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
+    "gwf-default.geojson-grid-layer": "/src/plugins/geojson-grid-layer.plugin.ts",
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
     "gwf-default.metadata": "/src/plugins/metadata.plugin.ts"
   },
   "plugins": [
     {
-      "import": "gwf-default.sqlite-local-data-provider",
-      "container": "sidebar"
-    },
-    {
-      "import": "gwf-default.test-data-fetcher",
-      "container": "sidebar"
-    },
-    {
-      "import": "gwf-default.metadata",
-      "container": "sidebar"
-    },
-    {
-      "import": "gwf-default.legend",
-      "container": "main",
-      "props": {
-        "colorScheme": {
-          "": {
-            "type": "sequential",
-            "scheme": [
-              "blue",
-              "red"
-            ]
-          },
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb": {
-            "": {
-              "type": "sequential",
-              "scheme": [
-                "green",
-                "orange"
-              ]
-            },
-            "scalarSWE": {
-              "type": "quantize",
-              "scheme": "schemeOranges[5]"
-            }
-          }
-        },
-        "dataSourceDict": {
-          "mesh": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "catchment": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb",
-          "prairie-water": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
-        }
-      }
-    },
-    {
-      "import": "gwf-default.data-control",
-      "container": "main",
-      "props": {
-        "header": "My Data Control",
-        "dataSources": [
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb",
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
-        ],
-        "dataSourceDict": {
-          "mesh": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "catchment": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb",
-          "prairie-water": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
-        }
-      }
-    },
-    {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "World_Imagery",
         "active": true,
@@ -94,7 +33,7 @@
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "World_Physical_Map",
         "urlTemplate": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}",
@@ -105,7 +44,7 @@
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "NatGeo_World_Map",
         "type": "overlay",
@@ -118,7 +57,7 @@
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "World_Street_Map",
         "type": "overlay",
@@ -130,102 +69,11 @@
       }
     },
     {
-      "import": "gwf-default.geojson-layer",
-      "container": "main",
+      "import": "gwf-default.geojson-grid-layer",
+      "container": "sidebar",
       "props": {
-        "displayName": "GeoJSON",
-        "type": "overlay",
         "active": true,
-        "colorScheme": {
-          "": {
-            "type": "sequential",
-            "scheme": [
-              "blue",
-              "red"
-            ]
-          },
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb": {
-            "": {
-              "type": "sequential",
-              "scheme": [
-                "green",
-                "orange"
-              ]
-            },
-            "scalarSWE": {
-              "type": "quantize",
-              "scheme": "schemeOranges[5]"
-            }
-          }
-        }
-      }
-    },
-    {
-      "import": "gwf-default.geojson-layer",
-      "container": "main",
-      "props": {
-        "displayName": "GeoJSON",
-        "type": "overlay",
-        "active": false,
-        "dataFrom": {
-          "dataSource": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb"
-        }
-      }
-    },
-    {
-      "import": "gwf-default.geojson-layer",
-      "container": "main",
-      "props": {
-        "displayName": "Something",
-        "type": "overlay",
-        "active": true,
-        "geojson": {
-          "type": "FeatureCollection",
-          "features": [
-            {
-              "type": "Feature",
-              "properties": {},
-              "geometry": {
-                "coordinates": [
-                  -105.72343749999979,
-                  55.68324040840892
-                ],
-                "type": "Point"
-              }
-            },
-            {
-              "type": "Feature",
-              "properties": {},
-              "geometry": {
-                "coordinates": [
-                  [
-                    [
-                      -118.02812194231379,
-                      62.354263150241025
-                    ],
-                    [
-                      -118.02812194231379,
-                      48.11412751200518
-                    ],
-                    [
-                      -92.89140319231419,
-                      48.11412751200518
-                    ],
-                    [
-                      -92.89140319231419,
-                      62.354263150241025
-                    ],
-                    [
-                      -118.02812194231379,
-                      62.354263150241025
-                    ]
-                  ]
-                ],
-                "type": "Polygon"
-              }
-            }
-          ]
-        }
+        "urlTemplate": "http://localhost:8080/services/chm_1000000/tiles/{z}/{x}/{y}.pbf"
       }
     }
   ]
