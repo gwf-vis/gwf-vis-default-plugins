@@ -1,10 +1,18 @@
-import type { LayerType, leaflet } from "gwf-vis-host";
+import type {
+  GWFVisPluginWithSharedStates,
+  LayerType,
+  SharedStates,
+  leaflet,
+} from "gwf-vis-host";
 import "leaflet.vectorgrid";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 
 // const chm = await fetch("chm_1000000.geojson").then((res) => res.json());
 
-export default class GWFVisPluginGeoJSONGridLayer extends GWFVisMapLayerPluginBase {
+export default class GWFVisPluginGeoJSONGridLayer
+  extends GWFVisMapLayerPluginBase
+  implements GWFVisPluginWithSharedStates
+{
   #tileLayerInstance?: leaflet.GridLayer;
   // #tileIndex: any;
 
@@ -18,6 +26,11 @@ export default class GWFVisPluginGeoJSONGridLayer extends GWFVisMapLayerPluginBa
   // };
 
   obtainHeaderCallback = () => `Tile Layer - ${this.displayName}`;
+
+  sharedStates: SharedStates | undefined;
+  updateSharedStatesDelegate?:
+    | ((sharedStates: SharedStates) => void)
+    | undefined;
 
   protected override initializeMapLayer() {
     this.#tileLayerInstance &&
@@ -42,7 +55,7 @@ export default class GWFVisPluginGeoJSONGridLayer extends GWFVisMapLayerPluginBa
     this.leaflet && ((this.leaflet.DomEvent as any).fakeStop = () => true);
 
     this.#tileLayerInstance = this.leaflet?.vectorGrid.protobuf(
-      this.urlTemplate ?? '',
+      this.urlTemplate ?? "",
       // 'chm_1000000/{z}/{x}/{y}.pbf',
       {
         rendererFactory: this.leaflet?.canvas.tile,
@@ -66,7 +79,10 @@ export default class GWFVisPluginGeoJSONGridLayer extends GWFVisMapLayerPluginBa
     //   },
     // });
     this.#tileLayerInstance?.on("click", ({ layer: { properties } }) =>
-      alert(JSON.stringify(properties))
+      this.updateSharedStatesDelegate?.({
+        ...this.sharedStates,
+        "gwf-default.metadata": properties,
+      })
     );
     this.#tileLayerInstance &&
       this.addMapLayerDelegate?.(

@@ -7,6 +7,7 @@ export type GWFVisDefaultPluginSharedStates = SharedStates & {
   "gwf-default.currentVariableId"?: number;
   "gwf-default.dimensionValueDict"?: DimensionValueDict;
   "gwf-default.locationSelection"?: LocationSelection;
+  "gwf-default.metadata"?: Record<string, any>;
 } & {
   "gwf-default.cache.availableVariablesDict"?: {
     [dataSource: string]: VariableWithDimensions[] | undefined;

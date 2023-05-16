@@ -16,7 +16,8 @@
     "gwf-default.geojson-grid-layer": "/src/plugins/geojson-grid-layer.plugin.ts",
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
-    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts"
+    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
+    "gwf-default.metadata-vector-tile": "/src/plugins/metadata-vector-tile.plugin.ts"
   },
   "plugins": [
     {
@@ -69,11 +70,15 @@
       }
     },
     {
+      "import": "gwf-default.metadata-vector-tile",
+      "container": "sidebar"
+    },
+    {
       "import": "gwf-default.geojson-grid-layer",
       "container": "sidebar",
       "props": {
         "active": true,
-        "urlTemplate": "http://localhost:8080/services/chm_1000000/tiles/{z}/{x}/{y}.pbf"
+        "urlTemplate": "http://localhost:8000/services/chm_1000000/tiles/{z}/{x}/{y}.pbf"
       }
     }
   ]
