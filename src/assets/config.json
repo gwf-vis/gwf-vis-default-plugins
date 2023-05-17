@@ -17,7 +17,8 @@
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
     "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
-    "gwf-default.metadata-vector-tile": "/src/plugins/metadata-vector-tile.plugin.ts"
+    "gwf-default.metadata-vector-tile": "/src/plugins/metadata-vector-tile.plugin.ts",
+    "gwf-default.line-chart-vector-tile": "/src/plugins/line-chart-vector-tile.plugin.ts"
   },
   "plugins": [
     {
@@ -71,6 +72,10 @@
     },
     {
       "import": "gwf-default.metadata-vector-tile",
+      "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.line-chart-vector-tile",
       "container": "sidebar"
     },
     {
