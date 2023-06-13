@@ -42,7 +42,7 @@
               "red"
             ]
           },
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb": {
+          "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
             "": {
               "type": "sequential",
               "scheme": [
@@ -57,9 +57,9 @@
           }
         },
         "dataSourceDict": {
-          "mesh": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "catchment": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb",
-          "prairie-water": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
+          "mesh": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "catchment": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
+          "prairie-water": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
         }
       }
     },
@@ -69,14 +69,14 @@
       "props": {
         "header": "My Data Control",
         "dataSources": [
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb",
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
+          "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
+          "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
         ],
         "dataSourceDict": {
-          "mesh": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "catchment": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb",
-          "prairie-water": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
+          "mesh": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "catchment": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
+          "prairie-water": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb"
         }
       }
     },
@@ -144,7 +144,7 @@
               "red"
             ]
           },
-          "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb": {
+          "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
             "": {
               "type": "sequential",
               "scheme": [
@@ -168,7 +168,7 @@
         "type": "overlay",
         "active": false,
         "dataFrom": {
-          "dataSource": "sqlite-local:http://gwfvis.usask.ca/RiverFlow/api/file/fetch/public/datasets/catchment.gwfvisdb"
+          "dataSource": "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb"
         }
       }
     },
