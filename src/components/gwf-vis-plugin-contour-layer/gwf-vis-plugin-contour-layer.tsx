@@ -11,7 +11,15 @@ import { ColorSchemeDefinition, generateColorScale, obtainVariableColorSchemeDef
 export class GwfVisPluginContourLayer implements ComponentInterface, GwfVisPluginMapLayer {
   static readonly __PLUGIN_TAG_NAME__ = 'gwf-vis-plugin-geojson-layer';
 
-  private contourLayerInstance: L.GeoJSON;
+  private _contourLayerInstance?: L.GeoJSON;
+  private get contourLayerInstance() {
+    return this._contourLayerInstance;
+  }
+  private set contourLayerInstance(value: L.GeoJSON | undefined) {
+    this.delegateOfRemovingFromMap?.(this.contourLayerInstance);
+    this._contourLayerInstance = value;
+    this.delegateOfAddingToMap(this.contourLayerInstance, this.layerName, this.type, this.active);
+  }
 
   @Prop() leaflet: typeof globalThis.L;
   @Prop() delegateOfAddingToMap: (layer: L.Layer, name: string, type: 'base-layer' | 'overlay', active?: boolean) => void;
@@ -30,9 +38,7 @@ export class GwfVisPluginContourLayer implements ComponentInterface, GwfVisPlugi
   @Prop() thresholds?: number | number[] = 5;
 
   async connectedCallback() {
-    this.delegateOfRemovingFromMap?.(this.contourLayerInstance);
     await this.generateVis();
-    this.delegateOfAddingToMap(this.contourLayerInstance, this.layerName, this.type, this.active);
   }
 
   async disconnectedCallback() {
