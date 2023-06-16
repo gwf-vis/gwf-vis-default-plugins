@@ -55,6 +55,7 @@ export namespace Components {
         "obtainHeader": () => Promise<string>;
         "options"?: L.GeoJSONOptions;
         "type": 'base-layer' | 'overlay';
+        "usePushPins"?: boolean;
         "variableName"?: string;
     }
     interface GwfVisPluginLegend {
@@ -247,6 +248,7 @@ declare namespace LocalJSX {
         "leaflet"?: typeof globalThis.L;
         "options"?: L.GeoJSONOptions;
         "type"?: 'base-layer' | 'overlay';
+        "usePushPins"?: boolean;
         "variableName"?: string;
     }
     interface GwfVisPluginLegend {
