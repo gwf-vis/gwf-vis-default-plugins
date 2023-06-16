@@ -2,10 +2,7 @@
   "fileBasePath": "",
   "preferCanvas": false,
   "view": {
-    "center": [
-      51,
-      -116
-    ],
+    "center": [51, -116],
     "zoom": 9
   },
   "imports": {
@@ -15,12 +12,20 @@
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
-    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts"
+    "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
+    "gwf-default.markdown": "/src/plugins/markdown.plugin.ts"
   },
   "plugins": [
     {
       "import": "gwf-default.sqlite-local-data-provider",
       "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.markdown",
+      "container": "sidebar",
+      "props": {
+        "markdownUrl": "./test.md"
+      }
     },
     {
       "import": "gwf-default.test-data-fetcher",
@@ -37,18 +42,12 @@
         "colorScheme": {
           "": {
             "type": "sequential",
-            "scheme": [
-              "blue",
-              "red"
-            ]
+            "scheme": ["blue", "red"]
           },
           "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
             "": {
               "type": "sequential",
-              "scheme": [
-                "green",
-                "orange"
-              ]
+              "scheme": ["green", "orange"]
             },
             "scalarSWE": {
               "type": "quantize",
@@ -139,18 +138,12 @@
         "colorScheme": {
           "": {
             "type": "sequential",
-            "scheme": [
-              "blue",
-              "red"
-            ]
+            "scheme": ["blue", "red"]
           },
           "sqlite-local:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
             "": {
               "type": "sequential",
-              "scheme": [
-                "green",
-                "orange"
-              ]
+              "scheme": ["green", "orange"]
             },
             "scalarSWE": {
               "type": "quantize",
@@ -186,10 +179,7 @@
               "type": "Feature",
               "properties": {},
               "geometry": {
-                "coordinates": [
-                  -105.72343749999979,
-                  55.68324040840892
-                ],
+                "coordinates": [-105.72343749999979, 55.68324040840892],
                 "type": "Point"
               }
             },
@@ -199,26 +189,11 @@
               "geometry": {
                 "coordinates": [
                   [
-                    [
-                      -118.02812194231379,
-                      62.354263150241025
-                    ],
-                    [
-                      -118.02812194231379,
-                      48.11412751200518
-                    ],
-                    [
-                      -92.89140319231419,
-                      48.11412751200518
-                    ],
-                    [
-                      -92.89140319231419,
-                      62.354263150241025
-                    ],
-                    [
-                      -118.02812194231379,
-                      62.354263150241025
-                    ]
+                    [-118.02812194231379, 62.354263150241025],
+                    [-118.02812194231379, 48.11412751200518],
+                    [-92.89140319231419, 48.11412751200518],
+                    [-92.89140319231419, 62.354263150241025],
+                    [-118.02812194231379, 62.354263150241025]
                   ]
                 ],
                 "type": "Polygon"
