@@ -24,6 +24,8 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   @Prop() dataSource: string;
   @Prop() variableNames?: string[];
   @Prop() dimension: string;
+  @Prop() height?: string;
+  @Prop() width?: string;
 
   constructor() {
     Chart.register(zoomPlugin);
@@ -36,7 +38,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
 
   render() {
     return (
-      <Host>
+      <Host style={{ height: this.height, width: this.width }}>
         <canvas height="100%" width="100%" ref={el => this.drawChart(el)}></canvas>
       </Host>
     );

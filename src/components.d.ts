@@ -75,8 +75,10 @@ export namespace Components {
         "delegateOfUpdatingGlobalInfo": (gloablInfoDict: GloablInfo) => void;
         "dimension": string;
         "globalInfo": GloablInfo;
+        "height"?: string;
         "obtainHeader": () => Promise<string>;
         "variableNames"?: string[];
+        "width"?: string;
     }
     interface GwfVisPluginMetadata {
         "delegateOfFetchingData": (query: any) => any;
@@ -267,7 +269,9 @@ declare namespace LocalJSX {
         "delegateOfUpdatingGlobalInfo"?: (gloablInfoDict: GloablInfo) => void;
         "dimension"?: string;
         "globalInfo"?: GloablInfo;
+        "height"?: string;
         "variableNames"?: string[];
+        "width"?: string;
     }
     interface GwfVisPluginMetadata {
         "delegateOfFetchingData"?: (query: any) => any;
