@@ -68,8 +68,9 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
         from: dataSource,
       });
     }
-    const dimensionSize = dimensions?.find(dimension => dimension.name === this.dimension)?.size;
-    const labels = [...new Array(dimensionSize || 0).keys()];
+    const dimension = dimensions?.find(dimension => dimension.name === this.dimension);
+    const dimensionSize = dimension?.size;
+    const labels = dimension?.value_labels ?? [...new Array(dimensionSize || 0).keys()];
     const data = {
       labels,
       datasets: variableNames?.map((variableName, i) => ({
