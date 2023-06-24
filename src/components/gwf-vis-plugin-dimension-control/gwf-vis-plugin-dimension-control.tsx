@@ -137,6 +137,7 @@ export class GwfVisPluginDimensionControl implements ComponentInterface, GwfVisP
           <div>
             <b>Current Value: </b>
             {this.value ?? 'N/A'}
+            {this.value != null && this.dimension?.value_labels ? `(${this.dimension.value_labels[this.value]})` : ''}
           </div>
           <hr />
           <div>
