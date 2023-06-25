@@ -23,6 +23,8 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   @Prop() delegateOfUpdatingGlobalInfo: (gloablInfoDict: GloablInfo) => void;
   @Prop() dataSource: string;
   @Prop() variableNames?: string[];
+  @Prop() variableName?: string;
+  @Prop() locationIds?: number[];
   @Prop() dimension: string;
   @Prop() height?: string;
   @Prop() width?: string;
@@ -47,38 +49,85 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
   async drawChart(canvasElement: HTMLCanvasElement) {
     const dimensionQeury = { ...this.globalInfo?.dimensionDict };
     delete dimensionQeury?.[this.dimension];
-    const variableNames = this.variableNames || (this.globalInfo?.variableName ? [this.globalInfo?.variableName] : []);
     const dataSource = this.dataSource || this.globalInfo?.userSelection?.dataset;
-    const location = this.globalInfo?.userSelection?.location;
     let values = [];
     let dimensions = [];
-    if (dataSource && location && variableNames?.length > 0) {
-      values = await this.delegateOfFetchingData({
-        type: 'values',
-        from: dataSource,
-        with: {
-          location,
-          variable: variableNames,
-          dimensions: dimensionQeury,
-        },
-        for: ['variable', 'value', `dimension_${this.dimension}`],
-      });
-      dimensions = await this.delegateOfFetchingData({
-        type: 'dimensions',
-        from: dataSource,
-      });
+    let datasets = [];
+    let dimension;
+    let dimensionSize;
+
+    switch (!!this.variableName) {
+      case false: {
+        const variableNames = this.variableNames || (this.globalInfo?.variableName ? [this.globalInfo?.variableName] : []);
+        const location = this.globalInfo?.userSelection?.location;
+        if (dataSource && location && variableNames?.length > 0) {
+          values = await this.delegateOfFetchingData({
+            type: 'values',
+            from: dataSource,
+            with: {
+              location,
+              variable: variableNames,
+              dimensions: dimensionQeury,
+            },
+            for: ['variable', 'value', `dimension_${this.dimension}`],
+          });
+          dimensions = await this.delegateOfFetchingData({
+            type: 'dimensions',
+            from: dataSource,
+          });
+        }
+        dimension = dimensions?.find(dimension => dimension.name === this.dimension);
+        dimensionSize = dimension?.size;
+        datasets = variableNames?.map((variableName, i) => ({
+          label: variableName,
+          backgroundColor: this.DEFAULT_COLORS?.[i] || 'hsl(0, 0%, 0%)',
+          borderColor: this.DEFAULT_COLORS?.[i] || 'hsl(0, 0%, 0%)',
+          data: this.obtainChartDataForVariable(values, variableName, dimensionSize),
+        }));
+        break;
+      }
+      case true: {
+        const locations = (this.globalInfo?.pinnedSelections || []).filter(location => location.dataset === dataSource);
+        if (
+          this.globalInfo?.userSelection &&
+          !locations.find(location => location.dataset === this.globalInfo.userSelection.dataset && location.location === this.globalInfo.userSelection.location)
+        ) {
+          locations.push({ ...this.globalInfo.userSelection, color: 'hsl(0, 0%, 70%)' });
+        }
+        const locationIds = locations?.map(location => location.location);
+        const variableName = this.variableName ?? this.globalInfo?.variableName;
+        if (dataSource && locations?.length > 0 && variableName) {
+          values = await this.delegateOfFetchingData({
+            type: 'values',
+            from: dataSource,
+            with: {
+              location: locationIds,
+              variable: variableName,
+              dimensions: dimensionQeury,
+            },
+            for: ['location', 'value', `dimension_${this.dimension}`],
+          });
+          dimensions = await this.delegateOfFetchingData({
+            type: 'dimensions',
+            from: dataSource,
+          });
+        }
+        dimension = dimensions?.find(dimension => dimension.name === this.dimension);
+        dimensionSize = dimension?.size;
+        datasets = locations?.map((location) => ({
+          label: `Location ${location.location ?? 'N/A'}`,
+          backgroundColor: location.color || 'hsl(0, 0%, 0%)',
+          borderColor: location.color || 'hsl(0, 0%, 0%)',
+          data: this.obtainChartDataForLocation(values, location.location, dimensionSize),
+        }));
+        break;
+      }
     }
-    const dimension = dimensions?.find(dimension => dimension.name === this.dimension);
-    const dimensionSize = dimension?.size;
+
     const labels = dimension?.value_labels ?? [...new Array(dimensionSize || 0).keys()];
     const data = {
       labels,
-      datasets: variableNames?.map((variableName, i) => ({
-        label: variableName,
-        backgroundColor: this.DEFAULT_COLORS?.[i] || 'hsl(0, 0%, 0%)',
-        borderColor: this.DEFAULT_COLORS?.[i] || 'hsl(0, 0%, 0%)',
-        data: this.obtainChartData(values, variableName, dimensionSize),
-      })),
+      datasets,
     };
 
     const config = {
@@ -136,7 +185,7 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
     }
   }
 
-  private obtainChartData(values: any[], variableName: string, dimensionSize: number) {
+  private obtainChartDataForVariable(values: any[], variableName: string, dimensionSize: number) {
     const valuesForTheVariable = values?.filter(d => d.variable === variableName);
     for (let i = 0; i < dimensionSize; i++) {
       if (!valuesForTheVariable?.find(d => d[this.dimension] === i)) {
@@ -146,5 +195,17 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
       }
     }
     return valuesForTheVariable?.sort((a, b) => a[`dimension_${this.dimension}`] - b[`dimension_${this.dimension}`]).map(d => d.value);
+  }
+
+  private obtainChartDataForLocation(values: any[], locationId: string, dimensionSize: number) {
+    const valuesForTheLocation = values?.filter(d => d.location.toString() === locationId.toString());
+    for (let i = 0; i < dimensionSize; i++) {
+      if (!valuesForTheLocation?.find(d => d[this.dimension] === i)) {
+        const itemToBeInserted = { value: this.FALLBACK_VALUE };
+        itemToBeInserted[this.dimension] = i;
+        valuesForTheLocation?.splice(i, 0, itemToBeInserted);
+      }
+    }
+    return valuesForTheLocation?.sort((a, b) => a[`dimension_${this.dimension}`] - b[`dimension_${this.dimension}`]).map(d => d.value);
   }
 }
