@@ -14,12 +14,7 @@ export type DimensionValueDict = {
   };
 };
 
-export type GWFVisDefaultPluginWithData = GWFVisPluginWithData<
-  string,
-  initSqlJs.QueryExecResult | undefined
->;
-
-export type CallerPlugin = GWFVisDefaultPluginWithData &
+export type CallerPlugin = GWFVisPluginWithData<any, any> &
   GWFVisDefaultPluginSharedStates;
 
 export async function runAsyncWithLoading<T = any>(

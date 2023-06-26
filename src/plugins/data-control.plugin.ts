@@ -1,13 +1,15 @@
 import type {
   GWFVisPlugin,
+  GWFVisPluginWithData,
   GWFVisPluginWithSharedStates,
   SharedStates,
 } from "gwf-vis-host";
+import type { DimensionValueDict } from "../utils/basic";
 import type {
-  DimensionValueDict,
-  GWFVisDefaultPluginWithData,
-} from "../utils/basic";
-import type { VariableWithDimensions, Dimension } from "../utils/data";
+  VariableWithDimensions,
+  Dimension,
+  GWFVisDBQueryObject,
+} from "../utils/data";
 import type { DataSourceNameDict } from "../utils/data-source-name-dict";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
@@ -15,8 +17,6 @@ import { css, html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { QueryExecResult } from "sql.js";
-import { obtainAvailableVariables } from "../utils/data";
 import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
 export default class GWFVisPluginDataControl
@@ -24,7 +24,7 @@ export default class GWFVisPluginDataControl
   implements
     GWFVisPlugin,
     GWFVisPluginWithSharedStates,
-    GWFVisDefaultPluginWithData
+    GWFVisPluginWithData<GWFVisDBQueryObject, any>
 {
   static styles = css`
     :host {
@@ -55,10 +55,7 @@ export default class GWFVisPluginDataControl
     | ((identifier: string) => boolean)
     | undefined;
   queryDataDelegate?:
-    | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<QueryExecResult | undefined>)
+    | ((dataSource: string, queryObject: GWFVisDBQueryObject) => Promise<any>)
     | undefined;
 
   private get currentVariable() {
@@ -280,7 +277,9 @@ export default class GWFVisPluginDataControl
       this.currentAvailableVariables = undefined;
       return;
     }
-    const variables = await obtainAvailableVariables(dataSource, this);
+    const variables = (await this.queryDataDelegate?.(dataSource, {
+      for: "variables",
+    })) as VariableWithDimensions[];
     this.currentAvailableVariables = variables;
   }
 

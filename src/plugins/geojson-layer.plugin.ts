@@ -1,40 +1,36 @@
 import type { GeoJsonObject } from "geojson";
 import type {
+  GWFVisPluginWithData,
   GWFVisPluginWithSharedStates,
   LayerType,
   leaflet,
   SharedStates,
 } from "gwf-vis-host";
-import type { QueryExecResult } from "sql.js";
-import {
-  GWFVisDefaultPluginWithData,
-  LocationSelection,
-  runAsyncWithLoading,
-} from "../utils/basic";
+import { LocationSelection, runAsyncWithLoading } from "../utils/basic";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type {
   DataFrom,
   Dimension,
+  GWFVisDBQueryObject,
   Location,
-  Value,
   VariableWithDimensions,
 } from "../utils/data";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
-import { obtainAvailableLocations } from "../utils/data";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import { generateColorScale } from "../utils/color";
 import {
   obtainCurrentColorScheme,
   obtainCurrentDataSource,
   obtainCurrentVariable,
-  obtainMaxAndMinForVariable,
-} from "../utils/data";
+} from "../utils/state";
 import { obtainObjectChangedPropertyNameSet } from "../utils/state";
 
 export default class GWFVisPluginGeoJSONLayer
   extends GWFVisMapLayerPluginBase
-  implements GWFVisPluginWithSharedStates, GWFVisDefaultPluginWithData
+  implements
+    GWFVisPluginWithSharedStates,
+    GWFVisPluginWithData<GWFVisDBQueryObject, any>
 {
   updateSharedStatesDelegate?:
     | ((sharedStates: SharedStates) => void)
@@ -43,10 +39,7 @@ export default class GWFVisPluginGeoJSONLayer
     | ((identifier: string) => boolean)
     | undefined;
   queryDataDelegate?:
-    | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<QueryExecResult | undefined>)
+    | ((dataSource: string, queryObject: any) => Promise<any>)
     | undefined;
 
   #geojsonLayerInstance?: leaflet.GeoJSON;
@@ -178,11 +171,10 @@ export default class GWFVisPluginGeoJSONLayer
       this
     );
     const { max, min } =
-      (await obtainMaxAndMinForVariable(
-        currentDataSource,
-        currentVariable?.id,
-        this
-      )) ?? {};
+      ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+        for: "max-min-value",
+        filter: { variables: [currentVariable?.id] },
+      })) as { max?: number; min?: number }) ?? {};
     if (max == null && min == null) {
       return;
     }
@@ -201,14 +193,14 @@ export default class GWFVisPluginGeoJSONLayer
     this.#geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(
-        ({ location }) => location.id === locationId
+        ({ locationId: id }) => id === locationId
       )?.value;
       return `Location ID: ${locationId}<br/>Value: ${value ?? "N/A"}`;
     });
     this.#geojsonLayerInstance?.setStyle((feature) => {
       const { properties } = feature ?? {};
       const value = values?.find(
-        ({ location }) => location.id === properties?.id
+        ({ locationId }) => locationId === properties?.id
       )?.value;
       const fillColor = value != null ? scaleColor(value) : "transparent";
       const style = {
@@ -302,36 +294,10 @@ export default class GWFVisPluginGeoJSONLayer
     if (!dimensionIdAndValueDict) {
       return;
     }
-    const selectClause = `SELECT location, value`;
-    const fromClause = `FROM value`;
-    const variableCondition = `variable = ${variableId}`;
-    const dimensionConditon = Object.entries(dimensionIdAndValueDict)
-      .map(([id, value]) => `dimension_${id} = ${value}`)
-      .join(" and ");
-    const whereClause = `WHERE ${variableCondition} and ${dimensionConditon}`;
-    const sql = `${selectClause}\n${fromClause}\n${whereClause}`;
-    const sqlResult = await this.queryDataDelegate?.(dataSource, sql);
-    const values = sqlResult?.values?.map(
-      (d) =>
-        ({
-          ...Object.fromEntries(
-            d?.map((value, columnIndex) => {
-              const columnName = sqlResult?.columns?.[columnIndex];
-              if (columnName === "location") {
-                const location = value
-                  ? this.#currentLocations?.find(
-                      (location) => location.id === value
-                    )
-                  : undefined;
-                return [columnName, location];
-              }
-              return [columnName, value];
-            })
-          ),
-          variable,
-          dimensionIdAndValueDict,
-        } as Value)
-    );
+    const values = (await this.queryDataDelegate?.(dataSource, {
+      for: "values-for-variable-and-dimensions",
+      filter: { variable: variableId, dimensionIdAndValueDict },
+    })) as { locationId: number; value: number }[];
     return values;
   }
 
@@ -342,7 +308,9 @@ export default class GWFVisPluginGeoJSONLayer
     if (!dataSource) {
       return;
     }
-    const locations = await obtainAvailableLocations(dataSource, this);
+    const locations = await this.queryDataDelegate?.(dataSource, {
+      for: "locations",
+    });
     return locations;
   }
 

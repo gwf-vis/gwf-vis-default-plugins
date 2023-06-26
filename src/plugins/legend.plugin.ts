@@ -1,8 +1,7 @@
 import type { ScaleQuantize } from "d3";
 import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
-import type { QueryExecResult } from "sql.js";
 import type { ColorSchemeDefinition } from "../utils/color";
-import type { DataFrom, Variable } from "../utils/data";
+import type { DataFrom, GWFVisDBQueryObject, Variable } from "../utils/data";
 import type { DataSourceNameDict } from "../utils/data-source-name-dict";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
@@ -15,15 +14,12 @@ import {
   obtainCurrentColorScheme,
   obtainCurrentDataSource,
   obtainCurrentVariable,
-  obtainMaxAndMinForVariable,
-} from "../utils/data";
+} from "../utils/state";
 import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
-  implements
-    GWFVisPlugin,
-    GWFVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
+  implements GWFVisPlugin, GWFVisPluginWithData<GWFVisDBQueryObject, any>
 {
   hostFirstLoadedCallback?: (() => void) | undefined;
   notifyLoadingDelegate?: (() => () => void) | undefined;
@@ -31,10 +27,7 @@ export default class GWFVisPluginTestDataFetcher
     | ((identifier: string) => boolean)
     | undefined;
   queryDataDelegate?:
-    | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<QueryExecResult | undefined>)
+    | ((dataSource: string, queryObject: GWFVisDBQueryObject) => Promise<any>)
     | undefined;
 
   header?: string;
@@ -76,11 +69,10 @@ export default class GWFVisPluginTestDataFetcher
       this
     );
     const { max, min } =
-      (await obtainMaxAndMinForVariable(
-        currentDataSource,
-        currentVariable?.id,
-        this
-      )) ?? {};
+      ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+        for: "max-min-value",
+        filter: { variables: [currentVariable?.id] },
+      })) as { max?: number; min?: number }) ?? {};
     const currentColorScheme = await obtainCurrentColorScheme(
       currentDataSource,
       currentVariable,

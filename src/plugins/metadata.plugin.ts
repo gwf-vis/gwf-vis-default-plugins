@@ -1,18 +1,15 @@
 import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
-import type { QueryExecResult } from "sql.js";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { css, html, LitElement } from "lit";
 import { state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
-import { obtainLocationMetadata } from "../utils/data";
 import { runAsyncWithLoading } from "../utils/basic";
+import { GWFVisDBQueryObject, Location } from "../utils/data";
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
-  implements
-    GWFVisPlugin,
-    GWFVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
+  implements GWFVisPlugin, GWFVisPluginWithData<GWFVisDBQueryObject, any>
 {
   static styles = css`
     :host {
@@ -29,10 +26,7 @@ export default class GWFVisPluginTestDataFetcher
     | ((identifier: string) => boolean)
     | undefined;
   queryDataDelegate?:
-    | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<QueryExecResult | undefined>)
+    | ((dataSource: string, queryObject: GWFVisDBQueryObject) => Promise<any>)
     | undefined;
 
   #sharedStates?: GWFVisDefaultPluginSharedStates;
@@ -93,11 +87,12 @@ export default class GWFVisPluginTestDataFetcher
       return;
     }
     runAsyncWithLoading(async () => {
-      this.metadata = await obtainLocationMetadata(
-        dataSource,
-        locationId as number,
-        this
-      );
+      this.metadata = (
+        (await this.queryDataDelegate?.(dataSource, {
+          for: "locations",
+          filter: { ids: [locationId] },
+        })) as Location[]
+      )?.at(0)?.metadata as Record<string, any>;
     }, this);
   }
 }
