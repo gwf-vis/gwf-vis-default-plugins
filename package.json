@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "d3": "^7.8.2",
-    "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#ac00405a15fc09068aaa362b37a536fe823414aa",
+    "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#6cb5f820a0759ad11e47644e4de17c463e4391d8",
     "lit": "^2.6.1",
     "marked": "^5.1.0",
     "sql.js": "^1.8.0"
