@@ -77,6 +77,7 @@ export namespace Components {
         "globalInfo": GloablInfo;
         "height"?: string;
         "locationIds"?: number[];
+        "locationLabelKey"?: string;
         "obtainHeader": () => Promise<string>;
         "variableName"?: string;
         "variableNames"?: string[];
@@ -273,6 +274,7 @@ declare namespace LocalJSX {
         "globalInfo"?: GloablInfo;
         "height"?: string;
         "locationIds"?: number[];
+        "locationLabelKey"?: string;
         "variableName"?: string;
         "variableNames"?: string[];
         "width"?: string;
