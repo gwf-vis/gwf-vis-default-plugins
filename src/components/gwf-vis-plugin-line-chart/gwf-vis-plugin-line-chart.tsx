@@ -115,28 +115,32 @@ export class GwfVisPluginLineChart implements ComponentInterface, GwfVisPlugin {
         }
         dimension = dimensions?.find(dimension => dimension.name === this.dimension);
         dimensionSize = dimension?.size;
-        let locationLabel;
-        if (this.locationLabelKey) {
-          const [metadataWithWrapper] =
-            (await this.delegateOfFetchingData?.({
-              type: 'locations',
-              from: this.globalInfo?.userSelection?.dataset,
-              for: ['metadata'],
-              with: {
-                id: this.globalInfo?.userSelection?.location,
-              },
-            })) || [];
-          if (metadataWithWrapper) {
-            const metadata = metadataWithWrapper.metadata;
-            locationLabel = metadata?.[this.locationLabelKey];
-          }
-        }
-        datasets = locations?.map(location => ({
-          label: locationLabel ?? `Location ${location.location ?? 'N/A'}`,
-          backgroundColor: location.color || 'hsl(0, 0%, 0%)',
-          borderColor: location.color || 'hsl(0, 0%, 0%)',
-          data: this.obtainChartDataForLocation(values, location.location, dimensionSize),
-        }));
+        datasets = await Promise.all(
+          locations?.map(async location => {
+            let locationLabel;
+            if (this.locationLabelKey) {
+              const [metadataWithWrapper] =
+                (await this.delegateOfFetchingData?.({
+                  type: 'locations',
+                  from: location.dataset,
+                  for: ['metadata'],
+                  with: {
+                    id: location.location,
+                  },
+                })) || [];
+              if (metadataWithWrapper) {
+                const metadata = metadataWithWrapper.metadata;
+                locationLabel = metadata?.[this.locationLabelKey];
+              }
+            }
+            return {
+              label: locationLabel ?? `Location ${location.location ?? 'N/A'}`,
+              backgroundColor: location.color || 'hsl(0, 0%, 0%)',
+              borderColor: location.color || 'hsl(0, 0%, 0%)',
+              data: this.obtainChartDataForLocation(values, location.location, dimensionSize),
+            };
+          }),
+        );
         break;
       }
     }
