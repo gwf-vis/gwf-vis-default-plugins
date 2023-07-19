@@ -1,4 +1,8 @@
-import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
+import type {
+  GWFVisPlugin,
+  GWFVisPluginWithData,
+  GWFVisPluginWithSharedStates,
+} from "gwf-vis-host";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { css, html, LitElement } from "lit";
@@ -9,7 +13,10 @@ import { GWFVisDBQueryObject, Location } from "../utils/data";
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
-  implements GWFVisPlugin, GWFVisPluginWithData<GWFVisDBQueryObject, any>
+  implements
+    GWFVisPlugin,
+    GWFVisPluginWithSharedStates,
+    GWFVisPluginWithData<GWFVisDBQueryObject, any>
 {
   static styles = css`
     :host {
@@ -22,6 +29,9 @@ export default class GWFVisPluginTestDataFetcher
     }
   `;
 
+  updateSharedStatesDelegate?:
+    | ((sharedStates: GWFVisDefaultPluginSharedStates) => void)
+    | undefined;
   checkIfDataProviderRegisteredDelegate?:
     | ((identifier: string) => boolean)
     | undefined;
