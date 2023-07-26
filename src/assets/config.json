@@ -14,9 +14,17 @@
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
     "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
-    "gwf-default.markdown": "/src/plugins/markdown.plugin.ts"
+    "gwf-default.markdown": "/src/plugins/markdown.plugin.ts",
+    "gwf-default.location-pins": "/src/plugins/location-pins.plugin.ts"
   },
   "plugins": [
+    {
+      "import": "gwf-default.location-pins",
+      "container": "sidebar",
+      "containerProps": {
+        "slot": "top"
+      }
+    },
     {
       "import": "gwf-default.sqlite-local-data-provider",
       "container": "sidebar"

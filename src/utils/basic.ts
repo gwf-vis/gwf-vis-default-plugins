@@ -6,6 +6,10 @@ export type LocationSelection = {
   locationId?: number;
 };
 
+export type LocationPin = LocationSelection & {
+  color?: string;
+};
+
 export type DimensionValueDict = {
   [dataSource: string]: {
     [variableId: number]: {

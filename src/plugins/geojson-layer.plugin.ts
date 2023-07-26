@@ -84,7 +84,10 @@ export default class GWFVisPluginGeoJSONLayer
       ) {
         await this.updateData();
       }
-      if (changedProps.has("gwf-default.locationSelection")) {
+      if (
+        changedProps.has("gwf-default.locationSelection") ||
+        changedProps.has("gwf-default.locationPins")
+      ) {
         await this.updateHighlights();
       }
     }, this);
@@ -214,12 +217,28 @@ export default class GWFVisPluginGeoJSONLayer
   private async updateHighlights() {
     const locationSelection =
       this.sharedStates?.["gwf-default.locationSelection"];
+    const locationPins = this.sharedStates?.["gwf-default.locationPins"];
     this.#geojsonLayerInstance?.setStyle((feature) => {
       const { properties } = feature ?? {};
       const dataSource =
         obtainCurrentDataSource(this.dataFrom, this.sharedStates) ?? "";
       const locationId = properties?.id;
       let style = { color: "hsl(0, 0%, 50%)", weight: 1 };
+
+      const matchedLocationPin = locationPins?.find(
+        (location) =>
+          location.dataSource === dataSource &&
+          location.locationId === locationId
+      );
+      if (matchedLocationPin && matchedLocationPin.color) {
+        style.color = matchedLocationPin.color;
+        (
+          this.#geojsonLayerInstance
+            ?.getLayers()
+            ?.find((layer) => (layer as any).feature === feature) as any
+        )?.bringToFront();
+      }
+
       if (
         dataSource === locationSelection?.dataSource &&
         locationId === locationSelection.locationId
