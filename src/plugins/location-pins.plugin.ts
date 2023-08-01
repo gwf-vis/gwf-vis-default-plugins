@@ -29,10 +29,6 @@ export default class GWFVisPluginLocationPins
       box-sizing: border-box;
     }
 
-    [part="content"] {
-      padding: 0.5rem;
-    }
-
     [part="pin-section"] {
       margin-top: 0.5rem;
     }
