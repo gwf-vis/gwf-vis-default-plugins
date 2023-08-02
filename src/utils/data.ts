@@ -54,12 +54,12 @@ export type GWFVisDBQueryObject =
       };
     }
   | {
-      for: "values-for-variable-and-dimensions";
+      for: "values";
       filter?: {
-        locations?: number[];
-        variable?: number;
+        location?: number | number[];
+        variable?: number | number[];
         dimensionIdAndValueDict: {
-          [dimensionId: number]: number | undefined;
+          [dimensionId: number]: number | number[] | undefined;
         };
       };
     };

@@ -93,8 +93,8 @@ export default class GWFVisPluginGWFVisDBDataProvider
             dataSourceForSqliteLocal,
             queryObject.filter
           );
-        case "values-for-variable-and-dimensions":
-          return await this.queryValuesForVariableAndDimensions(
+        case "values":
+          return await this.queryValues(
             dataSourceForSqliteLocal,
             queryObject.filter
           );
@@ -199,9 +199,7 @@ export default class GWFVisPluginGWFVisDBDataProvider
     variables = await this.queryVariablesFromDB(dataSourceForSqliteLocal);
     availablVariablesDict[dataSource] = variables;
     let filteredVariables =
-      this.sharedStates?.[AVAILABLE_VARIABLES_DICT_KEY]?.[
-        dataSource
-      ];
+      this.sharedStates?.[AVAILABLE_VARIABLES_DICT_KEY]?.[dataSource];
     if (filter?.ids) {
       filteredVariables = filteredVariables?.filter((variable) =>
         filter.ids?.includes(variable.id)
@@ -258,56 +256,85 @@ export default class GWFVisPluginGWFVisDBDataProvider
     return values?.at(0);
   }
 
-  private async queryValuesForVariableAndDimensions(
+  private async queryValues(
     dataSourceForSqliteLocal: string,
     filter?: {
-      locations?: number[];
-      variable?: number;
+      location?: number | number[];
+      variable?: number | number[];
       dimensionIdAndValueDict: {
-        [dimensionId: number]: number | undefined;
+        [dimensionId: number]: number | number[] | undefined;
       };
     }
   ) {
-    if (filter?.variable == null || !filter?.dimensionIdAndValueDict) {
-      return undefined;
-    }
-    const selectClause = `SELECT location, value`;
+    const selectClause = `SELECT *`;
     const fromClause = `FROM value`;
-    const variableConditionClause = `variable = ${filter.variable}`;
-    const dimensionConditonClause = Object.entries(
-      filter.dimensionIdAndValueDict
-    )
-      .map(([id, value]) => `dimension_${id} = ${value}`)
-      .join(" AND ");
-    const locationConditionClause = filter.locations
-      ? `location IN (${filter.locations.join(", ")})`
-      : "";
-    const whereClause =
-      "WHERE " +
-      [
-        variableConditionClause,
-        dimensionConditonClause,
-        locationConditionClause,
-      ]
-        .filter(Boolean)
-        .join(" AND ");
+    let whereClause = "";
+    if (filter) {
+      let locationConditionClause =
+        filter.location != null
+          ? `location IN (${this.makeSingleOrArrayAsArray(filter.location).join(
+              ", "
+            )})`
+          : "";
+      let variableConditionClause =
+        filter.variable != null
+          ? `variable IN (${this.makeSingleOrArrayAsArray(filter.variable).join(
+              ", "
+            )})`
+          : "";
+      let dimensionConditonClause = filter.dimensionIdAndValueDict
+        ? Object.entries(filter.dimensionIdAndValueDict)
+            .map(([id, value]) =>
+              value != null
+                ? `dimension_${id} IN (${this.makeSingleOrArrayAsArray(
+                    value
+                  ).join(", ")})`
+                : ""
+            )
+            .filter(Boolean)
+            .join(" AND ")
+        : "";
+      whereClause =
+        "WHERE " +
+        [
+          variableConditionClause,
+          dimensionConditonClause,
+          locationConditionClause,
+        ]
+          .filter(Boolean)
+          .join(" AND ");
+    }
     const sql = `${selectClause}\n${fromClause}\n${whereClause}`;
     const sqlResult = await this.queryDataDelegate?.(
       dataSourceForSqliteLocal,
       sql
     );
-    const values = sqlResult?.values?.map(
-      (d) =>
-        Object.fromEntries(
-          d?.map((value, columnIndex) => {
+    const values = sqlResult?.values?.map((d) => {
+      const dimensionIdAndValueDict: {
+        [dimensionId: number]: number | null;
+      } = {};
+      const value = Object.fromEntries(
+        d
+          ?.map((value, columnIndex) => {
             let columnName = sqlResult?.columns?.[columnIndex];
             if (columnName === "location") {
               columnName = "locationId";
             }
+            if (columnName === "variable") {
+              columnName = "variableId";
+            }
+            if (columnName.startsWith("dimension_")) {
+              dimensionIdAndValueDict[+columnName.substring(10)] = value as
+                | number
+                | null;
+              return undefined;
+            }
             return [columnName, value as SqlValue];
           })
-        ) as { locationId: number; value: number }
-    );
+          .filter(Boolean) as [string, SqlValue][]
+      ) as { locationId: number; variableId: number; value: number };
+      return { ...value, dimensionIdAndValueDict };
+    });
     return values;
   }
 
@@ -359,5 +386,15 @@ export default class GWFVisPluginGWFVisDBDataProvider
       }
       dimension && variableDimensions.push(dimension);
     });
+  }
+
+  private makeSingleOrArrayAsArray<T>(itemOrItems: T | T[] | undefined) {
+    if (Array.isArray(itemOrItems)) {
+      return itemOrItems;
+    }
+    if (itemOrItems == null) {
+      return [];
+    }
+    return [itemOrItems];
   }
 }

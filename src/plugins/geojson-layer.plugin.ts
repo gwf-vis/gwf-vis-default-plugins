@@ -314,7 +314,7 @@ export default class GWFVisPluginGeoJSONLayer
       return;
     }
     const values = (await this.queryDataDelegate?.(dataSource, {
-      for: "values-for-variable-and-dimensions",
+      for: "values",
       filter: { variable: variableId, dimensionIdAndValueDict },
     })) as { locationId: number; value: number }[];
     return values;
