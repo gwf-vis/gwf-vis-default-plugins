@@ -10,6 +10,7 @@ import { runAsyncWithLoading } from "../utils/basic";
 import { SqlValue } from "sql.js";
 import {
   Dimension,
+  Location,
   GWFVisDBQueryObject,
   Variable,
   VariableWithDimensions,
