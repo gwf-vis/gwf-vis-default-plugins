@@ -11,13 +11,7 @@ import { css, html, LitElement } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
 import { state } from "lit/decorators.js";
 import { runAsyncWithLoading } from "../utils/basic";
-import {
-  DataFrom,
-  Dimension,
-  GWFVisDBQueryObject,
-  Location,
-  Variable,
-} from "../utils/data";
+import { Dimension, GWFVisDBQueryObject, Variable } from "../utils/data";
 
 type DataForBase = {
   dataSource: string;
