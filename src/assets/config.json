@@ -15,7 +15,8 @@
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
     "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
     "gwf-default.markdown": "/src/plugins/markdown.plugin.ts",
-    "gwf-default.location-pins": "/src/plugins/location-pins.plugin.ts"
+    "gwf-default.location-pins": "/src/plugins/location-pins.plugin.ts",
+    "gwf-default.line-chart": "/src/plugins/line-chart.plugin.ts"
   },
   "plugins": [
     {
@@ -47,6 +48,29 @@
     {
       "import": "gwf-default.metadata",
       "container": "sidebar"
+    },
+    {
+      "import": "gwf-default.line-chart",
+      "container": "sidebar",
+      "props": {
+        "header": "Line Chart - Variable",
+        "dataFor": {
+          "dataSource": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "dimensionName": "time",
+          "variableName": "STGW"
+        }
+      }
+    },
+    {
+      "import": "gwf-default.line-chart",
+      "container": "sidebar",
+      "props": {
+        "header": "Line Chart - Location",
+        "dataFor": {
+          "dataSource": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
+          "dimensionName": "time"
+        }
+      }
     },
     {
       "import": "gwf-default.legend",
