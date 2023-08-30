@@ -14,7 +14,6 @@ import {
   GWFVisDBQueryObject,
   Location,
   Value,
-  Variable,
   VariableWithDimensions,
 } from "../utils/data";
 import {

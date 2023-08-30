@@ -71,7 +71,9 @@ export default class GWFVisPluginTestDataFetcher
     const { max, min } =
       ((await this.queryDataDelegate?.(currentDataSource ?? "", {
         for: "max-min-value",
-        filter: { variables: [currentVariable?.id] },
+        filter: {
+          variables: currentVariable ? [currentVariable.id] : undefined,
+        },
       })) as { max?: number; min?: number }) ?? {};
     const currentColorScheme = await obtainCurrentColorScheme(
       currentDataSource,

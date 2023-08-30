@@ -248,7 +248,6 @@ export default class GWFVisPluginLineChart
                 data: this.obtainChartDataForLocation(
                   values,
                   location.id,
-                  variableId,
                   dimension
                 ),
               };
@@ -309,7 +308,6 @@ export default class GWFVisPluginLineChart
             borderColor: DEFAULT_COLORS?.[i] || "hsl(0, 0%, 0%)",
             data: this.obtainChartDataForVariable(
               values,
-              locationId,
               variable.id,
               dimension
             ),
@@ -417,7 +415,6 @@ export default class GWFVisPluginLineChart
 
   private obtainChartDataForVariable(
     values: Value[],
-    locationId: number,
     variableId: number,
     dimension: Dimension
   ) {
@@ -452,7 +449,6 @@ export default class GWFVisPluginLineChart
   private obtainChartDataForLocation(
     values: Value[],
     locationId: number,
-    variableId: number,
     dimension: Dimension
   ) {
     const valuesForTheLocation = values?.filter(
