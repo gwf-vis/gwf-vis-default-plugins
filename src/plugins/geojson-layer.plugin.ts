@@ -13,6 +13,7 @@ import type {
   Dimension,
   GWFVisDBQueryObject,
   Location,
+  Value,
   VariableWithDimensions,
 } from "../utils/data";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
@@ -212,14 +213,14 @@ export default class GWFVisPluginGeoJSONLayer
     this.#geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(
-        ({ locationId: id }) => id === locationId
+        ({ location }) => location.id === locationId
       )?.value;
       return `Location ID: ${locationId}<br/>Value: ${value ?? "N/A"}`;
     });
     this.#geojsonLayerInstance?.setStyle((feature) => {
       const { properties } = feature ?? {};
       const value = values?.find(
-        ({ locationId }) => locationId === properties?.id
+        ({ location }) => location.id === properties?.id
       )?.value;
       const fillColor = value != null ? scaleColor(value) : "transparent";
       const style = {
@@ -332,7 +333,7 @@ export default class GWFVisPluginGeoJSONLayer
     const values = (await this.queryDataDelegate?.(dataSource, {
       for: "values",
       filter: { variable: variableId, dimensionIdAndValueDict },
-    })) as { locationId: number; value: number }[];
+    })) as Value[];
     return values;
   }
 
@@ -382,7 +383,7 @@ export default class GWFVisPluginGeoJSONLayer
   ) {
     const currentDataSource =
       dataSource ?? obtainCurrentDataSource(this.dataFrom, this.sharedStates);
-    const currentVariable =
+    const currentVariable: VariableWithDimensions | undefined =
       variable ??
       (await obtainCurrentVariable(
         currentDataSource,

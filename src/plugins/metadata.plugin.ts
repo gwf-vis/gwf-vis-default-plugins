@@ -8,7 +8,7 @@ import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 import { css, html, LitElement } from "lit";
 import { state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
-import { runAsyncWithLoading } from "../utils/basic";
+import { LocationSelection, runAsyncWithLoading } from "../utils/basic";
 import { GWFVisDBQueryObject, Location } from "../utils/data";
 
 export default class GWFVisPluginTestDataFetcher
@@ -45,55 +45,59 @@ export default class GWFVisPluginTestDataFetcher
   }
   set sharedStates(value: GWFVisDefaultPluginSharedStates | undefined) {
     this.#sharedStates = value;
-    const locationSelection =
+    this.locationSelection =
       this.#sharedStates?.["gwf-default.locationSelection"];
-    if (!locationSelection) {
+    if (!this.locationSelection) {
       return;
     }
     this.obtainMetadata(
-      locationSelection?.dataSource,
-      locationSelection?.locationId
+      this.locationSelection?.dataSource,
+      this.locationSelection?.locationId
     );
   }
 
+  @state() locationSelection?: LocationSelection =
+    this.#sharedStates?.["gwf-default.locationSelection"];
   @state() metadata?: Record<string, any>;
 
   obtainHeaderCallback = () => "Metadata";
 
   render() {
-    const locationSelection =
-      this.#sharedStates?.["gwf-default.locationSelection"];
     return html`
       <div part="content">
         <span
-          >Data Source: <b>${locationSelection?.dataSource ?? "N/A"}</b></span
+          >Data Source:
+          <b>${this.locationSelection?.dataSource ?? "N/A"}</b></span
         >
         <br />
         <span
-          >Location ID: <b>${locationSelection?.locationId ?? "N/A"}</b></span
+          >Location ID:
+          <b>${this.locationSelection?.locationId ?? "N/A"}</b></span
         >
         <div style="height: 1em;"></div>
-        ${map(
-          Object.entries(this.metadata || {}),
-          ([key, value]) => html`
-            <div>
-              <span>
-                <b>${key.toString()}</b>
-              </span>
-              <div .innerHTML=${value?.toString()}></div>
-              <hr
-                style="height: 2px; border: none; outline: none; background: hsl(0, 0%, 70%);"
-              />
-            </div>
-          `
-        )}
+        ${this.metadata
+          ? map(
+              Object.entries(this.metadata),
+              ([key, value]) => html`
+                <div>
+                  <span>
+                    <b>${key.toString()}</b>
+                  </span>
+                  <div .innerHTML=${value?.toString()}></div>
+                  <hr
+                    style="height: 2px; border: none; outline: none; background: hsl(0, 0%, 70%);"
+                  />
+                </div>
+              `
+            )
+          : html`<div>No metadata available.</div>`}
       </div>
     `;
   }
 
   private async obtainMetadata(dataSource?: string, locationId?: number) {
     if (!dataSource || locationId == null) {
-      this.metadata = {};
+      this.metadata = undefined;
       return;
     }
     runAsyncWithLoading(async () => {

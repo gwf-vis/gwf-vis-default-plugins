@@ -11,6 +11,7 @@
     "gwf-default.test-data-fetcher": "/src/plugins/test-data-fetcher.plugin.ts",
     "gwf-default.tile-layer": "/src/plugins/tile-layer.plugin.ts",
     "gwf-default.geojson-layer": "/src/plugins/geojson-layer.plugin.ts",
+    "gwf-default.contour-layer": "/src/plugins/contour-layer.plugin.ts",
     "gwf-default.legend": "/src/plugins/legend.plugin.ts",
     "gwf-default.data-control": "/src/plugins/data-control.plugin.ts",
     "gwf-default.metadata": "/src/plugins/metadata.plugin.ts",
@@ -28,11 +29,11 @@
     },
     {
       "import": "gwf-default.sqlite-local-data-provider",
-      "container": "sidebar"
+      "container": ""
     },
     {
       "import": "gwf-default.gwfvisdb-data-provider",
-      "container": "sidebar"
+      "container": ""
     },
     {
       "import": "gwf-default.markdown",
@@ -67,8 +68,9 @@
       "props": {
         "header": "Line Chart - Location",
         "dataFor": {
-          "dataSource": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
-          "dimensionName": "time"
+          "dataSource": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/permafrost_reduced_fill_null.gwfvisdb",
+          "dimensionName": "level",
+          "variableNames": ["TSOL_MIN", "TSOL_MAX"]
         }
       }
     },
@@ -96,7 +98,8 @@
           "mesh": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "catchment": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
           "prairie-water": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb",
-          "u15": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/u15.gwfvisdb"
+          "u15": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/u15.gwfvisdb",
+          "permafrost": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/permafrost_reduced_fill_null.gwfvisdb"
         }
       }
     },
@@ -109,19 +112,21 @@
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb",
-          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/u15.gwfvisdb"
+          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/u15.gwfvisdb",
+          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/permafrost_reduced_fill_null.gwfvisdb"
         ],
         "dataSourceDict": {
           "mesh": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "catchment": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
           "prairie-water": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb",
-          "u15": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/u15.gwfvisdb"
+          "u15": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/u15.gwfvisdb",
+          "permafrost": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/permafrost_reduced_fill_null.gwfvisdb"
         }
       }
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "World_Imagery",
         "active": true,
@@ -133,7 +138,7 @@
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "World_Physical_Map",
         "urlTemplate": "https://server.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}",
@@ -144,7 +149,7 @@
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "NatGeo_World_Map",
         "type": "overlay",
@@ -157,7 +162,7 @@
     },
     {
       "import": "gwf-default.tile-layer",
-      "container": "main",
+      "container": "",
       "props": {
         "displayName": "World_Street_Map",
         "type": "overlay",
@@ -169,10 +174,10 @@
       }
     },
     {
-      "import": "gwf-default.geojson-layer",
-      "container": "main",
+      "import": "gwf-default.contour-layer",
+      "container": "",
       "props": {
-        "displayName": "GeoJSON",
+        "displayName": "Contours",
         "type": "overlay",
         "active": true,
         "pointMode": "pushpin",

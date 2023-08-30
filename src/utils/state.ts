@@ -59,7 +59,7 @@ export async function obtainCurrentVariable(
 ) {
   const currentDataSource =
     dataSource ?? obtainCurrentDataSource(dataFrom, sharedStates);
-  let variable;
+  let variable: Variable | undefined;
   if (dataFrom?.variableName) {
     variable = (
       (await callerPlugin?.queryDataDelegate?.(currentDataSource ?? "", {

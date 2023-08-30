@@ -11,7 +11,7 @@ import { css, html, LitElement } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
 import { state } from "lit/decorators.js";
 import { runAsyncWithLoading } from "../utils/basic";
-import { Dimension, GWFVisDBQueryObject, Variable } from "../utils/data";
+import { Dimension, GWFVisDBQueryObject, Value, Variable } from "../utils/data";
 
 type DataForBase = {
   dataSource: string;
@@ -170,14 +170,7 @@ export default class GWFVisPluginLineChart
       return [];
     }
 
-    let values: {
-      dimensionIdAndValueDict: {
-        [dimensionId: number]: number | null;
-      };
-      locationId: number;
-      variableId: number;
-      value: number;
-    }[] = [];
+    let values: Value[] = [];
     let datasets: any[] = [];
 
     switch (this.dataFor?.hasOwnProperty("variableName")) {
@@ -423,20 +416,13 @@ export default class GWFVisPluginLineChart
   }
 
   private obtainChartDataForVariable(
-    values: {
-      dimensionIdAndValueDict: {
-        [dimensionId: number]: number | null;
-      };
-      locationId: number;
-      variableId: number;
-      value: number;
-    }[],
+    values: Value[],
     locationId: number,
     variableId: number,
     dimension: Dimension
   ) {
     const valuesForTheVariable = values?.filter(
-      (d) => d.variableId === variableId
+      (d) => d.variable.id === variableId
     );
     for (let i = 0; i < dimension.size; i++) {
       if (
@@ -446,14 +432,12 @@ export default class GWFVisPluginLineChart
       ) {
         const itemToBeInserted = {
           value: FALLBACK_VALUE,
-          locationId,
-          variableId,
           dimensionIdAndValueDict: {} as {
             [dimensionId: number]: number | null;
           },
         };
         itemToBeInserted.dimensionIdAndValueDict[dimension.id] = i;
-        valuesForTheVariable?.splice(i, 0, itemToBeInserted);
+        valuesForTheVariable?.splice(i, 0, itemToBeInserted as Value);
       }
     }
     return valuesForTheVariable
@@ -466,20 +450,13 @@ export default class GWFVisPluginLineChart
   }
 
   private obtainChartDataForLocation(
-    values: {
-      dimensionIdAndValueDict: {
-        [dimensionId: number]: number | null;
-      };
-      locationId: number;
-      variableId: number;
-      value: number;
-    }[],
+    values: Value[],
     locationId: number,
     variableId: number,
     dimension: Dimension
   ) {
     const valuesForTheLocation = values?.filter(
-      (d) => d.locationId.toString() === locationId.toString()
+      (d) => d.location?.id.toString() === locationId.toString()
     );
     for (let i = 0; i < dimension.size; i++) {
       if (
@@ -489,14 +466,12 @@ export default class GWFVisPluginLineChart
       ) {
         const itemToBeInserted = {
           value: FALLBACK_VALUE,
-          locationId,
-          variableId,
           dimensionIdAndValueDict: {} as {
             [dimensionId: number]: number | null;
           },
         };
         itemToBeInserted.dimensionIdAndValueDict[dimension.id] = i;
-        valuesForTheLocation?.splice(i, 0, itemToBeInserted);
+        valuesForTheLocation?.splice(i, 0, itemToBeInserted as Value);
       }
     }
     return valuesForTheLocation

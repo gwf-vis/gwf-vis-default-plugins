@@ -20,6 +20,7 @@
     "chart.js": "^4.3.1",
     "chartjs-plugin-zoom": "^2.0.1",
     "d3": "^7.8.2",
+    "d3-tricontour": "^1.0.2",
     "gwf-vis-host": "github:river-flow-vis/gwf-vis-host#6cb5f820a0759ad11e47644e4de17c463e4391d8",
     "lit": "^2.6.1",
     "marked": "^5.1.0",

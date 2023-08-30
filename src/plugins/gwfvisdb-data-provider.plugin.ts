@@ -96,6 +96,7 @@ export default class GWFVisPluginGWFVisDBDataProvider
           );
         case "values":
           return await this.queryValues(
+            dataSource,
             dataSourceForSqliteLocal,
             queryObject.filter
           );
@@ -258,6 +259,7 @@ export default class GWFVisPluginGWFVisDBDataProvider
   }
 
   private async queryValues(
+    dataSource: string,
     dataSourceForSqliteLocal: string,
     filter?: {
       location?: number | number[];
@@ -310,6 +312,11 @@ export default class GWFVisPluginGWFVisDBDataProvider
       dataSourceForSqliteLocal,
       sql
     );
+    const locations = await this.queryLocations(dataSourceForSqliteLocal);
+    const variables = await this.queryVariables(
+      dataSource,
+      dataSourceForSqliteLocal
+    );
     const values = sqlResult?.values?.map((d) => {
       const dimensionIdAndValueDict: {
         [dimensionId: number]: number | null;
@@ -318,11 +325,16 @@ export default class GWFVisPluginGWFVisDBDataProvider
         d
           ?.map((value, columnIndex) => {
             let columnName = sqlResult?.columns?.[columnIndex];
+            let modifiedValue: any = value;
             if (columnName === "location") {
-              columnName = "locationId";
+              modifiedValue = locations?.find(
+                (location) => location.id === value
+              );
             }
             if (columnName === "variable") {
-              columnName = "variableId";
+              modifiedValue = variables?.find(
+                (variable) => variable.id === value
+              );
             }
             if (columnName.startsWith("dimension_")) {
               dimensionIdAndValueDict[+columnName.substring(10)] = value as
@@ -330,9 +342,9 @@ export default class GWFVisPluginGWFVisDBDataProvider
                 | null;
               return undefined;
             }
-            return [columnName, value as SqlValue];
+            return [columnName, modifiedValue];
           })
-          .filter(Boolean) as [string, SqlValue][]
+          .filter(Boolean) as [string, any][]
       ) as { locationId: number; variableId: number; value: number };
       return { ...value, dimensionIdAndValueDict };
     });
