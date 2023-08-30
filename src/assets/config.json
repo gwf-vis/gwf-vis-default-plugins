@@ -179,24 +179,7 @@
       "props": {
         "displayName": "Contours",
         "type": "overlay",
-        "active": true,
-        "pointMode": "pushpin",
-        "colorScheme": {
-          "": {
-            "type": "sequential",
-            "scheme": ["blue", "red"]
-          },
-          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
-            "": {
-              "type": "sequential",
-              "scheme": ["green", "orange"]
-            },
-            "scalarSWE": {
-              "type": "quantize",
-              "scheme": "schemeOranges[5]"
-            }
-          }
-        }
+        "active": true
       }
     },
     {
