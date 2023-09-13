@@ -74,6 +74,12 @@ export default class GWFVisPluginLineChart
     * {
       box-sizing: border-box;
     }
+
+    #main-container {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
   `;
 
   updateSharedStatesDelegate?:
@@ -85,6 +91,7 @@ export default class GWFVisPluginLineChart
   queryDataDelegate?:
     | ((dataSource: string, queryObject: GWFVisDBQueryObject) => Promise<any>)
     | undefined;
+  checkIfPluginIsInTheLargePresenterDelegate?: (() => boolean) | undefined;
 
   #canvasRef = createRef<HTMLCanvasElement>();
   #chart?: Chart;
@@ -146,6 +153,15 @@ export default class GWFVisPluginLineChart
     }
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.checkIfPluginIsInTheLargePresenterDelegate?.()) {
+      this.style.height = "100%";
+    } else {
+      this.style.height = "300px";
+    }
+  }
+
   constructor() {
     super();
     Chart.register(zoomPlugin);
@@ -153,7 +169,7 @@ export default class GWFVisPluginLineChart
 
   render() {
     return html`
-      <canvas height="100%" width="100%" ${ref(this.#canvasRef)}></canvas>
+      <div id="main-container"><canvas ${ref(this.#canvasRef)}></canvas></div>
     `;
   }
 
@@ -376,6 +392,7 @@ export default class GWFVisPluginLineChart
               return false;
             });
           },
+          maintainAspectRatio: false,
           interaction: {
             intersect: false,
             mode: "index",
