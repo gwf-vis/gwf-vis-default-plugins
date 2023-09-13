@@ -128,49 +128,64 @@ export default class GWFVisPluginDataControl
 
   render() {
     return html`
-      <div>
-        <label>Data Source: </label>
-        <select
-          title=${ifDefined(this.currentDataSource)}
-          @change=${({ currentTarget }: Event) =>
-            (this.currentDataSource = (
-              currentTarget as HTMLSelectElement
-            )?.value)}
-        >
-          <option value="" ?selected=${!this.currentDataSource}></option>
-          ${map(
-            this.dataSources,
-            (dataSource) =>
-              html`<option
-                value=${dataSource}
-                ?selected=${dataSource === this.currentDataSource}
-              >
-                ${obtainDataSourceDisplayName(dataSource, this.dataSourceDict)}
-              </option>`
-          )}
-        </select>
-      </div>
-      <hr />
-      <div>
-        <label>Variable: </label>
-        <select
-          @change=${({ currentTarget }: Event) =>
-            (this.currentVariableId = +(currentTarget as HTMLSelectElement)
-              ?.value)}
-        >
-          <option value="" ?selected=${this.currentVariableId == null}></option>
-          ${map(
-            this.currentAvailableVariables,
-            ({ name, id }) =>
-              html`<option
-                value=${id}
-                ?selected=${id === this.currentVariableId}
-              >
-                ${name}
-              </option>`
-          )}
-        </select>
-      </div>
+      <table style="width: 100%;">
+        <tr>
+          <td>
+            <label>Data Source: </label>
+          </td>
+          <td style="text-align: end;">
+            <select
+              title=${ifDefined(this.currentDataSource)}
+              @change=${({ currentTarget }: Event) =>
+                (this.currentDataSource = (
+                  currentTarget as HTMLSelectElement
+                )?.value)}
+            >
+              <option value="" ?selected=${!this.currentDataSource}></option>
+              ${map(
+                this.dataSources,
+                (dataSource) =>
+                  html`<option
+                    value=${dataSource}
+                    ?selected=${dataSource === this.currentDataSource}
+                  >
+                    ${obtainDataSourceDisplayName(
+                      dataSource,
+                      this.dataSourceDict
+                    )}
+                  </option>`
+              )}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Variable: </label>
+          </td>
+          <td style="text-align: end;">
+            <select
+              @change=${({ currentTarget }: Event) =>
+                (this.currentVariableId = +(currentTarget as HTMLSelectElement)
+                  ?.value)}
+            >
+              <option
+                value=""
+                ?selected=${this.currentVariableId == null}
+              ></option>
+              ${map(
+                this.currentAvailableVariables,
+                ({ name, id }) =>
+                  html`<option
+                    value=${id}
+                    ?selected=${id === this.currentVariableId}
+                  >
+                    ${name}
+                  </option>`
+              )}
+            </select>
+          </td>
+        </tr>
+      </table>
       <hr />
       <div id="dimension-control-container">
         <table>
