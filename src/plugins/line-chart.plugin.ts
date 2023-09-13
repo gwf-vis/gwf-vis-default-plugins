@@ -246,7 +246,7 @@ export default class GWFVisPluginLineChart
             locations.map(async (location) => {
               let locationLabel;
               if (this.locationLabelKey) {
-                const [metadata] =
+                const [{ metadata }] =
                   (await this.queryDataDelegate?.(dataSource, {
                     for: "locations",
                     filter: {
