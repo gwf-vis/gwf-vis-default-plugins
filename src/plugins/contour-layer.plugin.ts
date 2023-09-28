@@ -178,7 +178,8 @@ export default class GWFVisPluginContourLayer
           geometry.type === "Point"
             ? { x: geometry.coordinates[0], y: geometry.coordinates[1], value }
             : undefined
-        );
+        )
+        .filter(Boolean);
 
       const thresholds = Array.isArray(this.thresholds)
         ? this.thresholds
