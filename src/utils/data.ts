@@ -58,7 +58,7 @@ export type GWFVisDBQueryObject =
       filter?: {
         location?: number | number[];
         variable?: number | number[];
-        dimensionIdAndValueDict: {
+        dimensionIdAndValueDict?: {
           [dimensionId: number]: number | number[] | undefined;
         };
       };

@@ -1,4 +1,4 @@
-import type { ScaleQuantize } from "d3";
+import type { ScaleQuantile, ScaleQuantize } from "d3";
 import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type { DataFrom, GWFVisDBQueryObject, Variable } from "../utils/data";
@@ -7,8 +7,8 @@ import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { html, LitElement, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
+import { choose } from "lit/directives/choose.js";
 import { map } from "lit/directives/map.js";
-import { when } from "lit/directives/when.js";
 import { generateColorScale, generateGradientCSSString } from "../utils/color";
 import {
   obtainCurrentColorScheme,
@@ -68,13 +68,6 @@ export default class GWFVisPluginTestDataFetcher
       this.sharedStates,
       this
     );
-    const { max, min } =
-      ((await this.queryDataDelegate?.(currentDataSource ?? "", {
-        for: "max-min-value",
-        filter: {
-          variables: currentVariable ? [currentVariable.id] : undefined,
-        },
-      })) as { max?: number; min?: number }) ?? {};
     const currentColorScheme = await obtainCurrentColorScheme(
       currentDataSource,
       currentVariable,
@@ -83,15 +76,58 @@ export default class GWFVisPluginTestDataFetcher
       this.sharedStates,
       this
     );
-    const colorScale = generateColorScale(currentColorScheme);
-    this.info = {
-      min,
-      max,
-      currentDataSource,
-      currentVariable,
-      currentColorScheme,
-      colorScale,
-    };
+    const scaleColor = generateColorScale(currentColorScheme);
+    switch (currentColorScheme?.type) {
+      case "quantile": {
+        const allValues = (
+          (await this.queryDataDelegate?.(currentDataSource ?? "", {
+            for: "values",
+            filter: { variable: currentVariable?.id },
+          })) as { value: number }[]
+        ).map(({ value }) => value);
+        if (!allValues) {
+          return;
+        }
+        scaleColor.domain(allValues);
+
+        this.info = {
+          currentDataSource,
+          currentVariable,
+          currentColorScheme,
+          colorScale: scaleColor,
+        };
+        break;
+      }
+      default: {
+        const { max, min } =
+          ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+            for: "max-min-value",
+            filter: {
+              variables: currentVariable ? [currentVariable.id] : undefined,
+            },
+          })) as { max?: number; min?: number }) ?? {};
+        if (max == null && min == null) {
+          return;
+        }
+        scaleColor.domain([min, max]);
+        this.info = {
+          min,
+          max,
+          currentDataSource,
+          currentVariable,
+          currentColorScheme,
+          colorScale: scaleColor,
+        };
+        break;
+      }
+    }
+    // const { max, min } =
+    //   ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+    //     for: "max-min-value",
+    //     filter: {
+    //       variables: currentVariable ? [currentVariable.id] : undefined,
+    //     },
+    //   })) as { max?: number; min?: number }) ?? {};
   }
 
   render() {
@@ -109,16 +145,19 @@ export default class GWFVisPluginTestDataFetcher
           ${this.info?.currentVariable?.name ?? "N/A"}
         </div>
       </div>
-      ${when(
-        this.info?.currentColorScheme?.type === "quantize",
-        () => this.renderQuantize(),
-        () => this.renderSequential()
-      )}
+      ${choose(this.info?.currentColorScheme?.type, [
+        ["sequential", () => this.renderSequential()],
+        ["quantile", () => this.renderQuantileOrQuantize()],
+        ["quantize", () => this.renderQuantileOrQuantize()],
+      ])}
     `;
   }
 
-  private renderQuantize() {
-    const colorScale = this.info?.colorScale as ScaleQuantize<any> | undefined;
+  private renderQuantileOrQuantize() {
+    const colorScale = this.info?.colorScale as
+      | ScaleQuantize<any>
+      | ScaleQuantile<any, never>
+      | undefined;
     if (!colorScale) {
       return;
     }

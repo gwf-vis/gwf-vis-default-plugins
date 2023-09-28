@@ -190,14 +190,6 @@ export default class GWFVisPluginGeoJSONLayer
       this.sharedStates,
       this
     );
-    const { max, min } =
-      ((await this.queryDataDelegate?.(currentDataSource ?? "", {
-        for: "max-min-value",
-        filter: { variables: [currentVariable?.id] },
-      })) as { max?: number; min?: number }) ?? {};
-    if (max == null && min == null) {
-      return;
-    }
     const currentColorScheme = await obtainCurrentColorScheme(
       currentDataSource,
       currentVariable,
@@ -206,10 +198,34 @@ export default class GWFVisPluginGeoJSONLayer
       this.sharedStates,
       this
     );
-    const scaleColor = generateColorScale(currentColorScheme).domain([
-      min as number,
-      max as number,
-    ]) as (value: number) => any;
+    const scaleColor = generateColorScale(currentColorScheme);
+    switch (currentColorScheme?.type) {
+      case "quantile": {
+        const allValues = (
+          (await this.queryDataDelegate?.(currentDataSource ?? "", {
+            for: "values",
+            filter: { variable: currentVariable?.id },
+          })) as { value: number }[]
+        ).map(({ value }) => value);
+        if (!allValues) {
+          return;
+        }
+        scaleColor.domain(allValues);
+        break;
+      }
+      default: {
+        const { max, min } =
+          ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+            for: "max-min-value",
+            filter: { variables: [currentVariable?.id] },
+          })) as { max?: number; min?: number }) ?? {};
+        if (max == null && min == null) {
+          return;
+        }
+        scaleColor.domain([min, max]);
+        break;
+      }
+    }
     this.#geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(

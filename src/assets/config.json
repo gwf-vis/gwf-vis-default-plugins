@@ -89,7 +89,7 @@
               "scheme": ["green", "orange"]
             },
             "scalarSWE": {
-              "type": "quantize",
+              "type": "quantile",
               "scheme": "schemeOranges[5]"
             }
           }
@@ -188,9 +188,25 @@
       "props": {
         "displayName": "GeoJSON",
         "type": "overlay",
-        "active": false,
+        "active": true,
         "dataFrom": {
           "dataSource": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb"
+        },
+        "colorScheme": {
+          "": {
+            "type": "sequential",
+            "scheme": ["blue", "red"]
+          },
+          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
+            "": {
+              "type": "sequential",
+              "scheme": ["green", "orange"]
+            },
+            "scalarSWE": {
+              "type": "quantile",
+              "scheme": "schemeOranges[5]"
+            }
+          }
         }
       }
     },

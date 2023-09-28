@@ -264,7 +264,7 @@ export default class GWFVisPluginGWFVisDBDataProvider
     filter?: {
       location?: number | number[];
       variable?: number | number[];
-      dimensionIdAndValueDict: {
+      dimensionIdAndValueDict?: {
         [dimensionId: number]: number | number[] | undefined;
       };
     }
