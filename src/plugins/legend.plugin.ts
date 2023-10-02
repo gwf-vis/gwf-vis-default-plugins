@@ -1,5 +1,4 @@
 import {
-  color,
   type ScaleQuantile,
   type ScaleQuantize,
   type ScaleThreshold,
@@ -155,12 +154,12 @@ export default class GWFVisPluginTestDataFetcher
         ["sequential", () => this.renderSequential()],
         ["quantile", () => this.renderNonSequential()],
         ["quantize", () => this.renderNonSequential()],
-        ["threshold", () => this.renderNonSequential(true)],
+        ["threshold", () => this.renderNonSequential()],
       ])}
     `;
   }
 
-  private renderNonSequential(isThreshold?: boolean) {
+  private renderNonSequential() {
     let colorScale = this.info?.colorScale as
       | ScaleQuantize<any>
       | ScaleQuantile<any, never>
