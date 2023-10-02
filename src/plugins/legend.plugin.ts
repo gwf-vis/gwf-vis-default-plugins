@@ -1,4 +1,9 @@
-import type { ScaleQuantile, ScaleQuantize } from "d3";
+import {
+  color,
+  type ScaleQuantile,
+  type ScaleQuantize,
+  type ScaleThreshold,
+} from "d3";
 import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type { DataFrom, GWFVisDBQueryObject, Variable } from "../utils/data";
@@ -98,6 +103,14 @@ export default class GWFVisPluginTestDataFetcher
         };
         break;
       }
+      case "threshold":
+        this.info = {
+          currentDataSource,
+          currentVariable,
+          currentColorScheme,
+          colorScale: scaleColor,
+        };
+        break;
       default: {
         const { max, min } =
           ((await this.queryDataDelegate?.(currentDataSource ?? "", {
@@ -121,13 +134,6 @@ export default class GWFVisPluginTestDataFetcher
         break;
       }
     }
-    // const { max, min } =
-    //   ((await this.queryDataDelegate?.(currentDataSource ?? "", {
-    //     for: "max-min-value",
-    //     filter: {
-    //       variables: currentVariable ? [currentVariable.id] : undefined,
-    //     },
-    //   })) as { max?: number; min?: number }) ?? {};
   }
 
   render() {
@@ -147,23 +153,38 @@ export default class GWFVisPluginTestDataFetcher
       </div>
       ${choose(this.info?.currentColorScheme?.type, [
         ["sequential", () => this.renderSequential()],
-        ["quantile", () => this.renderQuantileOrQuantize()],
-        ["quantize", () => this.renderQuantileOrQuantize()],
+        ["quantile", () => this.renderNonSequential()],
+        ["quantize", () => this.renderNonSequential()],
+        ["threshold", () => this.renderNonSequential(true)],
       ])}
     `;
   }
 
-  private renderQuantileOrQuantize() {
-    const colorScale = this.info?.colorScale as
+  private renderNonSequential(isThreshold?: boolean) {
+    let colorScale = this.info?.colorScale as
       | ScaleQuantize<any>
       | ScaleQuantile<any, never>
+      | (ScaleThreshold<number, any, never> & { minValue: number })
       | undefined;
     if (!colorScale) {
       return;
     }
     const extents = colorScale
       .range()
-      .map((color) => colorScale.invertExtent(color));
+      .map((color) => colorScale!.invertExtent(color));
+    if (
+      (colorScale as ScaleThreshold<number, any, never> & { minValue: number })
+        .minValue != null
+    ) {
+      const item = extents[0];
+      if (item) {
+        item[0] = (
+          colorScale as ScaleThreshold<number, any, never> & {
+            minValue: number;
+          }
+        ).minValue;
+      }
+    }
     const ticks =
       extents?.length > 0
         ? [extents[0][0], ...extents.map((extent) => extent[1])]

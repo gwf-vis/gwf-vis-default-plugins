@@ -213,6 +213,8 @@ export default class GWFVisPluginGeoJSONLayer
         scaleColor.domain(allValues);
         break;
       }
+      case "threshold":
+        break;
       default: {
         const { max, min } =
           ((await this.queryDataDelegate?.(currentDataSource ?? "", {

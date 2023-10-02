@@ -83,6 +83,13 @@
             "type": "sequential",
             "scheme": ["blue", "red"]
           },
+          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb": {
+            "SNO": {
+              "type": "threshold",
+              "scheme": "schemeOranges[5]",
+              "thresholds": [0, 5, 50, 100, 200, 700]
+            }
+          },
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
             "": {
               "type": "sequential",
@@ -189,13 +196,17 @@
         "displayName": "GeoJSON",
         "type": "overlay",
         "active": true,
-        "dataFrom": {
-          "dataSource": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb"
-        },
         "colorScheme": {
           "": {
             "type": "sequential",
             "scheme": ["blue", "red"]
+          },
+          "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb": {
+            "SNO": {
+              "type": "threshold",
+              "scheme": "schemeOranges[5]",
+              "thresholds": [0, 5, 50, 100, 200, 700]
+            }
           },
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb": {
             "": {
