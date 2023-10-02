@@ -29,7 +29,7 @@
     },
     {
       "import": "gwf-default.sqlite-local-data-provider",
-      "container": ""
+      "container": "sidebar"
     },
     {
       "import": "gwf-default.gwfvisdb-data-provider",
@@ -102,6 +102,7 @@
           }
         },
         "dataSourceDict": {
+          "mesh-local-file": "gwfvisdb:file:test/mesh.gwfvisdb",
           "mesh": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "catchment": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
           "prairie-water": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb",
@@ -116,6 +117,7 @@
       "props": {
         "header": "My Data Control",
         "dataSources": [
+          "gwfvisdb:file:test/mesh.gwfvisdb",
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb",
@@ -123,6 +125,7 @@
           "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/permafrost_reduced_fill_null.gwfvisdb"
         ],
         "dataSourceDict": {
+          "mesh-local-file": "gwfvisdb:file:test/mesh.gwfvisdb",
           "mesh": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/mesh.new.gwfvisdb",
           "catchment": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/catchment.gwfvisdb",
           "prairie-water": "gwfvisdb:https://gwf-vis.usask.ca/v1/api/file/fetch/public/datasets/prairie-water-2005.gwfvisdb",
