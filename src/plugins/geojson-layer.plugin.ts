@@ -5,7 +5,7 @@ import type {
   LayerType,
   leaflet,
   SharedStates,
-} from "gwf-vis-host";
+} from "vga-vis-host";
 import { LocationSelection, runAsyncWithLoading } from "../utils/basic";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type {

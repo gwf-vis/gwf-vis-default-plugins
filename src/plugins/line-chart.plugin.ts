@@ -2,7 +2,7 @@ import type {
   GWFVisPlugin,
   GWFVisPluginWithData,
   GWFVisPluginWithSharedStates,
-} from "gwf-vis-host";
+} from "vga-vis-host";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import Chart, { PointElement } from "chart.js/auto";

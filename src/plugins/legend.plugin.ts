@@ -3,7 +3,7 @@ import {
   type ScaleQuantize,
   type ScaleThreshold,
 } from "d3";
-import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
+import type { GWFVisPlugin, GWFVisPluginWithData } from "vga-vis-host";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type { DataFrom, GWFVisDBQueryObject, Variable } from "../utils/data";
 import type { DataSourceNameDict } from "../utils/data-source-name-dict";

@@ -3,7 +3,7 @@ import type {
   GWFVisPluginWithData,
   GWFVisPluginWithSharedStates,
   SharedStates,
-} from "gwf-vis-host";
+} from "vga-vis-host";
 import type { DimensionValueDict } from "../utils/basic";
 import type {
   VariableWithDimensions,

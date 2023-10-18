@@ -4,7 +4,7 @@ import type {
   LayerType,
   SharedStates,
   leaflet,
-} from "gwf-vis-host";
+} from "vga-vis-host";
 import { tricontour } from "d3-tricontour";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import { LocationSelection, runAsyncWithLoading } from "../utils/basic";

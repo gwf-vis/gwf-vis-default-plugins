@@ -1,4 +1,4 @@
-import type { GWFVisPluginWithData } from "gwf-vis-host";
+import type { GWFVisPluginWithData } from "vga-vis-host";
 import type { GWFVisDefaultPluginSharedStates } from "./state";
 
 export type LocationSelection = {

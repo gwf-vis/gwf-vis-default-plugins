@@ -4,7 +4,7 @@ import type {
   GWFVisPluginWithData,
   GWFVisPluginWithSharedStates,
   SharedStates,
-} from "gwf-vis-host";
+} from "vga-vis-host";
 import { html, css, LitElement } from "lit";
 import { runAsyncWithLoading } from "../utils/basic";
 import { SqlValue } from "sql.js";

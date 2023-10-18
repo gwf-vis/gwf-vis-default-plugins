@@ -1,4 +1,4 @@
-import type { SharedStates } from "gwf-vis-host";
+import type { SharedStates } from "vga-vis-host";
 import type {
   CallerPlugin,
   DimensionValueDict,

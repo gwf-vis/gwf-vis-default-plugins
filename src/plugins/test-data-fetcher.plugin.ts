@@ -1,4 +1,4 @@
-import type { GWFVisPlugin, GWFVisPluginWithData } from "gwf-vis-host";
+import type { GWFVisPlugin, GWFVisPluginWithData } from "vga-vis-host";
 import type { QueryExecResult } from "sql.js";
 import { css, html, LitElement } from "lit";
 import { map } from "lit/directives/map.js";

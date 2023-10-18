@@ -1,4 +1,4 @@
-import type { GWFVisPlugin, GWFVisPluginWithSharedStates } from "gwf-vis-host";
+import type { GWFVisPlugin, GWFVisPluginWithSharedStates } from "vga-vis-host";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { css, html, LitElement } from "lit";
