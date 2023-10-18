@@ -1,14 +1,18 @@
-import type { GWFVisDataProviderPlugin, GWFVisPlugin } from "vga-vis-host";
+import type {
+  GWFVisDataProviderPlugin,
+  GWFVisPlugin,
+  GWFVisPluginWithFileAccess,
+} from "vga-vis-host";
 import { html, css, LitElement } from "lit";
 import initSqlJs, { Database } from "sql.js";
 import sqlJsWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 import { runAsyncWithLoading } from "../utils/basic";
-import { createRef, ref } from "lit/directives/ref.js";
 
 export default class GWFVisPluginSqliteLocalDataProvider
   extends LitElement
   implements
     GWFVisPlugin,
+    GWFVisPluginWithFileAccess,
     GWFVisDataProviderPlugin<string, initSqlJs.QueryExecResult | undefined>
 {
   static styles = css`
@@ -26,18 +30,12 @@ export default class GWFVisPluginSqliteLocalDataProvider
 
   #SQL?: initSqlJs.SqlJsStatic;
   #dbInstanceMap = new Map<string, Database>();
-  #dialogRef = createRef<HTMLDialogElement>();
-  #directoryHandle?: FileSystemDirectoryHandle;
+
+  rootDirectoryHandle?: FileSystemDirectoryHandle;
 
   obtainHeaderCallback = () => `sqlite-local Data Provider`;
 
   obtainDataProviderIdentifiersCallback = () => ["sqlite-local"];
-
-  firstUpdated() {
-    if (!this.#directoryHandle) {
-      this.#dialogRef.value?.showModal();
-    }
-  }
 
   async queryDataCallback(
     _identifier: string,
@@ -55,23 +53,7 @@ export default class GWFVisPluginSqliteLocalDataProvider
   }
 
   render() {
-    return html`
-      <i>sqlite-local</i> Data Provider
-      <dialog ${ref(this.#dialogRef)}>
-        You are using the sqlite local file data provider, Please select a root
-        directory by click the button below.
-        <hr />
-        <gwf-vis-ui-button
-          @click=${async () => {
-            this.#directoryHandle = (await (
-              window as any
-            ).showDirectoryPicker()) as FileSystemDirectoryHandle;
-            this.#dialogRef.value?.close();
-          }}
-          >Select Root Directory</gwf-vis-ui-button
-        >
-      </dialog>
-    `;
+    return html` <i>sqlite-local</i> Data Provider `;
   }
 
   private async obtainDbInstance(dataSource: string) {
@@ -88,12 +70,12 @@ export default class GWFVisPluginSqliteLocalDataProvider
     const dbUrl = dataSource;
     let dbBuffer: ArrayBuffer | undefined;
     if (dbUrl.startsWith("file:")) {
-      if (!this.#directoryHandle) {
-        alert("No root directory has been selected.");
+      if (!this.rootDirectoryHandle) {
+        alert("No root directory access permission has been granted.");
         return;
       }
       const subpaths = dbUrl.replace(/^file:/, "").split("/");
-      let walker = this.#directoryHandle;
+      let walker = this.rootDirectoryHandle;
       for (const subpath of subpaths.slice(0, -1)) {
         walker = await walker.getDirectoryHandle(subpath);
       }

@@ -1,6 +1,7 @@
 {
   "fileBasePath": "",
   "preferCanvas": false,
+  "accessLocalFiles": true,
   "view": {
     "center": [51, -116],
     "zoom": 9
