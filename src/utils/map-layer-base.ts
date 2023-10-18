@@ -3,7 +3,7 @@ import {
   GWFVisMapPlugin,
   GWFVisPlugin,
   LayerType,
-} from "gwf-vis-host";
+} from "vga-vis-host";
 import { css, html, LitElement } from "lit";
 import { property } from "lit/decorators";
 

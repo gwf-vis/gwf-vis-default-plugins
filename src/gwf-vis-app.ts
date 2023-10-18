@@ -1,5 +1,5 @@
 import { GWFVisHost } from "vga-vis-host";
-import { GWFVisHostConfig } from "vga-vis-host/types/utils/vga-vis-host-config";
+import { GWFVisHostConfig } from "vga-vis-host/types/utils/gwf-vis-host-config";
 import { html, css, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ref } from "lit/directives/ref.js";
