@@ -13,6 +13,7 @@ import { html, LitElement, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { choose } from "lit/directives/choose.js";
 import { map } from "lit/directives/map.js";
+import { when } from "lit/directives/when.js";
 import { generateColorScale, generateGradientCSSString } from "../utils/color";
 import {
   obtainCurrentColorScheme,
@@ -150,12 +151,18 @@ export default class GWFVisPluginTestDataFetcher
           ${this.info?.currentVariable?.name ?? "N/A"}
         </div>
       </div>
-      ${choose(this.info?.currentColorScheme?.type, [
-        ["sequential", () => this.renderSequential()],
-        ["quantile", () => this.renderNonSequential()],
-        ["quantize", () => this.renderNonSequential()],
-        ["threshold", () => this.renderNonSequential()],
-      ])}
+      ${when(this.info, () =>
+        choose(
+          this.info?.currentColorScheme?.type,
+          [
+            ["sequential", () => this.renderSequential()],
+            ["quantile", () => this.renderNonSequential()],
+            ["quantize", () => this.renderNonSequential()],
+            ["threshold", () => this.renderNonSequential()],
+          ],
+          () => this.renderSequential()
+        )
+      )}
     `;
   }
 
@@ -223,7 +230,9 @@ export default class GWFVisPluginTestDataFetcher
       <div>
         <div
           style="height: 1em; background: ${generateGradientCSSString(
-            this.info?.colorScale
+            this.info?.colorScale,
+            this.info?.min,
+            this.info?.max
           )};"
         ></div>
         <div style="display: flex; flex-wrap: nowrap;">
