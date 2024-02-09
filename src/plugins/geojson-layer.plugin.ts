@@ -65,6 +65,7 @@ export default class GWFVisPluginGeoJSONLayer
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
   pointMode?: "pushpin" | "circle" = "circle";
+  pointSize?: number = 10;
 
   #geojson?: GeoJsonObject | GeoJsonObject[] | string;
   get geojson() {
@@ -116,7 +117,7 @@ export default class GWFVisPluginGeoJSONLayer
           case "pushpin":
             return new globalThis.L.Marker(latlng, { icon: PUSH_PIN_ICON });
           default:
-            return new globalThis.L.CircleMarker(latlng, { radius: 10 });
+            return new globalThis.L.CircleMarker(latlng, { radius: this.pointSize });
         }
       },
       onEachFeature: (feature, layer) => {
