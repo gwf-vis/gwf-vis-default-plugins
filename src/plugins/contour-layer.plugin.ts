@@ -72,6 +72,8 @@ export default class GWFVisPluginContourLayer
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
   thresholds?: number | number[] = 5;
+  lineWeight?: number = 0;
+  opacity?: number = 0.5;
 
   obtainHeaderCallback = () => `Contour Layer - ${this.displayName}`;
 
@@ -183,7 +185,7 @@ export default class GWFVisPluginContourLayer
 
       const thresholds = Array.isArray(this.thresholds)
         ? this.thresholds
-        : this.obtainQuantile(
+        : this.obtainQuantize(
             minValue ?? Number.NaN,
             maxValue ?? Number.NaN,
             this.thresholds ?? 5
@@ -204,7 +206,7 @@ export default class GWFVisPluginContourLayer
         })),
       } as GeoJSON.GeoJSON;
       const defaultStyle = {
-        weight: 0,
+        weight: this.lineWeight,
       };
 
       this.#contourLayerInstance?.clearLayers();
@@ -212,7 +214,7 @@ export default class GWFVisPluginContourLayer
       this.#contourLayerInstance?.setStyle(({ geometry }: any) => ({
         ...defaultStyle,
         color: (scaleColor as any)(geometry["value"]) as any,
-        opacity: 0.5,
+        opacity: this.opacity,
       }));
     }, this);
   }
@@ -275,7 +277,7 @@ export default class GWFVisPluginContourLayer
     return result;
   }
 
-  private obtainQuantile(min: number, max: number, count: number) {
+  private obtainQuantize(min: number, max: number, count: number) {
     // check if parameters are valid numbers
     if (isNaN(min) || isNaN(max) || isNaN(count)) {
       throw Error("Invalid input");
