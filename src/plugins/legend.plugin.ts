@@ -182,9 +182,9 @@ export default class GWFVisPluginTestDataFetcher
     const ticks =
       extents?.length > 0
         ? [
-            Number.NEGATIVE_INFINITY,
+            extents.at(0)?.[0],
             ...extents.map((extent) => extent[1]).slice(0, -1),
-            Number.POSITIVE_INFINITY,
+            extents.at(-1)?.[1],
           ]
         : undefined;
     return html`
@@ -211,7 +211,7 @@ export default class GWFVisPluginTestDataFetcher
               >
                 ${Number.isFinite(tick)
                   ? tick?.toFixed(this.fractionDigits)
-                  : "N/A"}
+                  : "~"}
               </div>`
           )}
         </div>
