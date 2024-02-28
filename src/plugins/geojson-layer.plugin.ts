@@ -117,7 +117,9 @@ export default class GWFVisPluginGeoJSONLayer
           case "pushpin":
             return new globalThis.L.Marker(latlng, { icon: PUSH_PIN_ICON });
           default:
-            return new globalThis.L.CircleMarker(latlng, { radius: this.pointSize });
+            return new globalThis.L.CircleMarker(latlng, {
+              radius: this.pointSize,
+            });
         }
       },
       onEachFeature: (feature, layer) => {
@@ -211,7 +213,7 @@ export default class GWFVisPluginGeoJSONLayer
         if (!allValues) {
           return;
         }
-        scaleColor.domain(allValues);
+        (scaleColor as d3.ScaleQuantile<any, never>).domain(allValues);
         break;
       }
       case "threshold":
@@ -222,10 +224,10 @@ export default class GWFVisPluginGeoJSONLayer
             for: "max-min-value",
             filter: { variables: [currentVariable?.id] },
           })) as { max?: number; min?: number }) ?? {};
-        if (max == null && min == null) {
-          return;
-        }
-        scaleColor.domain([min, max]);
+        scaleColor.domain([
+          min ?? Number.NEGATIVE_INFINITY,
+          max ?? Number.POSITIVE_INFINITY,
+        ]);
         break;
       }
     }

@@ -123,9 +123,8 @@ function generateThresholdColorScale(
     number,
     any,
     never
-  > & { minValue: number };
-  scaleThreshold.domain(thresholds.slice(1));
-  scaleThreshold.minValue = thresholds[0];
+  >;
+  scaleThreshold.domain(thresholds);
   return scaleThreshold;
 }
 

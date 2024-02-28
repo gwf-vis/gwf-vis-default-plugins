@@ -24,6 +24,7 @@ import {
 } from "../utils/state";
 import { ColorSchemeDefinition, generateColorScale } from "../utils/color";
 import { obtainObjectChangedPropertyNameSet } from "../utils/state";
+import { ScaleThreshold } from "d3";
 
 export default class GWFVisPluginContourLayer
   extends GWFVisMapLayerPluginBase
@@ -71,7 +72,6 @@ export default class GWFVisPluginContourLayer
   colorScheme?: {
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
-  thresholds?: number | number[] = 5;
   lineWeight?: number = 0;
   opacity?: number = 0.5;
 
@@ -120,59 +120,82 @@ export default class GWFVisPluginContourLayer
 
   private async updateMap() {
     await runAsyncWithLoading(async () => {
-      const dataSource = obtainCurrentDataSource(
+      const currentDataSource = obtainCurrentDataSource(
         this.dataFrom,
         this.sharedStates
       );
-      if (!dataSource) {
+      if (!currentDataSource) {
         return;
       }
-      const variable = await obtainCurrentVariable(
-        dataSource,
+      const currentVariable = await obtainCurrentVariable(
+        currentDataSource,
         this.dataFrom,
         this.sharedStates,
         this
       );
       const dimensionIdAndValueDict =
-        await this.obtainCurrentDimensionIdAndValueDict(dataSource, variable);
+        await this.obtainCurrentDimensionIdAndValueDict(
+          currentDataSource,
+          currentVariable
+        );
 
-      if (!variable || !dimensionIdAndValueDict) {
+      if (!currentVariable || !dimensionIdAndValueDict) {
         return;
       }
-      let values: Value[] | undefined,
-        maxValue: number | undefined,
-        minValue: number | undefined;
-      values = await this.queryDataDelegate?.(dataSource, {
+      let values: Value[] | undefined;
+      values = await this.queryDataDelegate?.(currentDataSource, {
         for: "values",
         filter: {
-          variable: variable?.id,
+          variable: currentVariable?.id,
           dimensionIdAndValueDict,
         },
       });
-      ({ min: minValue, max: maxValue } = ((await this.queryDataDelegate?.(
-        dataSource,
-        {
-          for: "max-min-value",
-          filter: {
-            variables: [variable?.id],
-          },
-        }
-      )) as { min?: number; max?: number }) ?? {
-        min: undefined,
-        max: undefined,
-      });
       const currentColorScheme = await obtainCurrentColorScheme(
-        dataSource,
-        variable,
+        currentDataSource,
+        currentVariable,
         this.dataFrom,
         this.colorScheme,
         this.sharedStates,
         this
       );
-      const scaleColor = generateColorScale(currentColorScheme).domain([
-        minValue ?? Number.NaN,
-        maxValue ?? Number.NaN,
-      ]);
+      const scaleColor = generateColorScale(currentColorScheme);
+      switch (currentColorScheme?.type) {
+        case "quantile": {
+          const allValues = (
+            (await this.queryDataDelegate?.(currentDataSource ?? "", {
+              for: "values",
+              filter: { variable: currentVariable?.id },
+            })) as { value: number }[]
+          ).map(({ value }) => value);
+          if (!allValues) {
+            return;
+          }
+          (scaleColor as d3.ScaleQuantile<any, never>).domain(allValues);
+          break;
+        }
+        case "quantize": {
+          const { max, min } =
+            ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+              for: "max-min-value",
+              filter: { variables: [currentVariable?.id] },
+            })) as { max?: number; min?: number }) ?? {};
+          (
+            scaleColor as
+              | d3.ScaleQuantize<any, never>
+              | d3.ScaleSequential<any, never>
+          ).domain([
+            min ?? Number.NEGATIVE_INFINITY,
+            max ?? Number.POSITIVE_INFINITY,
+          ]);
+          break;
+        }
+        case "threshold":
+          break;
+        default:
+          throw new Error(
+            `The color scheme type (${currentColorScheme?.type}) is not supported for contour layer.`
+          );
+      }
 
       const data = values
         ?.filter(({ value }) => value != null)
@@ -183,15 +206,17 @@ export default class GWFVisPluginContourLayer
         )
         .filter(Boolean);
 
-      const thresholds = Array.isArray(this.thresholds)
-        ? this.thresholds
-        : this.obtainQuantize(
-            minValue ?? Number.NaN,
-            maxValue ?? Number.NaN,
-            this.thresholds ?? 5
-          );
-      (scaleColor as any)?.domain(thresholds.sort());
-
+      const thresholds = (scaleColor as ScaleThreshold<number, any, never>)
+        .range()
+        .map(
+          (clr) =>
+            (scaleColor as ScaleThreshold<number, any, never>).invertExtent(
+              clr
+            )?.[0]
+        );
+      if (Number.isNaN(thresholds[0])) {
+        thresholds[0] = Number.NEGATIVE_INFINITY;
+      }
       const contours = tricontour()
         .x((d: { x: number }) => d.x)
         .y((d: { y: number }) => d.y)
@@ -274,27 +299,6 @@ export default class GWFVisPluginContourLayer
       result && (result[id] = value);
       return true;
     });
-    return result;
-  }
-
-  private obtainQuantize(min: number, max: number, count: number) {
-    // check if parameters are valid numbers
-    if (isNaN(min) || isNaN(max) || isNaN(count)) {
-      throw Error("Invalid input");
-    }
-    // check if count is positive integer
-    if (count < 1 || !Number.isInteger(count)) {
-      throw Error("Count must be positive integer");
-    }
-    // create an empty array to store quantiles
-    let result = [];
-    // calculate the interval size between quantiles
-    let interval = (max - min) / count;
-    // loop through count times and push quantiles to result array
-    for (let i = 1; i < count; i++) {
-      result.push(min + i * interval);
-    }
-    // return result array
     return result;
   }
 

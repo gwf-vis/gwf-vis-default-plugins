@@ -119,10 +119,11 @@ export default class GWFVisPluginTestDataFetcher
               variables: currentVariable ? [currentVariable.id] : undefined,
             },
           })) as { max?: number; min?: number }) ?? {};
-        if (max == null && min == null) {
-          return;
-        }
-        scaleColor.domain([min, max]);
+
+        scaleColor.domain([
+          min ?? Number.NEGATIVE_INFINITY,
+          max ?? Number.POSITIVE_INFINITY,
+        ]);
         this.info = {
           min,
           max,
@@ -170,7 +171,7 @@ export default class GWFVisPluginTestDataFetcher
     let colorScale = this.info?.colorScale as
       | ScaleQuantize<any>
       | ScaleQuantile<any, never>
-      | (ScaleThreshold<number, any, never> & { minValue: number })
+      | ScaleThreshold<number, any, never>
       | undefined;
     if (!colorScale) {
       return;
@@ -178,22 +179,13 @@ export default class GWFVisPluginTestDataFetcher
     const extents = colorScale
       .range()
       .map((color) => colorScale!.invertExtent(color));
-    if (
-      (colorScale as ScaleThreshold<number, any, never> & { minValue: number })
-        .minValue != null
-    ) {
-      const item = extents[0];
-      if (item) {
-        item[0] = (
-          colorScale as ScaleThreshold<number, any, never> & {
-            minValue: number;
-          }
-        ).minValue;
-      }
-    }
     const ticks =
       extents?.length > 0
-        ? [extents[0][0], ...extents.map((extent) => extent[1])]
+        ? [
+            Number.NEGATIVE_INFINITY,
+            ...extents.map((extent) => extent[1]),
+            Number.POSITIVE_INFINITY,
+          ]
         : undefined;
     return html`
       <div>
@@ -217,7 +209,9 @@ export default class GWFVisPluginTestDataFetcher
               html`<div
                 style="flex: 1; height: 100%; margin: 0 0.5em; text-align: center;"
               >
-                ${tick?.toFixed(this.fractionDigits)}
+                ${Number.isFinite(tick)
+                  ? tick?.toFixed(this.fractionDigits)
+                  : "N/A"}
               </div>`
           )}
         </div>
