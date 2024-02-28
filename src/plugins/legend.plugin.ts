@@ -183,7 +183,7 @@ export default class GWFVisPluginTestDataFetcher
       extents?.length > 0
         ? [
             Number.NEGATIVE_INFINITY,
-            ...extents.map((extent) => extent[1]),
+            ...extents.map((extent) => extent[1]).slice(0, -1),
             Number.POSITIVE_INFINITY,
           ]
         : undefined;
