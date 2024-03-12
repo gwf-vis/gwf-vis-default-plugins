@@ -287,13 +287,19 @@ export default class GWFVisPluginGWFVisDBDataProvider
           : "";
       let dimensionConditonClause = filter.dimensionIdAndValueDict
         ? Object.entries(filter.dimensionIdAndValueDict)
-            .map(([id, value]) =>
-              value != null
-                ? `dimension_${id} IN (${this.makeSingleOrArrayAsArray(
+            .map(([id, value]) => {
+              debugger
+              switch (value) {
+                case undefined:
+                  return "";
+                case null:
+                  return `dimension_${id} IS NULL`;
+                default:
+                  return `dimension_${id} IN (${this.makeSingleOrArrayAsArray(
                     value
-                  ).join(", ")})`
-                : ""
-            )
+                  ).join(", ")})`;
+              }
+            })
             .filter(Boolean)
             .join(" AND ")
         : "";
