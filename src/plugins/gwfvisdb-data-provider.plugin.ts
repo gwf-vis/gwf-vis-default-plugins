@@ -288,7 +288,6 @@ export default class GWFVisPluginGWFVisDBDataProvider
       let dimensionConditonClause = filter.dimensionIdAndValueDict
         ? Object.entries(filter.dimensionIdAndValueDict)
             .map(([id, value]) => {
-              debugger
               switch (value) {
                 case undefined:
                   return "";

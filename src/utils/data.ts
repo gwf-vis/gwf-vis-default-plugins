@@ -33,6 +33,8 @@ export type Value = {
 export type DataFrom = {
   dataSource?: string;
   variableName?: string;
+  secondaryVariableName?: string;
+  tertiaryVariableName?: string;
   dimensionValueDict?: { [dimension: string]: number };
 };
 

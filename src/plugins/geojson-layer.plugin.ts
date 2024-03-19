@@ -26,6 +26,7 @@ import {
   obtainCurrentVariable,
 } from "../utils/state";
 import { obtainObjectChangedPropertyNameSet } from "../utils/state";
+import { scaleLinear } from "d3";
 
 const PUSH_PIN_ICON = globalThis.L.icon({
   iconUrl:
@@ -55,12 +56,20 @@ export default class GWFVisPluginGeoJSONLayer
   #geojsonLayerInstance?: leaflet.GeoJSON;
   #currentLocations?: Location[];
   #previousSharedStates?: GWFVisDefaultPluginSharedStates;
+  #pinnedLocationSecondaryColorCache: Record<string, Record<number, string>> =
+    {};
+  #pinnedLocationTertiaryLineWeightCache: Record<
+    string,
+    Record<number, number>
+  > = {};
 
   displayName: string = "geojson layer";
   type: LayerType = "overlay";
   active: boolean = false;
   options?: leaflet.GeoJSONOptions;
   dataFrom?: DataFrom;
+  secondaryDataFrom?: DataFrom;
+  tertiaryDataFrom?: DataFrom;
   colorScheme?: {
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
@@ -92,6 +101,8 @@ export default class GWFVisPluginGeoJSONLayer
         await this.updateMap();
       } else if (
         changedProps.has("gwf-default.currentVariableId") ||
+        changedProps.has("gwf-default.currentSecondaryVariableId") ||
+        changedProps.has("gwf-default.currentTertiaryVariableId") ||
         changedProps.has("gwf-default.dimensionValueDict")
       ) {
         await this.updateData();
@@ -191,6 +202,7 @@ export default class GWFVisPluginGeoJSONLayer
       currentDataSource,
       this.dataFrom,
       this.sharedStates,
+      "primary",
       this
     );
     const currentColorScheme = await obtainCurrentColorScheme(
@@ -199,6 +211,7 @@ export default class GWFVisPluginGeoJSONLayer
       this.dataFrom,
       this.colorScheme,
       this.sharedStates,
+      "primary",
       this
     );
     const scaleColor = generateColorScale(currentColorScheme);
@@ -231,28 +244,164 @@ export default class GWFVisPluginGeoJSONLayer
         break;
       }
     }
+
+    // TODO refactor
+    const currentSecondaryVariable = await obtainCurrentVariable(
+      currentDataSource,
+      this.secondaryDataFrom,
+      this.sharedStates,
+      "secondary",
+      this
+    );
+    const currentSecondaryColorScheme =
+      currentSecondaryVariable &&
+      (await obtainCurrentColorScheme(
+        currentDataSource,
+        currentSecondaryVariable,
+        this.secondaryDataFrom,
+        this.colorScheme,
+        this.sharedStates,
+        "secondary",
+        this
+      ));
+    const scaleSecondaryColor =
+      currentSecondaryVariable &&
+      generateColorScale(currentSecondaryColorScheme);
+    if (currentSecondaryVariable) {
+      switch (currentSecondaryColorScheme?.type) {
+        case "quantile": {
+          const allValues = (
+            (await this.queryDataDelegate?.(currentDataSource ?? "", {
+              for: "values",
+              filter: { variable: currentSecondaryVariable?.id },
+            })) as { value: number }[]
+          ).map(({ value }) => value);
+          if (!allValues) {
+            return;
+          }
+          (scaleSecondaryColor as d3.ScaleQuantile<any, never>)?.domain(
+            allValues
+          );
+          break;
+        }
+        case "threshold":
+          break;
+        default: {
+          const { max, min } =
+            ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+              for: "max-min-value",
+              filter: { variables: [currentSecondaryVariable?.id] },
+            })) as { max?: number; min?: number }) ?? {};
+          scaleSecondaryColor?.domain([
+            min ?? Number.NEGATIVE_INFINITY,
+            max ?? Number.POSITIVE_INFINITY,
+          ]);
+          break;
+        }
+      }
+    }
+
+    // TODO refactor
+    const currentTertiaryVariable = await obtainCurrentVariable(
+      currentDataSource,
+      this.tertiaryDataFrom,
+      this.sharedStates,
+      "tertiary",
+      this
+    );
+    const { max = Number.POSITIVE_INFINITY, min = Number.NEGATIVE_INFINITY } =
+      ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+        for: "max-min-value",
+        filter: { variables: [currentTertiaryVariable?.id] },
+      })) as { max?: number; min?: number }) ?? {};
+    const lineWeightScale = scaleLinear([1, 10]).domain([min, max]);
+
     this.#geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
       const value = values?.find(
-        ({ location }) => location.id === locationId
+        ({ location, variable }) =>
+          location.id === locationId && variable.id === currentVariable?.id
       )?.value;
-      return `Location ID: ${locationId}<br/>Value: ${value ?? "N/A"}`;
+      const secondaryValue =
+        currentSecondaryVariable &&
+        values?.find(
+          ({ location, variable }) =>
+            location.id === locationId &&
+            variable.id === currentSecondaryVariable?.id
+        )?.value;
+      const tertiaryValue =
+        currentTertiaryVariable &&
+        values?.find(
+          ({ location, variable }) =>
+            location.id === locationId &&
+            variable.id === currentTertiaryVariable?.id
+        )?.value;
+      return `Location ID: ${locationId}<br/>${currentVariable?.name}: ${
+        value ?? "N/A"
+      }${
+        currentSecondaryVariable
+          ? `<br/>${currentSecondaryVariable.name}: ${secondaryValue ?? "N/A"}`
+          : ""
+      }${
+        currentTertiaryVariable
+          ? `<br/>${currentTertiaryVariable.name}: ${tertiaryValue ?? "N/A"}`
+          : ""
+      }`;
     });
+    if (currentDataSource) {
+      this.#pinnedLocationSecondaryColorCache[currentDataSource] = {};
+      this.#pinnedLocationTertiaryLineWeightCache[currentDataSource] = {};
+    }
     this.#geojsonLayerInstance?.setStyle((feature) => {
       const { properties } = feature ?? {};
       const value = values?.find(
-        ({ location }) => location.id === properties?.id
+        ({ location, variable }) =>
+          location.id === properties?.id && variable.id === currentVariable?.id
       )?.value;
+      const secondaryValue =
+        currentSecondaryVariable &&
+        values?.find(
+          ({ location, variable }) =>
+            location.id === properties?.id &&
+            variable.id === currentSecondaryVariable?.id
+        )?.value;
+      const tertiaryValue =
+        currentTertiaryVariable &&
+        values?.find(
+          ({ location, variable }) =>
+            location.id === properties?.id &&
+            variable.id === currentTertiaryVariable?.id
+        )?.value;
       const fillColor = value != null ? scaleColor(value) : "transparent";
+      const color =
+        secondaryValue != null
+          ? scaleSecondaryColor?.(secondaryValue)
+          : "hsl(0, 0%, 50%)";
+      const lineWeight =
+        tertiaryValue != null ? lineWeightScale(tertiaryValue) : 1;
       const style = {
+        color,
         fillColor,
         fillOpacity: 0.7,
+        weight: lineWeight,
       };
+      if (currentDataSource && properties?.id != null) {
+        this.#pinnedLocationSecondaryColorCache[currentDataSource][
+          properties.id
+        ] = color;
+        this.#pinnedLocationTertiaryLineWeightCache[currentDataSource][
+          properties.id
+        ] = lineWeight;
+      }
       return style;
     });
   }
 
   private async updateHighlights() {
+    const currentDataSource = obtainCurrentDataSource(
+      this.dataFrom,
+      this.sharedStates
+    );
     const locationSelection =
       this.sharedStates?.["gwf-default.locationSelection"];
     const locationPins = this.sharedStates?.["gwf-default.locationPins"];
@@ -261,7 +410,24 @@ export default class GWFVisPluginGeoJSONLayer
       const dataSource =
         obtainCurrentDataSource(this.dataFrom, this.sharedStates) ?? "";
       const locationId = properties?.id;
-      let style = { color: "hsl(0, 0%, 50%)", weight: 1 };
+      let style: any = { weight: 1 };
+
+      const cachedSecondaryColor =
+        this.#pinnedLocationSecondaryColorCache[currentDataSource ?? ""]?.[
+          properties?.id ?? ""
+        ];
+      if (cachedSecondaryColor) {
+        style.color = cachedSecondaryColor;
+      }
+
+      const cachedTertiaryLineWeight =
+        this.#pinnedLocationTertiaryLineWeightCache[currentDataSource ?? ""]?.[
+          properties?.id ?? ""
+        ];
+      if (cachedTertiaryLineWeight) {
+        style.weight = cachedTertiaryLineWeight;
+        style.dashArray = undefined;
+      }
 
       const matchedLocationPin = locationPins?.find(
         (location) =>
@@ -281,7 +447,8 @@ export default class GWFVisPluginGeoJSONLayer
         dataSource === locationSelection?.dataSource &&
         locationId === locationSelection.locationId
       ) {
-        style.weight = 3;
+        // style.weight = 3;
+        style.dashArray = "10";
         (
           this.#geojsonLayerInstance
             ?.getLayers()
@@ -337,14 +504,35 @@ export default class GWFVisPluginGeoJSONLayer
       dataSource,
       this.dataFrom,
       this.sharedStates,
+      "primary",
       this
     );
-    if (!variable) {
+    const secondaryVariable = await obtainCurrentVariable(
+      dataSource,
+      this.secondaryDataFrom,
+      this.sharedStates,
+      "secondary",
+      this
+    );
+    const tertiaryVariable = await obtainCurrentVariable(
+      dataSource,
+      this.tertiaryDataFrom,
+      this.sharedStates,
+      "tertiary",
+      this
+    );
+    if (!variable && !secondaryVariable && !tertiaryVariable) {
       return;
     }
-    const variableId = variable?.id;
-    if (variableId == null) {
-      return;
+    const variableIds = [];
+    if (variable) {
+      variableIds.push(variable.id);
+    }
+    if (secondaryVariable) {
+      variableIds.push(secondaryVariable.id);
+    }
+    if (tertiaryVariable) {
+      variableIds.push(tertiaryVariable.id);
     }
     const dimensionIdAndValueDict =
       await this.obtainCurrentDimensionIdAndValueDict(dataSource, variable);
@@ -353,7 +541,7 @@ export default class GWFVisPluginGeoJSONLayer
     }
     const values = (await this.queryDataDelegate?.(dataSource, {
       for: "values",
-      filter: { variable: variableId, dimensionIdAndValueDict },
+      filter: { variable: variableIds, dimensionIdAndValueDict },
     })) as Value[];
     return values;
   }
@@ -384,6 +572,9 @@ export default class GWFVisPluginGeoJSONLayer
     let result = {} as
       | { [dimensionId: number]: number | undefined }
       | undefined;
+    availableDimensions.map((dimension) => {
+      return [dimension.id, dimensionNameAndValueDict[dimension.name]];
+    });
     Object.entries(dimensionNameAndValueDict).every(([name, value]) => {
       const id = availableDimensions.find(
         (dimension) => dimension.name === name
@@ -410,20 +601,35 @@ export default class GWFVisPluginGeoJSONLayer
         currentDataSource,
         this.dataFrom,
         this.#sharedStates,
+        "primary",
         this
       ));
     if (!currentDataSource || !currentVariable) {
       return;
     }
+    const availableDimensions = (await this.queryDataDelegate?.(
+      currentDataSource,
+      {
+        for: "dimensions",
+      }
+    )) as Dimension[] | undefined;
     const dimensionIdAndValueDict =
       (await this.obtainDimensionIdAndValueDict(
         dataSource,
-        currentVariable.dimensions,
+        availableDimensions,
         this.dataFrom?.dimensionValueDict
       )) ??
       this.sharedStates?.["gwf-default.dimensionValueDict"]?.[
         currentDataSource
       ]?.[currentVariable.id];
-    return dimensionIdAndValueDict;
+    const dimensionIdAndValueDictWithNullFallback = {
+      ...Object.fromEntries(
+        availableDimensions?.map((dimension) => {
+          return [dimension.id, null];
+        }) ?? []
+      ),
+      ...dimensionIdAndValueDict,
+    };
+    return dimensionIdAndValueDictWithNullFallback;
   }
 }

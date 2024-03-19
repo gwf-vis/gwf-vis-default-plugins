@@ -11,6 +11,8 @@ import type { ColorSchemeDefinition } from "./color";
 export type GWFVisDefaultPluginSharedStates = SharedStates & {
   "gwf-default.currentDataSource"?: string;
   "gwf-default.currentVariableId"?: number;
+  "gwf-default.currentSecondaryVariableId"?: number;
+  "gwf-default.currentTertiaryVariableId"?: number;
   "gwf-default.dimensionValueDict"?: DimensionValueDict;
   "gwf-default.locationSelection"?: LocationSelection;
   "gwf-default.locationPins"?: LocationPin[];
@@ -55,12 +57,23 @@ export async function obtainCurrentVariable(
   dataSource?: string,
   dataFrom?: DataFrom,
   sharedStates?: GWFVisDefaultPluginSharedStates,
+  which: "primary" | "secondary" | "tertiary" = "primary",
   callerPlugin?: CallerPlugin | undefined
 ) {
+  const dataFromNameDict: Record<"primary" | "secondary" | "tertiary", keyof DataFrom> = {
+    primary: "variableName",
+    secondary: "secondaryVariableName",
+    tertiary: "tertiaryVariableName",
+  };
+  const sharedStateNameDict: Record<"primary" | "secondary" | "tertiary", string> = {
+    primary: "currentVariableId",
+    secondary: "currentSecondaryVariableId",
+    tertiary: "currentTertiaryVariableId",
+  };
   const currentDataSource =
     dataSource ?? obtainCurrentDataSource(dataFrom, sharedStates);
   let variable: Variable | undefined;
-  if (dataFrom?.variableName) {
+  if (dataFrom?.[dataFromNameDict[which]]) {
     variable = (
       (await callerPlugin?.queryDataDelegate?.(currentDataSource ?? "", {
         for: "variables",
@@ -69,7 +82,7 @@ export async function obtainCurrentVariable(
     )?.at(0);
   }
   const variableId =
-    variable?.id ?? sharedStates?.["gwf-default.currentVariableId"];
+    variable?.id ?? sharedStates?.[`gwf-default.${sharedStateNameDict[which]}`];
   if (variableId == null) {
     return;
   }
@@ -92,6 +105,7 @@ export async function obtainCurrentColorScheme(
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   },
   sharedStates?: GWFVisDefaultPluginSharedStates,
+  which: "primary" | "secondary" | "tertiary" = "primary",
   callerPlugin?: CallerPlugin | undefined
 ) {
   const currentDataSource =
@@ -102,6 +116,7 @@ export async function obtainCurrentColorScheme(
       dataSource,
       dataFrom,
       sharedStates,
+      which,
       callerPlugin
     ));
   if (!currentDataSource || !currentVariable) {

@@ -22,6 +22,18 @@ import {
 } from "../utils/state";
 import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
+type Info = {
+  currentDataSource?: string;
+  currentVariable?: Variable;
+  colorScale?: (value: number) => any;
+  min?: number;
+  max?: number;
+  currentColorScheme?:
+    | { [variable: string]: ColorSchemeDefinition }
+    | ColorSchemeDefinition
+    | undefined;
+};
+
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
   implements GWFVisPlugin, GWFVisPluginWithData<GWFVisDBQueryObject, any>
@@ -37,21 +49,17 @@ export default class GWFVisPluginTestDataFetcher
 
   header?: string;
   dataFrom?: DataFrom;
+  enableSecondaryVariable?: boolean;
+  secondaryDataFrom?: DataFrom;
+  enableTertiaryVariable?: boolean;
+  tertiaryDataFrom?: DataFrom;
   colorScheme?: {
     [dataSource: string]: { [variable: string]: ColorSchemeDefinition };
   };
 
-  @state() info?: {
-    currentDataSource?: string;
-    currentVariable?: Variable;
-    colorScale?: (value: number) => any;
-    min?: number;
-    max?: number;
-    currentColorScheme?:
-      | { [variable: string]: ColorSchemeDefinition }
-      | ColorSchemeDefinition
-      | undefined;
-  };
+  @state() info?: Info;
+  @state() infoSecondary?: Info;
+  @state() infoTertiary?: Info;
 
   @property() sharedStates?: GWFVisDefaultPluginSharedStates;
   @property() fractionDigits: number = 2;
@@ -60,7 +68,12 @@ export default class GWFVisPluginTestDataFetcher
   obtainHeaderCallback = () => this.header ?? "Legend";
 
   async updated(changedProperties: PropertyValues<this>) {
-    if (changedProperties.size === 1 && changedProperties.has("info")) {
+    if (
+      changedProperties.size === 1 &&
+      (changedProperties.has("info") ||
+        changedProperties.has("infoSecondary") ||
+        changedProperties.has("infoTertiary"))
+    ) {
       return;
     }
     const currentDataSource = obtainCurrentDataSource(
@@ -71,6 +84,7 @@ export default class GWFVisPluginTestDataFetcher
       currentDataSource,
       this.dataFrom,
       this.sharedStates,
+      "primary",
       this
     );
     const currentColorScheme = await obtainCurrentColorScheme(
@@ -79,6 +93,7 @@ export default class GWFVisPluginTestDataFetcher
       this.dataFrom,
       this.colorScheme,
       this.sharedStates,
+      "primary",
       this
     );
     const scaleColor = generateColorScale(currentColorScheme);
@@ -135,6 +150,107 @@ export default class GWFVisPluginTestDataFetcher
         break;
       }
     }
+
+    // TODO refactor
+    if (this.enableSecondaryVariable) {
+      const currentVariable = await obtainCurrentVariable(
+        currentDataSource,
+        this.secondaryDataFrom,
+        this.sharedStates,
+        "secondary",
+        this
+      );
+      if (currentVariable) {
+        const currentColorScheme = await obtainCurrentColorScheme(
+          currentDataSource,
+          currentVariable,
+          this.secondaryDataFrom,
+          this.colorScheme,
+          this.sharedStates,
+          "secondary",
+          this
+        );
+        const scaleColor = generateColorScale(currentColorScheme);
+        switch (currentColorScheme?.type) {
+          case "quantile": {
+            const allValues = (
+              (await this.queryDataDelegate?.(currentDataSource ?? "", {
+                for: "values",
+                filter: { variable: currentVariable?.id },
+              })) as { value: number }[]
+            ).map(({ value }) => value);
+            if (!allValues) {
+              return;
+            }
+            scaleColor.domain(allValues);
+
+            this.infoSecondary = {
+              currentDataSource,
+              currentVariable,
+              currentColorScheme,
+              colorScale: scaleColor,
+            };
+            break;
+          }
+          case "threshold":
+            this.infoSecondary = {
+              currentDataSource,
+              currentVariable,
+              currentColorScheme,
+              colorScale: scaleColor,
+            };
+            break;
+          default: {
+            const { max, min } =
+              ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+                for: "max-min-value",
+                filter: {
+                  variables: currentVariable ? [currentVariable.id] : undefined,
+                },
+              })) as { max?: number; min?: number }) ?? {};
+
+            scaleColor.domain([
+              min ?? Number.NEGATIVE_INFINITY,
+              max ?? Number.POSITIVE_INFINITY,
+            ]);
+            this.infoSecondary = {
+              min,
+              max,
+              currentDataSource,
+              currentVariable,
+              currentColorScheme,
+              colorScale: scaleColor,
+            };
+            break;
+          }
+        }
+      } else {
+        this.infoSecondary = undefined;
+      }
+
+      // TODO refactor
+      if (this.enableTertiaryVariable) {
+        const currentVariable = await obtainCurrentVariable(
+          currentDataSource,
+          this.tertiaryDataFrom,
+          this.sharedStates,
+          "tertiary",
+          this
+        );
+        if (currentVariable) {
+          const { max, min } =
+            ((await this.queryDataDelegate?.(currentDataSource ?? "", {
+              for: "max-min-value",
+              filter: {
+                variables: currentVariable ? [currentVariable.id] : undefined,
+              },
+            })) as { max?: number; min?: number }) ?? {};
+          this.infoTertiary = { min, max, currentDataSource, currentVariable };
+        } else {
+          this.infoTertiary = undefined;
+        }
+      }
+    }
   }
 
   render() {
@@ -151,24 +267,69 @@ export default class GWFVisPluginTestDataFetcher
           <b>Variable: </b>
           ${this.info?.currentVariable?.name ?? "N/A"}
         </div>
+        ${when(this.info, () =>
+          choose(
+            this.info?.currentColorScheme?.type,
+            [
+              ["sequential", () => this.renderSequential(this.info)],
+              ["quantile", () => this.renderNonSequential(this.info)],
+              ["quantize", () => this.renderNonSequential(this.info)],
+              ["threshold", () => this.renderNonSequential(this.info)],
+            ],
+            () => this.renderSequential()
+          )
+        )}
+        ${when(
+          this.enableSecondaryVariable,
+          () => html` <div>
+              <b>Variable: </b>
+              ${this.infoSecondary?.currentVariable?.name ?? "N/A"}
+            </div>
+            ${when(this.infoSecondary, () =>
+              choose(
+                this.infoSecondary?.currentColorScheme?.type,
+                [
+                  [
+                    "sequential",
+                    () => this.renderSequential(this.infoSecondary),
+                  ],
+                  [
+                    "quantile",
+                    () => this.renderNonSequential(this.infoSecondary),
+                  ],
+                  [
+                    "quantize",
+                    () => this.renderNonSequential(this.infoSecondary),
+                  ],
+                  [
+                    "threshold",
+                    () => this.renderNonSequential(this.infoSecondary),
+                  ],
+                ],
+                () => this.renderSequential()
+              )
+            )}`
+        )}
+        ${when(
+          this.enableTertiaryVariable,
+          () => html` <div>
+              <b>Variable: </b>
+              ${this.infoTertiary?.currentVariable?.name ?? "N/A"}
+            </div>
+            ${when(
+              this.infoTertiary,
+              () =>
+                `[${this.infoTertiary?.min?.toFixed(2) ?? "N/A"}, ${
+                  this.infoTertiary?.max?.toFixed(2) ?? "N/A"
+                }]`
+            )}`
+        )}
       </div>
-      ${when(this.info, () =>
-        choose(
-          this.info?.currentColorScheme?.type,
-          [
-            ["sequential", () => this.renderSequential()],
-            ["quantile", () => this.renderNonSequential()],
-            ["quantize", () => this.renderNonSequential()],
-            ["threshold", () => this.renderNonSequential()],
-          ],
-          () => this.renderSequential()
-        )
-      )}
     `;
   }
 
-  private renderNonSequential() {
-    let colorScale = this.info?.colorScale as
+  private renderNonSequential(info?: Info) {
+    let colorScale = info?.colorScale as
       | ScaleQuantize<any>
       | ScaleQuantile<any, never>
       | ScaleThreshold<number, any, never>
@@ -219,23 +380,23 @@ export default class GWFVisPluginTestDataFetcher
     `;
   }
 
-  private renderSequential() {
+  private renderSequential(info?: Info) {
     return html`
       <div>
         <div
           style="height: 1em; background: ${generateGradientCSSString(
-            this.info?.colorScale,
-            this.info?.min,
-            this.info?.max
+            info?.colorScale,
+            info?.min,
+            info?.max
           )};"
         ></div>
         <div style="display: flex; flex-wrap: nowrap;">
           <div style="flex: 0 0 auto; white-space: nowrap;">
-            ${this.info?.min?.toFixed(this.fractionDigits) ?? "N/A"}
+            ${info?.min?.toFixed(this.fractionDigits) ?? "N/A"}
           </div>
           <div style="flex: 1;"></div>
           <div style="flex: 0 0 auto; white-space: nowrap;">
-            ${this.info?.max?.toFixed(this.fractionDigits) ?? "N/A"}
+            ${info?.max?.toFixed(this.fractionDigits) ?? "N/A"}
           </div>
         </div>
       </div>

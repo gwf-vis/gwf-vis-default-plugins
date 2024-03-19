@@ -17,6 +17,7 @@ import { css, html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { when } from "lit/directives/when.js";
 import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 
 export default class GWFVisPluginDataControl
@@ -76,6 +77,8 @@ export default class GWFVisPluginDataControl
     this.updateSharedStatesDelegate?.({ ...this.sharedStates });
     this.updateCurrentAvailableVariables();
     this.currentVariableId = undefined;
+    this.currentSecondaryVariableId = undefined;
+    this.currentTertiaryVariableId = undefined;
     this.requestUpdate("currentDataSource", oldValue);
   }
 
@@ -91,6 +94,34 @@ export default class GWFVisPluginDataControl
     this.updateSharedStatesDelegate?.({ ...this.sharedStates });
     this.updateCurrentAvailableDimensions();
     this.requestUpdate("currentVariableId", oldValue);
+  }
+
+  @state() get currentSecondaryVariableId() {
+    return this.sharedStates?.["gwf-default.currentSecondaryVariableId"];
+  }
+  set currentSecondaryVariableId(value: number | undefined) {
+    if (!this.sharedStates) {
+      return;
+    }
+    const oldValue = this.currentSecondaryVariableId;
+    this.sharedStates["gwf-default.currentSecondaryVariableId"] = value;
+    this.updateSharedStatesDelegate?.({ ...this.sharedStates });
+    this.updateCurrentAvailableDimensions();
+    this.requestUpdate("currentSecondaryVariableId", oldValue);
+  }
+
+  @state() get currentTertiaryVariableId() {
+    return this.sharedStates?.["gwf-default.currentTertiaryVariableId"];
+  }
+  set currentTertiaryVariableId(value: number | undefined) {
+    if (!this.sharedStates) {
+      return;
+    }
+    const oldValue = this.currentTertiaryVariableId;
+    this.sharedStates["gwf-default.currentTertiaryVariableId"] = value;
+    this.updateSharedStatesDelegate?.({ ...this.sharedStates });
+    this.updateCurrentAvailableDimensions();
+    this.requestUpdate("currentTertiaryVariableId", oldValue);
   }
 
   @state() currentAvailableVariables?: VariableWithDimensions[];
@@ -116,6 +147,9 @@ export default class GWFVisPluginDataControl
     this.sharedStates["gwf-default.dimensionValueDict"] = value;
     this.updateSharedStatesDelegate?.({ ...this.sharedStates });
   }
+
+  enableSecondaryVariable?: boolean;
+  enableTertiaryVariable?: boolean;
 
   @property() sharedStates?: GWFVisDefaultPluginSharedStates;
   @property() header?: string;
@@ -164,9 +198,10 @@ export default class GWFVisPluginDataControl
           </td>
           <td style="text-align: end;">
             <select
-              @change=${({ currentTarget }: Event) =>
-                (this.currentVariableId = +(currentTarget as HTMLSelectElement)
-                  ?.value)}
+              @change=${({ currentTarget }: Event) => {
+                const value = (currentTarget as HTMLSelectElement)?.value;
+                return (this.currentVariableId = value ? +value : undefined);
+              }}
             >
               <option
                 value=""
@@ -185,6 +220,72 @@ export default class GWFVisPluginDataControl
             </select>
           </td>
         </tr>
+        ${when(
+          this.enableSecondaryVariable,
+          () => html`<tr>
+            <td>
+              <label>Secondary Variable: </label>
+            </td>
+            <td style="text-align: end;">
+              <select
+                @change=${({ currentTarget }: Event) => {
+                  const value = (currentTarget as HTMLSelectElement)?.value;
+                  return (this.currentSecondaryVariableId = value
+                    ? +value
+                    : undefined);
+                }}
+              >
+                <option
+                  value=""
+                  ?selected=${this.currentSecondaryVariableId == null}
+                ></option>
+                ${map(
+                  this.currentAvailableVariables,
+                  ({ name, id }) =>
+                    html`<option
+                      value=${id}
+                      ?selected=${id === this.currentSecondaryVariableId}
+                    >
+                      ${name}
+                    </option>`
+                )}
+              </select>
+            </td>
+          </tr>`
+        )}
+        ${when(
+          this.enableTertiaryVariable,
+          () => html`<tr>
+            <td>
+              <label>Tertiary Variable: </label>
+            </td>
+            <td style="text-align: end;">
+              <select
+                @change=${({ currentTarget }: Event) => {
+                  const value = (currentTarget as HTMLSelectElement)?.value;
+                  return (this.currentTertiaryVariableId = value
+                    ? +value
+                    : undefined);
+                }}
+              >
+                <option
+                  value=""
+                  ?selected=${this.currentTertiaryVariableId == null}
+                ></option>
+                ${map(
+                  this.currentAvailableVariables,
+                  ({ name, id }) =>
+                    html`<option
+                      value=${id}
+                      ?selected=${id === this.currentTertiaryVariableId}
+                    >
+                      ${name}
+                    </option>`
+                )}
+              </select>
+            </td>
+          </tr>`
+        )}
       </table>
       <hr />
       <div id="dimension-control-container">

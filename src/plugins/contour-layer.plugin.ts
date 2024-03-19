@@ -131,6 +131,7 @@ export default class GWFVisPluginContourLayer
         currentDataSource,
         this.dataFrom,
         this.sharedStates,
+        "primary",
         this
       );
       const dimensionIdAndValueDict =
@@ -156,6 +157,7 @@ export default class GWFVisPluginContourLayer
         this.dataFrom,
         this.colorScheme,
         this.sharedStates,
+        'primary',
         this
       );
       const scaleColor = generateColorScale(currentColorScheme);
@@ -257,6 +259,7 @@ export default class GWFVisPluginContourLayer
         currentDataSource,
         this.dataFrom,
         this.#sharedStates,
+        "primary",
         this
       ));
     if (!currentDataSource || !currentVariable) {
