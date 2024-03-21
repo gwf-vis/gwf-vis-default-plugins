@@ -75,6 +75,7 @@ export default class GWFVisPluginGeoJSONLayer
   };
   pointMode?: "pushpin" | "circle" = "circle";
   pointSize?: number = 10;
+  lineWeightRange: [number, number] = [1, 5];
 
   #geojson?: GeoJsonObject | GeoJsonObject[] | string;
   get geojson() {
@@ -314,7 +315,10 @@ export default class GWFVisPluginGeoJSONLayer
         for: "max-min-value",
         filter: { variables: [currentTertiaryVariable?.id] },
       })) as { max?: number; min?: number }) ?? {};
-    const lineWeightScale = scaleLinear([1, 10]).domain([min, max]);
+    const lineWeightScale = scaleLinear(this.lineWeightRange).domain([
+      min,
+      max,
+    ]);
 
     this.#geojsonLayerInstance?.bindTooltip(({ feature }: any) => {
       const locationId = feature?.properties?.id;
@@ -378,7 +382,9 @@ export default class GWFVisPluginGeoJSONLayer
           ? scaleSecondaryColor?.(secondaryValue)
           : "hsl(0, 0%, 50%)";
       const lineWeight =
-        tertiaryValue != null ? lineWeightScale(tertiaryValue) : 1;
+        tertiaryValue != null
+          ? lineWeightScale(tertiaryValue)
+          : this.lineWeightRange[0];
       const style = {
         color,
         fillColor,
