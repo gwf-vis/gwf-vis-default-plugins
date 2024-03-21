@@ -276,7 +276,7 @@ export default class GWFVisPluginTestDataFetcher
               ["quantize", () => this.renderNonSequential(this.info)],
               ["threshold", () => this.renderNonSequential(this.info)],
             ],
-            () => this.renderSequential()
+            () => this.renderSequential(this.info)
           )
         )}
         ${when(
@@ -306,7 +306,7 @@ export default class GWFVisPluginTestDataFetcher
                     () => this.renderNonSequential(this.infoSecondary),
                   ],
                 ],
-                () => this.renderSequential()
+                () => this.renderSequential(this.infoSecondary)
               )
             )}`
         )}
