@@ -212,10 +212,13 @@ export default class GWFVisPluginDataControl
               ></option>
               ${map(
                 this.currentAvailableVariables,
-                ({ name, id }) =>
+                ({ name, id, unit, description }) =>
                   html`<option
                     value=${id}
                     ?selected=${id === this.currentVariableId}
+                    title=${unit
+                      ? `Unit: ${unit}`
+                      : "" + "\n" + description ?? ""}
                   >
                     ${name}
                   </option>`
@@ -223,6 +226,7 @@ export default class GWFVisPluginDataControl
             </select>
           </td>
         </tr>
+
         ${when(
           this.enableSecondaryVariable,
           () => html`<tr>
@@ -246,10 +250,13 @@ export default class GWFVisPluginDataControl
                 ></option>
                 ${map(
                   this.currentAvailableVariables,
-                  ({ name, id }) =>
+                  ({ name, id, unit, description }) =>
                     html`<option
                       value=${id}
                       ?selected=${id === this.currentSecondaryVariableId}
+                      title=${unit
+                        ? `Unit: ${unit}`
+                        : "" + "\n" + description ?? ""}
                     >
                       ${name}
                     </option>`
@@ -281,10 +288,13 @@ export default class GWFVisPluginDataControl
                 ></option>
                 ${map(
                   this.currentAvailableVariables,
-                  ({ name, id }) =>
+                  ({ name, id, unit, description }) =>
                     html`<option
                       value=${id}
                       ?selected=${id === this.currentTertiaryVariableId}
+                      title=${unit
+                        ? `Unit: ${unit}`
+                        : "" + "\n" + description ?? ""}
                     >
                       ${name}
                     </option>`
