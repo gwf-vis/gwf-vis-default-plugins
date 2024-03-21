@@ -150,6 +150,9 @@ export default class GWFVisPluginDataControl
 
   enableSecondaryVariable?: boolean;
   enableTertiaryVariable?: boolean;
+  primaryVariableLabel?: string;
+  secondaryVariableLabel?: string;
+  tertiaryVariableLabel?: string;
 
   @property() sharedStates?: GWFVisDefaultPluginSharedStates;
   @property() header?: string;
@@ -194,7 +197,7 @@ export default class GWFVisPluginDataControl
         </tr>
         <tr>
           <td>
-            <label>Variable: </label>
+            <label>${this.primaryVariableLabel ?? "Variable"}: </label>
           </td>
           <td style="text-align: end;">
             <select
@@ -224,7 +227,9 @@ export default class GWFVisPluginDataControl
           this.enableSecondaryVariable,
           () => html`<tr>
             <td>
-              <label>Secondary Variable: </label>
+              <label
+                >${this.secondaryVariableLabel ?? "Secondary Variable"}:
+              </label>
             </td>
             <td style="text-align: end;">
               <select
@@ -257,7 +262,9 @@ export default class GWFVisPluginDataControl
           this.enableTertiaryVariable,
           () => html`<tr>
             <td>
-              <label>Tertiary Variable: </label>
+              <label
+                >${this.tertiaryVariableLabel ?? "Tertiary Variable"}:
+              </label>
             </td>
             <td style="text-align: end;">
               <select
