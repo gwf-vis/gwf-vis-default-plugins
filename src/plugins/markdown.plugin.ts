@@ -3,6 +3,7 @@ import { marked } from "marked";
 export default class GWFVisPluginMarkdown extends HTMLElement {
   header?: string;
   markdownUrl?: string;
+  markdown?: string;
 
   obtainHeaderCallback = () => this.header ?? `Markdown`;
 
@@ -16,14 +17,14 @@ export default class GWFVisPluginMarkdown extends HTMLElement {
   }
 
   async renderUI() {
-    let markdown = "";
-    if (this.markdownUrl) {
+    let markdown = this.markdown;
+    if (!markdown && this.markdownUrl) {
       markdown = await fetch(this.markdownUrl).then((response) =>
         response.text()
       );
     }
     if (this.shadowRoot) {
-      this.shadowRoot.innerHTML = marked.parse(markdown);
+      this.shadowRoot.innerHTML = marked.parse(markdown ?? "");
     }
   }
 }
