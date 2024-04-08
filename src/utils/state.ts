@@ -16,6 +16,7 @@ export type GWFVisDefaultPluginSharedStates = SharedStates & {
   "gwf-default.dimensionValueDict"?: DimensionValueDict;
   "gwf-default.locationSelection"?: LocationSelection;
   "gwf-default.locationPins"?: LocationPin[];
+  "gwf-default.metadata"?: Record<string, unknown>;
 } & {
   "gwf-default.cache.availableVariablesDict"?: {
     [dataSource: string]: VariableWithDimensions[] | undefined;
@@ -60,12 +61,18 @@ export async function obtainCurrentVariable(
   which: "primary" | "secondary" | "tertiary" = "primary",
   callerPlugin?: CallerPlugin | undefined
 ) {
-  const dataFromNameDict: Record<"primary" | "secondary" | "tertiary", keyof DataFrom> = {
+  const dataFromNameDict: Record<
+    "primary" | "secondary" | "tertiary",
+    keyof DataFrom
+  > = {
     primary: "variableName",
     secondary: "secondaryVariableName",
     tertiary: "tertiaryVariableName",
   };
-  const sharedStateNameDict: Record<"primary" | "secondary" | "tertiary", string> = {
+  const sharedStateNameDict: Record<
+    "primary" | "secondary" | "tertiary",
+    string
+  > = {
     primary: "currentVariableId",
     secondary: "currentSecondaryVariableId",
     tertiary: "currentTertiaryVariableId",

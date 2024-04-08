@@ -47,14 +47,13 @@ export default class GWFVisPluginTestDataFetcher
     this.#sharedStates = value;
     this.locationSelection =
       this.#sharedStates?.["gwf-default.locationSelection"];
-    if (!this.locationSelection) {
-      return;
-    }
     this.obtainMetadata(
       this.locationSelection?.dataSource,
       this.locationSelection?.locationId
     );
   }
+
+  noFetching?: boolean;
 
   @state() locationSelection?: LocationSelection =
     this.#sharedStates?.["gwf-default.locationSelection"];
@@ -96,8 +95,8 @@ export default class GWFVisPluginTestDataFetcher
   }
 
   private async obtainMetadata(dataSource?: string, locationId?: number) {
-    if (!dataSource || locationId == null) {
-      this.metadata = undefined;
+    if (this.noFetching || !dataSource || locationId == null) {
+      this.metadata = this.#sharedStates?.["gwf-default.metadata"];
       return;
     }
     runAsyncWithLoading(async () => {
