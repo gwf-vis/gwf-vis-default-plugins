@@ -26,12 +26,13 @@ export default class GWFVisPluginVectorGridLayer
   strokeWeight?: { variable: string; thresholds: number[]; weights: [] };
   maxNativeZoom?: number;
   maxZoom?: number;
+  vectorLayerName: string = "default";
   // options?: leaflet.TileLayerOptions = {
   //   attribution:
   //     "Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
   // };
 
-  obtainHeaderCallback = () => `Tile Layer - ${this.displayName}`;
+  obtainHeaderCallback = () => `Vector Grid Layer - ${this.displayName}`;
 
   sharedStates: SharedStates | undefined;
   updateSharedStatesDelegate?:
@@ -85,7 +86,7 @@ export default class GWFVisPluginVectorGridLayer
         maxNativeZoom: this.maxNativeZoom,
         maxZoom: this.maxZoom,
         vectorTileLayerStyles: {
-          gloric: ((metadata: any) => {
+          [this.vectorLayerName]: ((metadata: any) => {
             return {
               weight: scaleStrokeWeight(
                 metadata[this.strokeWeight?.variable ?? ""]
