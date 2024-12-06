@@ -1,8 +1,8 @@
 import type {
-  GWFVisPlugin,
-  GWFVisPluginWithData,
-  GWFVisPluginWithSharedStates,
-} from "vga-vis-host";
+  VGAPlugin,
+  VGAPluginWithData,
+  VGAPluginWithSharedStates,
+} from "vga-core";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import { css, html, LitElement } from "lit";
@@ -14,10 +14,9 @@ import { GWFVisDBQueryObject, Location } from "../utils/data";
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
   implements
-    GWFVisPlugin,
-    GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<GWFVisDBQueryObject, any>
-{
+  VGAPlugin,
+  VGAPluginWithSharedStates,
+  VGAPluginWithData<GWFVisDBQueryObject, any> {
   static styles = css`
     :host {
       display: block;
@@ -75,9 +74,9 @@ export default class GWFVisPluginTestDataFetcher
         >
         <div style="height: 1em;"></div>
         ${this.metadata
-          ? map(
-              Object.entries(this.metadata),
-              ([key, value]) => html`
+        ? map(
+          Object.entries(this.metadata),
+          ([key, value]) => html`
                 <div>
                   <span>
                     <b>${key.toString()}</b>
@@ -88,8 +87,8 @@ export default class GWFVisPluginTestDataFetcher
                   />
                 </div>
               `
-            )
-          : html`<div>No metadata available.</div>`}
+        )
+        : html`<div>No metadata available.</div>`}
       </div>
     `;
   }

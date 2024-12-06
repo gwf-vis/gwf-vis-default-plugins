@@ -1,4 +1,4 @@
-import type { SharedStates } from "vga-vis-host";
+import type { SharedStates } from "vga-core";
 import type {
   CallerPlugin,
   DimensionValueDict,

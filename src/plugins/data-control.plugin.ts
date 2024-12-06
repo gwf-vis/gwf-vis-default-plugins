@@ -1,9 +1,9 @@
 import type {
-  GWFVisPlugin,
-  GWFVisPluginWithData,
-  GWFVisPluginWithSharedStates,
+  VGAPlugin,
+  VGAPluginWithData,
+  VGAPluginWithSharedStates,
   SharedStates,
-} from "vga-vis-host";
+} from "vga-core";
 import type { DimensionValueDict } from "../utils/basic";
 import type {
   VariableWithDimensions,
@@ -23,10 +23,9 @@ import { obtainDataSourceDisplayName } from "../utils/data-source-name-dict";
 export default class GWFVisPluginDataControl
   extends LitElement
   implements
-    GWFVisPlugin,
-    GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<GWFVisDBQueryObject, any>
-{
+  VGAPlugin,
+  VGAPluginWithSharedStates,
+  VGAPluginWithData<GWFVisDBQueryObject, any> {
   static styles = css`
     :host {
       display: block;
@@ -161,7 +160,7 @@ export default class GWFVisPluginDataControl
 
   obtainHeaderCallback = () => this.header ?? "Data Control";
 
-  hostFirstLoadedCallback() {}
+  hostFirstLoadedCallback() { }
 
   render() {
     return html`
@@ -174,24 +173,24 @@ export default class GWFVisPluginDataControl
             <select
               title=${ifDefined(this.currentDataSource)}
               @change=${({ currentTarget }: Event) =>
-                (this.currentDataSource = (
-                  currentTarget as HTMLSelectElement
-                )?.value)}
+      (this.currentDataSource = (
+        currentTarget as HTMLSelectElement
+      )?.value)}
             >
               <option value="" ?selected=${!this.currentDataSource}></option>
               ${map(
-                this.dataSources,
-                (dataSource) =>
-                  html`<option
+        this.dataSources,
+        (dataSource) =>
+          html`<option
                     value=${dataSource}
                     ?selected=${dataSource === this.currentDataSource}
                   >
                     ${obtainDataSourceDisplayName(
-                      dataSource,
-                      this.dataSourceDict
-                    )}
+            dataSource,
+            this.dataSourceDict
+          )}
                   </option>`
-              )}
+      )}
             </select>
           </td>
         </tr>
@@ -202,34 +201,34 @@ export default class GWFVisPluginDataControl
           <td style="text-align: end;">
             <select
               @change=${({ currentTarget }: Event) => {
-                const value = (currentTarget as HTMLSelectElement)?.value;
-                return (this.currentVariableId = value ? +value : undefined);
-              }}
+        const value = (currentTarget as HTMLSelectElement)?.value;
+        return (this.currentVariableId = value ? +value : undefined);
+      }}
             >
               <option
                 value=""
                 ?selected=${this.currentVariableId == null}
               ></option>
               ${map(
-                this.currentAvailableVariables,
-                ({ name, id, unit, description }) =>
-                  html`<option
+        this.currentAvailableVariables,
+        ({ name, id, unit, description }) =>
+          html`<option
                     value=${id}
                     ?selected=${id === this.currentVariableId}
                     title=${unit
-                      ? `Unit: ${unit}`
-                      : "" + "\n" + description ?? ""}
+              ? `Unit: ${unit}`
+              : "" + "\n" + (description ?? "")}
                   >
                     ${name}
                   </option>`
-              )}
+      )}
             </select>
           </td>
         </tr>
 
         ${when(
-          this.enableSecondaryVariable,
-          () => html`<tr>
+        this.enableSecondaryVariable,
+        () => html`<tr>
             <td>
               <label
                 >${this.secondaryVariableLabel ?? "Secondary Variable"}:
@@ -238,36 +237,36 @@ export default class GWFVisPluginDataControl
             <td style="text-align: end;">
               <select
                 @change=${({ currentTarget }: Event) => {
-                  const value = (currentTarget as HTMLSelectElement)?.value;
-                  return (this.currentSecondaryVariableId = value
-                    ? +value
-                    : undefined);
-                }}
+            const value = (currentTarget as HTMLSelectElement)?.value;
+            return (this.currentSecondaryVariableId = value
+              ? +value
+              : undefined);
+          }}
               >
                 <option
                   value=""
                   ?selected=${this.currentSecondaryVariableId == null}
                 ></option>
                 ${map(
-                  this.currentAvailableVariables,
-                  ({ name, id, unit, description }) =>
-                    html`<option
+            this.currentAvailableVariables,
+            ({ name, id, unit, description }) =>
+              html`<option
                       value=${id}
                       ?selected=${id === this.currentSecondaryVariableId}
                       title=${unit
-                        ? `Unit: ${unit}`
-                        : "" + "\n" + description ?? ""}
+                  ? `Unit: ${unit}`
+                  : "" + "\n" + (description ?? "")}
                     >
                       ${name}
                     </option>`
-                )}
+          )}
               </select>
             </td>
           </tr>`
-        )}
+      )}
         ${when(
-          this.enableTertiaryVariable,
-          () => html`<tr>
+        this.enableTertiaryVariable,
+        () => html`<tr>
             <td>
               <label
                 >${this.tertiaryVariableLabel ?? "Tertiary Variable"}:
@@ -276,44 +275,44 @@ export default class GWFVisPluginDataControl
             <td style="text-align: end;">
               <select
                 @change=${({ currentTarget }: Event) => {
-                  const value = (currentTarget as HTMLSelectElement)?.value;
-                  return (this.currentTertiaryVariableId = value
-                    ? +value
-                    : undefined);
-                }}
+            const value = (currentTarget as HTMLSelectElement)?.value;
+            return (this.currentTertiaryVariableId = value
+              ? +value
+              : undefined);
+          }}
               >
                 <option
                   value=""
                   ?selected=${this.currentTertiaryVariableId == null}
                 ></option>
                 ${map(
-                  this.currentAvailableVariables,
-                  ({ name, id, unit, description }) =>
-                    html`<option
+            this.currentAvailableVariables,
+            ({ name, id, unit, description }) =>
+              html`<option
                       value=${id}
                       ?selected=${id === this.currentTertiaryVariableId}
                       title=${unit
-                        ? `Unit: ${unit}`
-                        : "" + "\n" + description ?? ""}
+                  ? `Unit: ${unit}`
+                  : "" + "\n" + (description ?? "")}
                     >
                       ${name}
                     </option>`
-                )}
+          )}
               </select>
             </td>
           </tr>`
-        )}
+      )}
       </table>
       <hr />
       <div id="dimension-control-container">
         <table>
           ${map(this.currentAvailableDimensions, ({ id, name, size }) => {
-            const value = this.obtainDimensionValue(
-              this.currentDataSource,
-              this.currentVariableId,
-              id
-            );
-            return html`
+        const value = this.obtainDimensionValue(
+          this.currentDataSource,
+          this.currentVariableId,
+          id
+        );
+        return html`
               <tr>
                 <td>
                   <b>${name}</b>
@@ -326,12 +325,12 @@ export default class GWFVisPluginDataControl
                     max=${size - 1}
                     .value=${value?.toString() ?? "N/A"}
                     @change=${({ currentTarget }: Event) =>
-                      this.assignDimensionValue(
-                        this.currentDataSource,
-                        this.currentVariableId,
-                        id,
-                        +((currentTarget as HTMLInputElement)?.value ?? 0)
-                      )}
+            this.assignDimensionValue(
+              this.currentDataSource,
+              this.currentVariableId,
+              id,
+              +((currentTarget as HTMLInputElement)?.value ?? 0)
+            )}
                   />
                 </td>
                 <td>0</td>
@@ -343,18 +342,18 @@ export default class GWFVisPluginDataControl
                     .value=${value?.toString() ?? "N/A"}
                     title=${value ?? "N/A"}
                     @change=${({ currentTarget }: Event) =>
-                      this.assignDimensionValue(
-                        this.currentDataSource,
-                        this.currentVariableId,
-                        id,
-                        +((currentTarget as HTMLInputElement)?.value ?? 0)
-                      )}
+            this.assignDimensionValue(
+              this.currentDataSource,
+              this.currentVariableId,
+              id,
+              +((currentTarget as HTMLInputElement)?.value ?? 0)
+            )}
                   />
                 </td>
                 <td>${size - 1}</td>
               </tr>
             `;
-          })}
+      })}
         </table>
       </div>
     `;

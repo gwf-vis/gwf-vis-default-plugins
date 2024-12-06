@@ -1,16 +1,15 @@
 import {
   leaflet,
-  GWFVisMapPlugin,
-  GWFVisPlugin,
+  VGAMapPlugin,
+  VGAPlugin,
   LayerType,
-} from "vga-vis-host";
+} from "vga-core";
 import { css, html, LitElement } from "lit";
 import { property } from "lit/decorators";
 
 export abstract class GWFVisMapLayerPluginBase
   extends LitElement
-  implements GWFVisPlugin, GWFVisMapPlugin
-{
+  implements VGAPlugin, VGAMapPlugin {
   static styles = css`
     :host {
       display: block;

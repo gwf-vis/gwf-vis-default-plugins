@@ -1,10 +1,10 @@
 import type {
-  GWFVisPluginWithData,
-  GWFVisPluginWithSharedStates,
+  VGAPluginWithData,
+  VGAPluginWithSharedStates,
   LayerType,
   SharedStates,
   leaflet,
-} from "vga-vis-host";
+} from "vga-core";
 import { tricontour } from "d3-tricontour";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import { LocationSelection, runAsyncWithLoading } from "../utils/basic";
@@ -29,9 +29,8 @@ import { ScaleThreshold } from "d3";
 export default class GWFVisPluginContourLayer
   extends GWFVisMapLayerPluginBase
   implements
-    GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<GWFVisDBQueryObject, any>
-{
+  VGAPluginWithSharedStates,
+  VGAPluginWithData<GWFVisDBQueryObject, any> {
   updateSharedStatesDelegate?:
     | ((sharedStates: SharedStates) => void)
     | undefined;
@@ -183,8 +182,8 @@ export default class GWFVisPluginContourLayer
             })) as { max?: number; min?: number }) ?? {};
           (
             scaleColor as
-              | d3.ScaleQuantize<any, never>
-              | d3.ScaleSequential<any, never>
+            | d3.ScaleQuantize<any, never>
+            | d3.ScaleSequential<any, never>
           ).domain([
             min ?? Number.NEGATIVE_INFINITY,
             max ?? Number.POSITIVE_INFINITY,
@@ -272,7 +271,7 @@ export default class GWFVisPluginContourLayer
         this.dataFrom?.dimensionValueDict
       )) ??
       this.sharedStates?.["gwf-default.dimensionValueDict"]?.[
-        currentDataSource
+      currentDataSource
       ]?.[currentVariable.id];
     return dimensionIdAndValueDict;
   }
@@ -322,7 +321,7 @@ export default class GWFVisPluginContourLayer
       };
       const distance = Math.sqrt(
         Math.pow(locationPoint.x - point.x, 2) +
-          Math.pow(locationPoint.y - point.y, 2)
+        Math.pow(locationPoint.y - point.y, 2)
       );
       if (distance < shortestDistance) {
         shortestDistance = distance;

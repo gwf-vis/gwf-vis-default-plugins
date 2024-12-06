@@ -1,4 +1,4 @@
-import type { GWFVisPlugin, GWFVisPluginWithData } from "vga-vis-host";
+import type { VGAPlugin, VGAPluginWithData } from "vga-core";
 import type { QueryExecResult } from "sql.js";
 import { css, html, LitElement } from "lit";
 import { map } from "lit/directives/map.js";
@@ -8,9 +8,8 @@ import { state } from "lit/decorators.js";
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
   implements
-    GWFVisPlugin,
-    GWFVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
-{
+  VGAPlugin,
+  VGAPluginWithData<string, initSqlJs.QueryExecResult | undefined> {
   static styles = css`
     :host {
       display: block;
@@ -34,9 +33,9 @@ export default class GWFVisPluginTestDataFetcher
     | undefined;
   queryDataDelegate?:
     | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<QueryExecResult | undefined>)
+      dataSource: string,
+      queryObject: string
+    ) => Promise<QueryExecResult | undefined>)
     | undefined;
 
   #dataSourceInputRef = createRef<HTMLInputElement>();
@@ -50,13 +49,13 @@ export default class GWFVisPluginTestDataFetcher
   render() {
     return html`
       <label>Data source:</label>
-      <gwf-vis-ui-input
+      <vga-ui-input
         type="text"
         placeholder="Enter your data source..."
         value="sqlite-local:https://raw.githubusercontent.com/codecrafters-io/sample-sqlite-databases/master/superheroes.db"
         style="width: 100%;"
         ${ref(this.#dataSourceInputRef)}
-      ></gwf-vis-ui-input>
+      ></vga-ui-input>
       <br />
       <label>SQL query:</label>
       <textarea
@@ -66,8 +65,8 @@ export default class GWFVisPluginTestDataFetcher
         ${ref(this.#sqlTextareaRef)}
       ></textarea>
       <br />
-      <gwf-vis-ui-button @click=${this.queryData}>Query Data</gwf-vis-ui-button>
-      <gwf-vis-ui-collapse>
+      <vga-ui-button @click=${this.queryData}>Query Data</vga-ui-button>
+      <vga-ui-collapse>
         <h3 slot="header">Queried data</h3>
         <div
           style="max-height: 15em; width: 100%; overflow: auto;"
@@ -76,20 +75,20 @@ export default class GWFVisPluginTestDataFetcher
           <table>
             <tr>
               ${map(
-                this.queryResult?.columns,
-                (column) => html`<th>${column}</th>`
-              )}
+      this.queryResult?.columns,
+      (column) => html`<th>${column}</th>`
+    )}
             </tr>
             ${map(
-              this.queryResult?.values,
-              (row) =>
-                html`<tr>
+      this.queryResult?.values,
+      (row) =>
+        html`<tr>
                   ${map(row, (column) => html`<td>${column}</td>`)}
                 </tr>`
-            )}
+    )}
           </table>
         </div>
-      </gwf-vis-ui-collapse>
+      </vga-ui-collapse>
     `;
   }
 

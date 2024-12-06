@@ -1,10 +1,10 @@
 import type {
-  GWFVisDataProviderPlugin,
-  GWFVisPlugin,
-  GWFVisPluginWithData,
-  GWFVisPluginWithSharedStates,
+  VGADataProviderPlugin,
+  VGAPlugin,
+  VGAPluginWithData,
+  VGAPluginWithSharedStates,
   SharedStates,
-} from "vga-vis-host";
+} from "vga-core";
 import { html, css, LitElement } from "lit";
 import { runAsyncWithLoading } from "../utils/basic";
 import { SqlValue } from "sql.js";
@@ -20,11 +20,10 @@ import { GWFVisDefaultPluginSharedStates } from "../utils/state";
 export default class GWFVisPluginGWFVisDBDataProvider
   extends LitElement
   implements
-    GWFVisPlugin,
-    GWFVisDataProviderPlugin<GWFVisDBQueryObject, any>,
-    GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<string, initSqlJs.QueryExecResult | undefined>
-{
+  VGAPlugin,
+  VGADataProviderPlugin<GWFVisDBQueryObject, any>,
+  VGAPluginWithSharedStates,
+  VGAPluginWithData<string, initSqlJs.QueryExecResult | undefined> {
   static styles = css`
     :host {
       display: block;
@@ -43,9 +42,9 @@ export default class GWFVisPluginGWFVisDBDataProvider
     | undefined;
   queryDataDelegate?:
     | ((
-        dataSource: string,
-        queryObject: string
-      ) => Promise<initSqlJs.QueryExecResult | undefined>)
+      dataSource: string,
+      queryObject: string
+    ) => Promise<initSqlJs.QueryExecResult | undefined>)
     | undefined;
 
   notifyLoadingDelegate?: () => () => void;
@@ -184,7 +183,7 @@ export default class GWFVisPluginGWFVisDBDataProvider
       "gwf-default.cache.availableVariablesDict";
     let variables =
       this.sharedStates?.[AVAILABLE_VARIABLES_DICT_KEY]?.[
-        dataSourceForSqliteLocal
+      dataSourceForSqliteLocal
       ];
     if (variables) {
       return variables;
@@ -203,12 +202,12 @@ export default class GWFVisPluginGWFVisDBDataProvider
     let filteredVariables =
       this.sharedStates?.[AVAILABLE_VARIABLES_DICT_KEY]?.[dataSource];
     if (filter?.ids) {
-      filteredVariables = filteredVariables?.filter((variable) =>
+      filteredVariables = filteredVariables?.filter((variable: Variable) =>
         filter.ids?.includes(variable.id)
       );
     }
     if (filter?.names) {
-      filteredVariables = filteredVariables?.filter((variable) =>
+      filteredVariables = filteredVariables?.filter((variable: Variable) =>
         filter.names?.includes(variable.name)
       );
     }
@@ -276,31 +275,31 @@ export default class GWFVisPluginGWFVisDBDataProvider
       let locationConditionClause =
         filter.location != null
           ? `location IN (${this.makeSingleOrArrayAsArray(filter.location).join(
-              ", "
-            )})`
+            ", "
+          )})`
           : "";
       let variableConditionClause =
         filter.variable != null
           ? `variable IN (${this.makeSingleOrArrayAsArray(filter.variable).join(
-              ", "
-            )})`
+            ", "
+          )})`
           : "";
       let dimensionConditonClause = filter.dimensionIdAndValueDict
         ? Object.entries(filter.dimensionIdAndValueDict)
-            .map(([id, value]) => {
-              switch (value) {
-                case undefined:
-                  return "";
-                case null:
-                  return `dimension_${id} IS NULL`;
-                default:
-                  return `dimension_${id} IN (${this.makeSingleOrArrayAsArray(
-                    value
-                  ).join(", ")})`;
-              }
-            })
-            .filter(Boolean)
-            .join(" AND ")
+          .map(([id, value]) => {
+            switch (value) {
+              case undefined:
+                return "";
+              case null:
+                return `dimension_${id} IS NULL`;
+              default:
+                return `dimension_${id} IN (${this.makeSingleOrArrayAsArray(
+                  value
+                ).join(", ")})`;
+            }
+          })
+          .filter(Boolean)
+          .join(" AND ")
         : "";
       whereClause =
         "WHERE " +
@@ -338,7 +337,7 @@ export default class GWFVisPluginGWFVisDBDataProvider
             }
             if (columnName === "variable") {
               modifiedValue = variables?.find(
-                (variable) => variable.id === value
+                (variable: Variable) => variable.id === value
               );
             }
             if (columnName.startsWith("dimension_")) {

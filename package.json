@@ -25,7 +25,7 @@
     "lit": "^2.6.1",
     "marked": "^5.1.0",
     "sql.js": "^1.8.0",
-    "vga-vis-host": "github:vga-team/vis-host#dc2cce585da9f4549f7739401c6413ef054d79eb"
+    "vga-core": "github:vga-team/core#71e647cd8f6d031d8456efc6b3bbafc8432146cf"
   },
   "devDependencies": {
     "@types/d3": "^7.4.0",

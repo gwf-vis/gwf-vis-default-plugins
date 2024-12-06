@@ -1,4 +1,4 @@
-import type { LayerType, leaflet } from "vga-vis-host";
+import type { LayerType, leaflet } from "vga-core";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 
 export default class GWFVisPluginTileLayer extends GWFVisMapLayerPluginBase {

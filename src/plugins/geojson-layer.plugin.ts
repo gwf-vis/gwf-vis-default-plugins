@@ -1,11 +1,11 @@
 import type { GeoJsonObject } from "geojson";
 import type {
-  GWFVisPluginWithData,
-  GWFVisPluginWithSharedStates,
+  VGAPluginWithData,
+  VGAPluginWithSharedStates,
   LayerType,
   leaflet,
   SharedStates,
-} from "vga-vis-host";
+} from "vga-core";
 import { LocationSelection, runAsyncWithLoading } from "../utils/basic";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type {
@@ -40,9 +40,8 @@ const PUSH_PIN_ICON = globalThis.L.icon({
 export default class GWFVisPluginGeoJSONLayer
   extends GWFVisMapLayerPluginBase
   implements
-    GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<GWFVisDBQueryObject, any>
-{
+  VGAPluginWithSharedStates,
+  VGAPluginWithData<GWFVisDBQueryObject, any> {
   updateSharedStatesDelegate?:
     | ((sharedStates: SharedStates) => void)
     | undefined;
@@ -340,17 +339,14 @@ export default class GWFVisPluginGeoJSONLayer
             location.id === locationId &&
             variable.id === currentTertiaryVariable?.id
         )?.value;
-      return `Location ID: ${locationId}<br/>${currentVariable?.name}: ${
-        value ?? "N/A"
-      }${
-        currentSecondaryVariable
+      return `Location ID: ${locationId}<br/>${currentVariable?.name}: ${value ?? "N/A"
+        }${currentSecondaryVariable
           ? `<br/>${currentSecondaryVariable.name}: ${secondaryValue ?? "N/A"}`
           : ""
-      }${
-        currentTertiaryVariable
+        }${currentTertiaryVariable
           ? `<br/>${currentTertiaryVariable.name}: ${tertiaryValue ?? "N/A"}`
           : ""
-      }`;
+        }`;
     });
     if (currentDataSource) {
       this.#pinnedLocationSecondaryColorCache[currentDataSource] = {};
@@ -420,7 +416,7 @@ export default class GWFVisPluginGeoJSONLayer
 
       const cachedSecondaryColor =
         this.#pinnedLocationSecondaryColorCache[currentDataSource ?? ""]?.[
-          properties?.id ?? ""
+        properties?.id ?? ""
         ];
       if (cachedSecondaryColor) {
         style.color = cachedSecondaryColor;
@@ -428,7 +424,7 @@ export default class GWFVisPluginGeoJSONLayer
 
       const cachedTertiaryLineWeight =
         this.#pinnedLocationTertiaryLineWeightCache[currentDataSource ?? ""]?.[
-          properties?.id ?? ""
+        properties?.id ?? ""
         ];
       if (cachedTertiaryLineWeight) {
         style.weight = cachedTertiaryLineWeight;
@@ -436,7 +432,7 @@ export default class GWFVisPluginGeoJSONLayer
       }
 
       const matchedLocationPin = locationPins?.find(
-        (location) =>
+        (location: LocationSelection) =>
           location.dataSource === dataSource &&
           location.locationId === locationId
       );
@@ -626,7 +622,7 @@ export default class GWFVisPluginGeoJSONLayer
         this.dataFrom?.dimensionValueDict
       )) ??
       this.sharedStates?.["gwf-default.dimensionValueDict"]?.[
-        currentDataSource
+      currentDataSource
       ]?.[currentVariable.id];
     const dimensionIdAndValueDictWithNullFallback = {
       ...Object.fromEntries(

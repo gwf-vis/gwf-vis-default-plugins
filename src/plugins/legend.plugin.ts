@@ -3,7 +3,7 @@ import {
   type ScaleQuantize,
   type ScaleThreshold,
 } from "d3";
-import type { GWFVisPlugin, GWFVisPluginWithData } from "vga-vis-host";
+import type { VGAPlugin, VGAPluginWithData } from "vga-core";
 import type { ColorSchemeDefinition } from "../utils/color";
 import type { DataFrom, GWFVisDBQueryObject, Variable } from "../utils/data";
 import type { DataSourceNameDict } from "../utils/data-source-name-dict";
@@ -29,15 +29,14 @@ type Info = {
   min?: number;
   max?: number;
   currentColorScheme?:
-    | { [variable: string]: ColorSchemeDefinition }
-    | ColorSchemeDefinition
-    | undefined;
+  | { [variable: string]: ColorSchemeDefinition }
+  | ColorSchemeDefinition
+  | undefined;
 };
 
 export default class GWFVisPluginTestDataFetcher
   extends LitElement
-  implements GWFVisPlugin, GWFVisPluginWithData<GWFVisDBQueryObject, any>
-{
+  implements VGAPlugin, VGAPluginWithData<GWFVisDBQueryObject, any> {
   hostFirstLoadedCallback?: (() => void) | undefined;
   notifyLoadingDelegate?: (() => () => void) | undefined;
   checkIfDataProviderRegisteredDelegate?:
@@ -259,71 +258,70 @@ export default class GWFVisPluginTestDataFetcher
         <div>
           <b>Data Source: </b>
           ${obtainDataSourceDisplayName(
-            this.info?.currentDataSource,
-            this.dataSourceDict
-          ) ?? "N/A"}
+      this.info?.currentDataSource,
+      this.dataSourceDict
+    ) ?? "N/A"}
         </div>
         <div>
           <b>Variable: </b>
           ${this.info?.currentVariable?.name ?? "N/A"}
         </div>
         ${when(this.info, () =>
-          choose(
-            this.info?.currentColorScheme?.type,
-            [
-              ["sequential", () => this.renderSequential(this.info)],
-              ["quantile", () => this.renderNonSequential(this.info)],
-              ["quantize", () => this.renderNonSequential(this.info)],
-              ["threshold", () => this.renderNonSequential(this.info)],
-            ],
-            () => this.renderSequential(this.info)
-          )
-        )}
+      choose(
+        this.info?.currentColorScheme?.type,
+        [
+          ["sequential", () => this.renderSequential(this.info)],
+          ["quantile", () => this.renderNonSequential(this.info)],
+          ["quantize", () => this.renderNonSequential(this.info)],
+          ["threshold", () => this.renderNonSequential(this.info)],
+        ],
+        () => this.renderSequential(this.info)
+      )
+    )}
         ${when(
-          this.enableSecondaryVariable,
-          () => html` <div>
+      this.enableSecondaryVariable,
+      () => html` <div>
               <b>Variable: </b>
               ${this.infoSecondary?.currentVariable?.name ?? "N/A"}
             </div>
             ${when(this.infoSecondary, () =>
-              choose(
-                this.infoSecondary?.currentColorScheme?.type,
-                [
-                  [
-                    "sequential",
-                    () => this.renderSequential(this.infoSecondary),
-                  ],
-                  [
-                    "quantile",
-                    () => this.renderNonSequential(this.infoSecondary),
-                  ],
-                  [
-                    "quantize",
-                    () => this.renderNonSequential(this.infoSecondary),
-                  ],
-                  [
-                    "threshold",
-                    () => this.renderNonSequential(this.infoSecondary),
-                  ],
-                ],
-                () => this.renderSequential(this.infoSecondary)
-              )
-            )}`
-        )}
+        choose(
+          this.infoSecondary?.currentColorScheme?.type,
+          [
+            [
+              "sequential",
+              () => this.renderSequential(this.infoSecondary),
+            ],
+            [
+              "quantile",
+              () => this.renderNonSequential(this.infoSecondary),
+            ],
+            [
+              "quantize",
+              () => this.renderNonSequential(this.infoSecondary),
+            ],
+            [
+              "threshold",
+              () => this.renderNonSequential(this.infoSecondary),
+            ],
+          ],
+          () => this.renderSequential(this.infoSecondary)
+        )
+      )}`
+    )}
         ${when(
-          this.enableTertiaryVariable,
-          () => html` <div>
+      this.enableTertiaryVariable,
+      () => html` <div>
               <b>Variable: </b>
               ${this.infoTertiary?.currentVariable?.name ?? "N/A"}
             </div>
             ${when(
-              this.infoTertiary,
-              () =>
-                `[${this.infoTertiary?.min?.toFixed(2) ?? "N/A"}, ${
-                  this.infoTertiary?.max?.toFixed(2) ?? "N/A"
-                }]`
-            )}`
-        )}
+        this.infoTertiary,
+        () =>
+          `[${this.infoTertiary?.min?.toFixed(2) ?? "N/A"}, ${this.infoTertiary?.max?.toFixed(2) ?? "N/A"
+          }]`
+      )}`
+    )}
       </div>
     `;
   }
@@ -343,38 +341,38 @@ export default class GWFVisPluginTestDataFetcher
     const ticks =
       extents?.length > 0
         ? [
-            extents.at(0)?.[0],
-            ...extents.map((extent) => extent[1]).slice(0, -1),
-            extents.at(-1)?.[1],
-          ]
+          extents.at(0)?.[0],
+          ...extents.map((extent) => extent[1]).slice(0, -1),
+          extents.at(-1)?.[1],
+        ]
         : undefined;
     return html`
       <div>
         <div
           style="display: flex; flex-wrap: nowrap; height: 1em; margin: 0 ${(0.5 /
-            (ticks?.length ?? 1)) *
-          100}%;"
+        (ticks?.length ?? 1)) *
+      100}%;"
         >
           ${map(
-            colorScale?.range(),
-            (color) =>
-              html`<div
+        colorScale?.range(),
+        (color) =>
+          html`<div
                 style="flex: 1; height: 100%; background: ${color ?? ""}"
               ></div>`
-          )}
+      )}
         </div>
         <div style="display: flex; flex-wrap: nowrap;">
           ${map(
-            ticks,
-            (tick) =>
-              html`<div
+        ticks,
+        (tick) =>
+          html`<div
                 style="flex: 1; height: 100%; margin: 0 0.5em; text-align: center;"
               >
                 ${Number.isFinite(tick)
-                  ? tick?.toFixed(this.fractionDigits)
-                  : "~"}
+              ? tick?.toFixed(this.fractionDigits)
+              : "~"}
               </div>`
-          )}
+      )}
         </div>
       </div>
     `;
@@ -385,10 +383,10 @@ export default class GWFVisPluginTestDataFetcher
       <div>
         <div
           style="height: 1em; background: ${generateGradientCSSString(
-            info?.colorScale,
-            info?.min,
-            info?.max
-          )};"
+      info?.colorScale,
+      info?.min,
+      info?.max
+    )};"
         ></div>
         <div style="display: flex; flex-wrap: nowrap;">
           <div style="flex: 0 0 auto; white-space: nowrap;">

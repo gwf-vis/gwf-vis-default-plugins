@@ -1,8 +1,8 @@
 import type {
-  GWFVisPlugin,
-  GWFVisPluginWithData,
-  GWFVisPluginWithSharedStates,
-} from "vga-vis-host";
+  VGAPlugin,
+  VGAPluginWithData,
+  VGAPluginWithSharedStates,
+} from "vga-core";
 import type { GWFVisDefaultPluginSharedStates } from "../utils/state";
 
 import Chart, { PointElement } from "chart.js/auto";
@@ -10,7 +10,7 @@ import zoomPlugin from "chartjs-plugin-zoom";
 import { css, html, LitElement } from "lit";
 import { createRef, ref } from "lit/directives/ref.js";
 import { state } from "lit/decorators.js";
-import { runAsyncWithLoading } from "../utils/basic";
+import { LocationPin, runAsyncWithLoading } from "../utils/basic";
 import { Dimension, GWFVisDBQueryObject, Value, Variable } from "../utils/data";
 
 type DataForBase = {
@@ -61,10 +61,9 @@ const VERTICLE_LINE_CHART_PLUGIN = {
 export default class GWFVisPluginLineChart
   extends LitElement
   implements
-    GWFVisPlugin,
-    GWFVisPluginWithSharedStates,
-    GWFVisPluginWithData<GWFVisDBQueryObject, any>
-{
+  VGAPlugin,
+  VGAPluginWithSharedStates,
+  VGAPluginWithData<GWFVisDBQueryObject, any> {
   static styles = css`
     :host {
       display: block;
@@ -199,9 +198,9 @@ export default class GWFVisPluginLineChart
           })) ??
           this.sharedStates?.["gwf-default.locationPins"]
             ?.filter(
-              (pin) => pin.dataSource === dataSource && pin.locationId != null
+              (pin: LocationPin) => pin.dataSource === dataSource && pin.locationId != null
             )
-            .map(({ locationId, color }) => ({
+            .map(({ locationId, color }: LocationPin) => ({
               id: locationId as number,
               color: color ?? "hsl(0, 0%, 0%)",
             })) ??
@@ -227,7 +226,7 @@ export default class GWFVisPluginLineChart
         if (locations && locations.length > 0 && variableId != null) {
           const dimensionIdAndValueDict = {
             ...this.sharedStates?.["gwf-default.dimensionValueDict"]?.[
-              dataSource
+            dataSource
             ][variableId],
           };
           delete dimensionIdAndValueDict[dimension.id];
@@ -243,7 +242,7 @@ export default class GWFVisPluginLineChart
         }
         if (locations && locations.length > 0 && variableId != null) {
           datasets = await Promise.all(
-            locations.map(async (location) => {
+            locations.map(async (location: { id: number; color: any; }) => {
               let locationLabel;
               if (this.locationLabelKey) {
                 const [{ metadata }] =
@@ -305,7 +304,7 @@ export default class GWFVisPluginLineChart
           // TODO might want to check if all variables have the same dimensions
           const dimensionIdAndValueDict = {
             ...this.sharedStates?.["gwf-default.dimensionValueDict"]?.[
-              dataSource
+            dataSource
             ][variables[0].id],
           };
           delete dimensionIdAndValueDict[dimension.id];
@@ -376,11 +375,11 @@ export default class GWFVisPluginLineChart
                       ...this.sharedStates?.["gwf-default.dimensionValueDict"],
                       [dataSource]: {
                         ...this.sharedStates?.[
-                          "gwf-default.dimensionValueDict"
+                        "gwf-default.dimensionValueDict"
                         ]?.[dataSource],
                         [currentVariableId]: {
                           ...this.sharedStates?.[
-                            "gwf-default.dimensionValueDict"
+                          "gwf-default.dimensionValueDict"
                           ]?.[dataSource]?.[currentVariableId],
                           [dimension.id]: index,
                         },

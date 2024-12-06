@@ -1,8 +1,8 @@
 import type {
-  GWFVisDataProviderPlugin,
-  GWFVisPlugin,
-  GWFVisPluginWithFileAccess,
-} from "vga-vis-host";
+  VGADataProviderPlugin,
+  VGAPlugin,
+  VGAPluginWithFileAccess,
+} from "vga-core";
 import { html, css, LitElement } from "lit";
 import initSqlJs, { Database } from "sql.js";
 import sqlJsWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
@@ -11,10 +11,9 @@ import { runAsyncWithLoading } from "../utils/basic";
 export default class GWFVisPluginSqliteLocalDataProvider
   extends LitElement
   implements
-    GWFVisPlugin,
-    GWFVisPluginWithFileAccess,
-    GWFVisDataProviderPlugin<string, initSqlJs.QueryExecResult | undefined>
-{
+  VGAPlugin,
+  VGAPluginWithFileAccess,
+  VGADataProviderPlugin<string, initSqlJs.QueryExecResult | undefined> {
   static styles = css`
     :host {
       display: block;

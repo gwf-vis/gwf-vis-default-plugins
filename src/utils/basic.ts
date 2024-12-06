@@ -1,4 +1,4 @@
-import type { GWFVisPluginWithData } from "vga-vis-host";
+import type { VGAPluginWithData } from "vga-core";
 import type { GWFVisDefaultPluginSharedStates } from "./state";
 
 export type LocationSelection = {
@@ -18,7 +18,7 @@ export type DimensionValueDict = {
   };
 };
 
-export type CallerPlugin = GWFVisPluginWithData<any, any> &
+export type CallerPlugin = VGAPluginWithData<any, any> &
   GWFVisDefaultPluginSharedStates;
 
 export async function runAsyncWithLoading<T = any>(

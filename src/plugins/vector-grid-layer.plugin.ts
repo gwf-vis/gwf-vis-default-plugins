@@ -1,9 +1,9 @@
 import type {
-  GWFVisPluginWithSharedStates,
+  VGAPluginWithSharedStates,
   LayerType,
   SharedStates,
   leaflet,
-} from "vga-vis-host";
+} from "vga-core";
 import "leaflet.vectorgrid";
 import { GWFVisMapLayerPluginBase } from "../utils/map-layer-base";
 import * as d3 from "d3";
@@ -12,8 +12,7 @@ import * as d3 from "d3";
 
 export default class GWFVisPluginVectorGridLayer
   extends GWFVisMapLayerPluginBase
-  implements GWFVisPluginWithSharedStates
-{
+  implements VGAPluginWithSharedStates {
   #vectorGridLayerInstance?: leaflet.GridLayer;
   // #tileIndex: any;
 
@@ -63,18 +62,18 @@ export default class GWFVisPluginVectorGridLayer
 
     const scaleFillColor = this.fillColor
       ? d3
-          .scaleThreshold(this.fillColor.colors ?? [])
-          .domain(this.fillColor.thresholds)
+        .scaleThreshold(this.fillColor.colors ?? [])
+        .domain(this.fillColor.thresholds)
       : () => null;
     const scaleStrokeColor = this.strokeColor
       ? d3
-          .scaleThreshold(this.strokeColor.colors ?? [])
-          .domain(this.strokeColor.thresholds)
+        .scaleThreshold(this.strokeColor.colors ?? [])
+        .domain(this.strokeColor.thresholds)
       : () => null;
     const scaleStrokeWeight = this.strokeWeight
       ? d3
-          .scaleThreshold(this.strokeWeight?.weights ?? [])
-          .domain(this.strokeWeight.thresholds)
+        .scaleThreshold(this.strokeWeight?.weights ?? [])
+        .domain(this.strokeWeight.thresholds)
       : () => 1;
 
     this.#vectorGridLayerInstance = this.leaflet?.vectorGrid.protobuf(
